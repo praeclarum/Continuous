@@ -3,12 +3,23 @@
 	<Runtime>
 	</Runtime>
 	<Extension path="/MonoDevelop/Ide/Commands">
+        <Command
+	    	id="LiveCode.Client.XamarinStudio.Commands.VisualizeSelection"
+            _label="Visualize Selection"
+            shortcut="Ctrl|Shift|Return"
+            macShortcut="Ctrl|Shift|Return"
+            defaultHandler="LiveCode.Client.XamarinStudio.VisualizeSelectionHandler" />
 	    <Command
-	    	id="LiveCode.Client.XamarinStudio.Commands.ExecuteCode"
-            _label="Live Execute Code"
-            defaultHandler="LiveCode.Client.XamarinStudio.ExecuteCodeHandler" />
+	    	id="LiveCode.Client.XamarinStudio.Commands.VisualizeClass"
+            _label="Visualize Class"
+            shortcut="Ctrl|Shift|C"
+            macShortcut="Ctrl|Shift|C"
+            defaultHandler="LiveCode.Client.XamarinStudio.VisualizeClassHandler" />
 	</Extension>
 	<Extension path="/MonoDevelop/Ide/MainMenu/Tools">
-	    <CommandItem id="LiveCode.Client.XamarinStudio.Commands.ExecuteCode" />
+	    <CommandItem id="LiveCode.Client.XamarinStudio.Commands.VisualizeSelection" />
+	</Extension>
+	<Extension path="/MonoDevelop/Ide/MainMenu/Tools">
+	    <CommandItem id="LiveCode.Client.XamarinStudio.Commands.VisualizeClass" />
 	</Extension>
 </ExtensionModel>

@@ -9,37 +9,66 @@ namespace LiveCode.Client.XamarinStudio
 {
 	public enum Commands
 	{
-		ExecuteCode,
+		VisualizeSelection,
+		VisualizeClass,
 	}
 
-	public class ExecuteCodeHandler : CommandHandler
+	public class LiveCodeCommandHandler : CommandHandler
+	{
+		protected HttpClient Connect ()
+		{
+			return new HttpClient (new Uri ("http://127.0.0.1:" + Http.DefaultPort));
+		}
+	}
+
+	public class VisualizeSelectionHandler : LiveCodeCommandHandler
 	{		
 		protected override async void Run ()
 		{
 			base.Run ();
 
-//			var parentWindow = IdeApp.Workbench.RootWindow;
 			var doc = IdeApp.Workbench.ActiveDocument;
 
-			var conn = new HttpClient (new Uri ("http://127.0.01:" + Http.DefaultPort));
-
 			if (doc != null) {
-				var code = doc.Editor.Text.Substring (0, 140);
-//				var resolver = await doc.GetSharedResolver ();
-				var result = await conn.VisualizeAsync (code);
+				var conn = Connect ();
+				var code = doc.Editor.SelectedText;
+				await conn.VisualizeAsync (code);
 			}
-
-			//			MessageDialog dialog = new MessageDialog(parentWindow, DialogFlags.DestroyWithParent,
-			//				MessageType.Info, ButtonsType.Ok,
-			//				"{0}", message);
-			//			dialog.Run ();
-			//			dialog.Destroy ();
 		}
 
 		protected override void Update (CommandInfo info)
 		{
 			base.Update (info);
-			info.Enabled = true;
+
+			var doc = IdeApp.Workbench.ActiveDocument;
+
+			info.Enabled = doc != null && !string.IsNullOrWhiteSpace (doc.Editor.SelectedText);
+		}
+	}
+
+	public class VisualizeClassHandler : LiveCodeCommandHandler
+	{		
+		protected override async void Run ()
+		{
+			base.Run ();
+
+			var doc = IdeApp.Workbench.ActiveDocument;
+
+			if (doc != null) {
+				var conn = Connect ();
+				var code = doc.Editor.Text;
+//				var resolver = await doc.GetSharedResolver ();
+				await conn.VisualizeAsync (code);
+			}
+		}
+
+		protected override void Update (CommandInfo info)
+		{
+			base.Update (info);
+
+			var doc = IdeApp.Workbench.ActiveDocument;
+
+			info.Enabled = doc != null;
 		}
 	}
 }
