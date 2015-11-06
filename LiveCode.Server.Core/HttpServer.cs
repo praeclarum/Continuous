@@ -67,14 +67,12 @@ namespace LiveCode.Server
 					catch (Exception ex) {
 						Debug.WriteLine (ex);
 					}
-					return r;
+					return Tuple.Create (r, JsonConvert.SerializeObject (r));
 				}, CancellationToken.None, TaskCreationOptions.None, mainScheduler);
 
-				var respStr = JsonConvert.SerializeObject (resp);
+				Debug.WriteLine (resp.Item2);
 
-				Debug.WriteLine (respStr);
-
-				var bytes = Encoding.UTF8.GetBytes (respStr);
+				var bytes = Encoding.UTF8.GetBytes (resp.Item2);
 				c.Response.StatusCode = 200;
 				c.Response.ContentLength64 = bytes.LongLength;
 				await c.Response.OutputStream.WriteAsync (bytes, 0, bytes.Length).ConfigureAwait (false);
