@@ -44,6 +44,7 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ObjectInspector.cs" />
+    <Compile Include="Visualizer.iOS.cs" />
   </ItemGroup>
   <Import Project="..\LiveCode.Core\LiveCode.Core.projitems" Label="Shared" Condition="Exists('..\LiveCode.Core\LiveCode.Core.projitems')" />
   <Import Project="..\LiveCode.Server.Core\LiveCode.Server.Core.projitems" Label="Shared" Condition="Exists('..\LiveCode.Server.Core\LiveCode.Server.Core.projitems')" />

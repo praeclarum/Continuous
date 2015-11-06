@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using Mono.CSharp;
+using System.Reflection;
+using System.Diagnostics;
 
 namespace LiveCode.Server
 {
@@ -17,7 +19,6 @@ namespace LiveCode.Server
 
 		public EvalResponse Eval (string code)
 		{
-			Console.WriteLine ("EVAL ON THREAD {0}", System.Threading.Thread.CurrentThread.ManagedThreadId);
 
 			var sw = new System.Diagnostics.Stopwatch ();
 
@@ -27,6 +28,8 @@ namespace LiveCode.Server
 			lock (mutex) {
 				InitIfNeeded ();
 
+				Debug.WriteLine ("EVAL ON THREAD {0}", System.Threading.Thread.CurrentThread.ManagedThreadId);
+
 				printer.Messages.Clear ();
 
 				sw.Start ();
@@ -34,6 +37,8 @@ namespace LiveCode.Server
 				eval.Evaluate (code, out result, out hasResult);
 
 				sw.Stop ();
+
+				Debug.WriteLine ("END EVAL ON THREAD {0}", System.Threading.Thread.CurrentThread.ManagedThreadId);
 			}
 
 			return new EvalResponse {
@@ -47,10 +52,40 @@ namespace LiveCode.Server
 		void InitIfNeeded()
 		{
 			if (eval == null) {
+
+				Debug.WriteLine ("INIT EVAL");
+
 				var settings = new CompilerSettings ();
 				var context = new CompilerContext (settings, printer);
 				eval = new Evaluator (context);
+
+				//
+				// Add References to get UIKit, etc. Also add a hook to catch dynamically loaded assemblies.
+				//
+				AppDomain.CurrentDomain.AssemblyLoad += (_, e) => {
+					Debug.WriteLine ("DYNAMIC REF {0}", e.LoadedAssembly);
+					AddReference (e.LoadedAssembly);
+				};
+				foreach (var a in AppDomain.CurrentDomain.GetAssemblies ()) {
+					Debug.WriteLine ("STATIC REF {0}", a);
+					AddReference (a);
+				}
 			}
+		}
+
+		void AddReference (Assembly a)
+		{
+			//
+			// Avoid duplicates of what comes prereferenced with Mono.CSharp.Evaluator
+			//
+			var name = a.GetName ().Name;
+			if (name == "mscorlib" || name == "System" || name == "System.Core")
+				return;
+
+			//
+			// TODO: Should this lock if called from the AssemblyLoad event?
+			//
+			eval.ReferenceAssembly (a);
 		}
 
 		class Printer : ReportPrinter

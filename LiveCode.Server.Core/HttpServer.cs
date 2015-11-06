@@ -11,6 +11,8 @@ namespace LiveCode.Server
 {
 	public class HttpServer
 	{
+		readonly Visualizer visualizer = new Visualizer ();
+
 		HttpListener listener;
 		TaskScheduler mainScheduler;
 
@@ -60,7 +62,7 @@ namespace LiveCode.Server
 						Debug.WriteLine (ex);
 					}
 					try {
-						Visualize (r);
+						Visualize (req, r);
 					}
 					catch (Exception ex) {
 						Debug.WriteLine (ex);
@@ -85,14 +87,12 @@ namespace LiveCode.Server
 			}
 		}
 
-		void Visualize (EvalResponse r)
+		void Visualize (EvalRequest req, EvalResponse resp)
 		{
-			if (!r.HasResult) {
+			if (!resp.HasResult) {
 				return;
 			}
-			var val = r.Result;
-			var ty = val != null ? val.GetType () : typeof(object);
-			Console.WriteLine ("{0} value = {1}", ty.FullName, val);
+			visualizer.Visualize (req, resp);
 		}
 	}
 }
