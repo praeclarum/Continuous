@@ -5,6 +5,7 @@ using System.Text;
 using System.IO;
 using Newtonsoft.Json;
 using System.Threading;
+using System.Diagnostics;
 
 namespace LiveCode.Server
 {
@@ -44,19 +45,32 @@ namespace LiveCode.Server
 		{
 			try {
 
-				Console.WriteLine ("REQ ON THREAD {0}", Thread.CurrentThread.ManagedThreadId);
+				Debug.WriteLine ("REQ ON THREAD {0}", Thread.CurrentThread.ManagedThreadId);
 
 				var reqStr = await new StreamReader (c.Request.InputStream, Encoding.UTF8).ReadToEndAsync ().ConfigureAwait (false);
 
 				var req = JsonConvert.DeserializeObject<EvalRequest> (reqStr);
 
 				var resp = await Task.Factory.StartNew (() => {
-					return vm.Eval (req.Code);
+					var r = new EvalResponse ();
+					try {
+						r = vm.Eval (req.Code);
+					}
+					catch (Exception ex) {
+						Debug.WriteLine (ex);
+					}
+					try {
+						Visualize (r);
+					}
+					catch (Exception ex) {
+						Debug.WriteLine (ex);
+					}
+					return r;
 				}, CancellationToken.None, TaskCreationOptions.None, mainScheduler);
 
 				var respStr = JsonConvert.SerializeObject (resp);
 
-				Console.WriteLine (respStr);
+				Debug.WriteLine (respStr);
 
 				var bytes = Encoding.UTF8.GetBytes (respStr);
 				c.Response.StatusCode = 200;
@@ -64,13 +78,22 @@ namespace LiveCode.Server
 				await c.Response.OutputStream.WriteAsync (bytes, 0, bytes.Length).ConfigureAwait (false);
 
 			} catch (Exception ex) {
-				Console.WriteLine (ex);
+				Debug.WriteLine (ex);
 				c.Response.StatusCode = 500;
 			} finally {
 				c.Response.Close ();
 			}
 		}
 
+		void Visualize (EvalResponse r)
+		{
+			if (!r.HasResult) {
+				return;
+			}
+			var val = r.Result;
+			var ty = val != null ? val.GetType () : typeof(object);
+			Console.WriteLine ("{0} value = {1}", ty.FullName, val);
+		}
 	}
 }
 
