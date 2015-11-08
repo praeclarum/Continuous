@@ -18,7 +18,12 @@ namespace LiveCode.Server
 
 		UIViewController GetViewer (EvalRequest req, EvalResponse resp)
 		{
-			var vc = new UIViewController ();
+			var vc = resp.Result as UIViewController;
+
+			if (vc != null)
+				return vc;
+
+			vc = new UIViewController ();
 
 			var v = GetSpecialView (resp.Result);
 
@@ -28,6 +33,8 @@ namespace LiveCode.Server
 			else {
 				var tv = new UITextView {
 					Text = resp.Result.ToString (),
+					Font = UIFont.FromDescriptor (UIFontDescriptor.PreferredHeadline, (nfloat)36.0),
+					TextAlignment = UITextAlignment.Center,
 				};
 				vc.View = tv;
 			}
@@ -109,6 +116,7 @@ namespace LiveCode.Server
 		{
 			typeVisualizers = new Dictionary<Type, TypeVisualizer> {
 				{ typeof(UIView), o => GetView ((UIView)o) },
+				{ typeof(UITableViewCell), o => GetView ((UITableViewCell)o) },
 				{ typeof(UIColor), o => GetView ((UIColor)o) },
 			};
 		}
@@ -122,6 +130,34 @@ namespace LiveCode.Server
 		UIView GetView (UIColor value)
 		{
 			return new UIView { BackgroundColor = value, };
+		}
+
+		UIView GetView (UITableViewCell value)
+		{
+			var tableView = new UITableView ();
+			tableView.DataSource = new SingleTableViewCellDataSource (value);
+			return tableView;
+		}
+
+		class SingleTableViewCellDataSource : UITableViewDataSource
+		{
+			UITableViewCell cell;
+			public SingleTableViewCellDataSource (UITableViewCell cell)
+			{
+				this.cell = cell;
+			}
+			public override nint NumberOfSections (UITableView tableView)
+			{
+				return 1;
+			}
+			public override nint RowsInSection (UITableView tableView, nint section)
+			{
+				return 1;
+			}
+			public override UITableViewCell GetCell (UITableView tableView, Foundation.NSIndexPath indexPath)
+			{
+				return cell;
+			}
 		}
 	}
 }
