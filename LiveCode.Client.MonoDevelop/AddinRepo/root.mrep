@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Repository xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Addin>
+    <Url>LiveCode.Client.MonoDevelop_1.0.mpack</Url>
+    <Addin>
+      <Id>LiveCode.Client.MonoDevelop</Id>
+      <Namespace>LiveCode.Client.MonoDevelop</Namespace>
+      <Name>LiveCode.Client.MonoDevelop</Name>
+      <Version>1.0</Version>
+      <BaseVersion />
+      <Author>Frank A. Krueger</Author>
+      <Copyright />
+      <Url />
+      <Description>LiveCode.Client.MonoDevelop</Description>
+      <Category>IDE extensions</Category>
+      <Dependencies>
+        <AddinDependency>
+          <AddinId>::MonoDevelop.Core</AddinId>
+          <Version>5.10</Version>
+        </AddinDependency>
+        <AddinDependency>
+          <AddinId>::MonoDevelop.Ide</AddinId>
+          <Version>5.10</Version>
+        </AddinDependency>
+        <AddinDependency>
+          <AddinId>::MonoDevelop.Refactoring</AddinId>
+          <Version>5.10</Version>
+        </AddinDependency>
+      </Dependencies>
+      <OptionalDependencies />
+      <Properties>
+        <Property name="DownloadSize">8494</Property>
+      </Properties>
+    </Addin>
+  </Addin>
+</Repository>
