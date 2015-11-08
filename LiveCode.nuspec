@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>LiveCode</id>
-    <version>0.1</version>
+    <version>0.1.1</version>
     <title>LiveCode</title>
     <authors>Frank A. Krueger</authors>
     <owners>Frank A. Krueger</owners>
@@ -11,11 +11,11 @@
     <iconUrl>https://raw.githubusercontent.com/praeclarum/LiveCode/master/Documentation/Icon32.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Live Coding environment for .NET</description>
-    <releaseNotes>Initial release.</releaseNotes>
+    <releaseNotes>Fix JSON dependency.</releaseNotes>
     <copyright>Copyright 2015 Frank A. Krueger</copyright>
     <tags>live code</tags>
     <dependencies>
-      <dependency id="Json.NET" version="7.0.0" />
+      <dependency id="Newtonsoft.Json" version="7.0.0" />
     </dependencies>
   </metadata>
   <files>
