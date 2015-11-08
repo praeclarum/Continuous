@@ -5,7 +5,6 @@ using System.Text;
 using System.IO;
 using Newtonsoft.Json;
 using System.Threading;
-using System.Diagnostics;
 
 namespace LiveCode.Server
 {
@@ -38,7 +37,7 @@ namespace LiveCode.Server
 				try {
 					HandleRequest (c);					
 				} catch (Exception ex) {
-					Console.WriteLine (ex);
+					Log (ex, "HandleRequest");
 				}
 			}
 		}
@@ -47,7 +46,7 @@ namespace LiveCode.Server
 		{
 			try {
 
-				Debug.WriteLine ("REQ ON THREAD {0}", Thread.CurrentThread.ManagedThreadId);
+				Log ("REQ ON THREAD {0}", Thread.CurrentThread.ManagedThreadId);
 
 				var reqStr = await new StreamReader (c.Request.InputStream, Encoding.UTF8).ReadToEndAsync ().ConfigureAwait (false);
 
@@ -58,19 +57,22 @@ namespace LiveCode.Server
 					try {
 						r = vm.Eval (req.Code);
 					}
+					catch (Mono.CSharp.InternalErrorException ex) {
+						Log (ex, "vm.Eval");
+					}
 					catch (Exception ex) {
-						Debug.WriteLine (ex);
+						Log (ex, "vm.Eval");
 					}
 					try {
 						Visualize (req, r);
 					}
 					catch (Exception ex) {
-						Debug.WriteLine (ex);
+						Log (ex, "Visualize");
 					}
 					return Tuple.Create (r, JsonConvert.SerializeObject (r));
 				}, CancellationToken.None, TaskCreationOptions.None, mainScheduler);
 
-				Debug.WriteLine (resp.Item2);
+				Log (resp.Item2);
 
 				var bytes = Encoding.UTF8.GetBytes (resp.Item2);
 				c.Response.StatusCode = 200;
@@ -78,7 +80,7 @@ namespace LiveCode.Server
 				await c.Response.OutputStream.WriteAsync (bytes, 0, bytes.Length).ConfigureAwait (false);
 
 			} catch (Exception ex) {
-				Debug.WriteLine (ex);
+				Log (ex, "HandleRequest");
 				c.Response.StatusCode = 500;
 			} finally {
 				c.Response.Close ();
@@ -91,6 +93,26 @@ namespace LiveCode.Server
 				return;
 			}
 			visualizer.Visualize (req, resp);
+		}
+
+		void Log (Exception ex, string env)
+		{
+			if (ex != null) {
+				Log ("ERROR IN " + env);
+				Log (ex.ToString ());
+			} else {
+				Log ("null");
+			}
+		}
+
+		void Log (string format, params object[] args)
+		{
+			Log (string.Format (format, args));
+		}
+
+		void Log (string msg)
+		{			
+			Console.WriteLine (msg);
 		}
 	}
 }

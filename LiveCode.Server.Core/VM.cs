@@ -19,11 +19,10 @@ namespace LiveCode.Server
 
 		public EvalResponse Eval (string code)
 		{
-
 			var sw = new System.Diagnostics.Stopwatch ();
 
-			object result;
-			bool hasResult;
+			object result = null;
+			bool hasResult = false;
 
 			lock (mutex) {
 				InitIfNeeded ();
@@ -34,7 +33,16 @@ namespace LiveCode.Server
 
 				sw.Start ();
 
-				eval.Evaluate (code, out result, out hasResult);
+				try {
+					eval.Evaluate (code, out result, out hasResult);					
+				} catch (InternalErrorException ex) {
+					eval = null; // Force re-init
+				} catch (Exception ex) {
+					// Sometimes Mono.CSharp fails when constructing failure messages
+					if (ex.StackTrace.Contains ("Mono.CSharp.InternalErrorException")) {
+						eval = null; // Force re-init
+					}
+				}
 
 				sw.Stop ();
 

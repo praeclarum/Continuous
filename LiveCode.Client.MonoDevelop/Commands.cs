@@ -18,9 +18,10 @@ namespace LiveCode.Client.XamarinStudio
 
 	public class LiveCodeCommandHandler : CommandHandler
 	{
-		protected HttpClient Connect ()
+		HttpClient conn = null;
+		protected void Connect ()
 		{
-			return new HttpClient (new Uri ("http://127.0.0.1:" + Http.DefaultPort));
+			conn = new HttpClient (new Uri ("http://127.0.0.1:" + Http.DefaultPort));
 		}
 
 		protected void Alert (string format, params object[] args)
@@ -33,6 +34,22 @@ namespace LiveCode.Client.XamarinStudio
 			dialog.Run ();
 			dialog.Destroy ();
 		}
+
+		static string lastShownError = "";
+
+		protected async Task<bool> EvalAsync (string code, bool forceShowError)
+		{
+			var r = await conn.VisualizeAsync (code);
+			var err = r.HasErrors;
+			if (err) {
+				var message = string.Join ("\n", r.Messages.Select (m => m.MessageType + ": " + m.Text));
+				if (forceShowError || message != lastShownError) {
+					lastShownError = message;
+					Alert ("{0}", message);
+				}
+			}
+			return !err;
+		}
 	}
 
 	public class VisualizeSelectionHandler : LiveCodeCommandHandler
@@ -44,11 +61,11 @@ namespace LiveCode.Client.XamarinStudio
 			var doc = IdeApp.Workbench.ActiveDocument;
 
 			if (doc != null) {
-				var conn = Connect ();
+				Connect ();
 				var code = doc.Editor.SelectedText;
 
 				try {
-					await conn.VisualizeAsync (code);
+					await EvalAsync (code, forceShowError: true);
 				} catch (Exception ex) {
 					Alert ("Could not communicate with the app.\n\n{0}: {1}", ex.GetType (), ex.Message);
 				}
@@ -61,7 +78,7 @@ namespace LiveCode.Client.XamarinStudio
 
 			var doc = IdeApp.Workbench.ActiveDocument;
 
-			info.Enabled = doc != null && !string.IsNullOrWhiteSpace (doc.Editor.SelectedText);
+			info.Enabled = doc != null && doc.Editor != null && !string.IsNullOrWhiteSpace (doc.Editor.SelectedText);
 		}
 	}
 
@@ -80,8 +97,10 @@ namespace LiveCode.Client.XamarinStudio
 
 			var typedecl = await FindTypeAtCursor ();
 
-			if (typedecl == null)
+			if (typedecl == null) {
+				Alert ("Could not find a type at the cursor.");
 				return;
+			}
 			
 			StartMonitoring ();
 
@@ -94,10 +113,10 @@ namespace LiveCode.Client.XamarinStudio
 
 			monitorTypeName = typeName;
 
-			await VisualizeTypeAsync ();
+			await VisualizeTypeAsync (forceShowError: true);
 		}
 
-		async Task VisualizeTypeAsync ()
+		async Task VisualizeTypeAsync (bool forceShowError)
 		{
 			if (string.IsNullOrWhiteSpace (monitorTypeName))
 				return;
@@ -124,7 +143,8 @@ namespace LiveCode.Client.XamarinStudio
 			// Send the code to the device
 			//
 			try {
-				var conn = Connect ();
+				Connect ();
+				var ok = true;
 
 				//
 				// Send all the usings
@@ -136,7 +156,7 @@ namespace LiveCode.Client.XamarinStudio
 				foreach (var u in usings) {
 					var ucode = u.ToString ();
 					Console.WriteLine (ucode);
-					await conn.VisualizeAsync (u.ToString ());
+					if (!await EvalAsync (u.ToString (), forceShowError)) return;
 				}
 
 				//
@@ -144,14 +164,14 @@ namespace LiveCode.Client.XamarinStudio
 				//
 				var declCode = newDecl.ToString ();
 				Console.WriteLine (declCode);
-				await conn.VisualizeAsync (declCode);
+				if (!await EvalAsync (declCode, forceShowError)) return;
 
 				//
 				// New it up
 				//
 				var newCode = "new " + newName + "()";
 				Console.WriteLine (newCode);
-				await conn.VisualizeAsync (newCode);
+				if (!await EvalAsync (newCode, forceShowError)) return;
 			} catch (Exception ex) {
 				Alert ("Could not communicate with the app.\n\n{0}: {1}", ex.GetType (), ex.Message);
 			}
@@ -202,7 +222,7 @@ namespace LiveCode.Client.XamarinStudio
 		{
 			var doc = IdeApp.Workbench.ActiveDocument;
 			Console.WriteLine ("DOC PARSED {0}", doc.Name);
-			await VisualizeTypeAsync ();
+			await VisualizeTypeAsync (forceShowError: false);
 		}
 
 		protected override void Update (CommandInfo info)

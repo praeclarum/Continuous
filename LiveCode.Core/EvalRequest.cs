@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 
 namespace LiveCode
 {
@@ -26,6 +27,10 @@ namespace LiveCode
 		public TimeSpan Duration;
 		public object Result;
 		public bool HasResult;
+
+		public bool HasErrors {
+			get { return Messages.Any (m => m.MessageType == "error"); }
+		}
 	}
 
 }
