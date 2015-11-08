@@ -54,5 +54,17 @@ If the code produces a value (if it is an expression) then the value is automati
 
 The IDE communicates with the device using HTTP on port 9634. Requests and responses are simple JSON bundles.
 
+### Example Request and Response
+
+```bash
+$ curl -d "{\"Code\":\"2+2\"}" http://127.0.0.1:9634
+```
+
+```json
+{"Messages":[],"Duration":"00:00:00.0025132","Result":4,"HasResult":true}
+```
+
+
+
 
 
