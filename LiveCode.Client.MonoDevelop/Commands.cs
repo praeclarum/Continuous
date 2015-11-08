@@ -94,7 +94,7 @@ namespace LiveCode.Client.XamarinStudio
 
 			var typedecl = await FindTypeAtCursor ();
 
-			if (typedecl == null) {
+			if (typedecl == null) {				
 				Alert ("Could not find a type at the cursor.");
 				return;
 			}
@@ -169,7 +169,9 @@ namespace LiveCode.Client.XamarinStudio
 				Console.WriteLine (newCode);
 				if (!await EvalAsync (newCode, showError)) return;
 			} catch (Exception ex) {
-				Alert ("Could not communicate with the app.\n\n{0}: {1}", ex.GetType (), ex.Message);
+				if (showError) {
+					Alert ("Could not communicate with the app.\n\n{0}: {1}", ex.GetType (), ex.Message);
+				}
 			}
 		}
 
