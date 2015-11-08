@@ -5,13 +5,13 @@
     <Addin>
       <Id>LiveCode.Client.MonoDevelop</Id>
       <Namespace>LiveCode.Client.MonoDevelop</Namespace>
-      <Name>LiveCode.Client.MonoDevelop</Name>
+      <Name>LiveCode</Name>
       <Version>1.0</Version>
       <BaseVersion />
       <Author>Frank A. Krueger</Author>
       <Copyright />
       <Url />
-      <Description>LiveCode.Client.MonoDevelop</Description>
+      <Description>Live coding environment visualizes objects as you type them.</Description>
       <Category>IDE extensions</Category>
       <Dependencies>
         <AddinDependency>
@@ -29,7 +29,7 @@
       </Dependencies>
       <OptionalDependencies />
       <Properties>
-        <Property name="DownloadSize">8494</Property>
+        <Property name="DownloadSize">8525</Property>
       </Properties>
     </Addin>
   </Addin>

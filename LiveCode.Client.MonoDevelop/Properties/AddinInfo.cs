@@ -8,8 +8,8 @@ using Mono.Addins.Description;
 	Version = "1.0"
 )]
 
-[assembly:AddinName ("LiveCode.Client.MonoDevelop")]
+[assembly:AddinName ("LiveCode")]
 [assembly:AddinCategory ("IDE extensions")]
-[assembly:AddinDescription ("LiveCode.Client.MonoDevelop")]
+[assembly:AddinDescription ("Live coding environment visualizes objects as you type them.")]
 [assembly:AddinAuthor ("Frank A. Krueger")]
 
