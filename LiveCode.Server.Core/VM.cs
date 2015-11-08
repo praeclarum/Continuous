@@ -10,7 +10,7 @@ namespace LiveCode.Server
 	/// Evaluates expressions using the mono C# REPL.
 	/// This method is thread safe so you can call it from anywhere.
 	/// </summary>
-	public class VM
+	public partial class VM
 	{
 		readonly object mutex = new object ();
 		readonly Printer printer = new Printer ();
@@ -70,8 +70,20 @@ namespace LiveCode.Server
 					Debug.WriteLine ("STATIC REF {0}", a);
 					AddReference (a);
 				}
+
+				//
+				// Add default namespaces
+				//
+				object res;
+				bool hasRes;
+				eval.Evaluate ("using System;", out res, out hasRes);
+				eval.Evaluate ("using System.Collections.Generic;", out res, out hasRes);
+				eval.Evaluate ("using System.Linq;", out res, out hasRes);
+				PlatformInit ();
 			}
 		}
+
+		partial void PlatformInit ();
 
 		void AddReference (Assembly a)
 		{

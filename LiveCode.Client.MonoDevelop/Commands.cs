@@ -22,6 +22,17 @@ namespace LiveCode.Client.XamarinStudio
 		{
 			return new HttpClient (new Uri ("http://127.0.0.1:" + Http.DefaultPort));
 		}
+
+		protected void Alert (string format, params object[] args)
+		{
+			Console.WriteLine (format, args);
+			var parentWindow = IdeApp.Workbench.RootWindow;
+			var dialog = new MessageDialog(parentWindow, DialogFlags.DestroyWithParent,
+				MessageType.Info, ButtonsType.Ok,
+				format, args);
+			dialog.Run ();
+			dialog.Destroy ();
+		}
 	}
 
 	public class VisualizeSelectionHandler : LiveCodeCommandHandler
@@ -35,7 +46,12 @@ namespace LiveCode.Client.XamarinStudio
 			if (doc != null) {
 				var conn = Connect ();
 				var code = doc.Editor.SelectedText;
-				await conn.VisualizeAsync (code);
+
+				try {
+					await conn.VisualizeAsync (code);
+				} catch (Exception ex) {
+					Alert ("Could not communicate with the app.\n\n{0}: {1}", ex.GetType (), ex.Message);
+				}
 			}
 		}
 
@@ -62,12 +78,12 @@ namespace LiveCode.Client.XamarinStudio
 			if (doc == null)
 				return;
 
-			var code = doc.Editor.Text;
 			var typedecl = await FindTypeAtCursor ();
-			StartMonitoring ();
 
 			if (typedecl == null)
 				return;
+			
+			StartMonitoring ();
 
 			var typeName = typedecl.Name;
 			var ns = typedecl.Parent as NamespaceDeclaration;
@@ -97,27 +113,48 @@ namespace LiveCode.Client.XamarinStudio
 				return;
 
 			//
-			// Rename it to make managed types happy
+			// Rename it to make registered Objective-C types happy.
+			// Thanks NRefactory for making this so easy.
 			//
 			var newName = monitorTypeName + DateTime.UtcNow.Ticks;
 			var newDecl = (TypeDeclaration)selTypeDecl.Clone ();
 			newDecl.Name = newName;
 
-			var conn = Connect ();
+			//
+			// Send the code to the device
+			//
+			try {
+				var conn = Connect ();
 
-			//
-			// Decl
-			//
-			var declCode = newDecl.ToString ();
-			Console.WriteLine (declCode);
-			await conn.VisualizeAsync (declCode);
+				//
+				// Send all the usings
+				//
+				var usings =
+					resolver.RootNode.Descendants.
+					OfType<UsingDeclaration> ().
+					ToList ();
+				foreach (var u in usings) {
+					var ucode = u.ToString ();
+					Console.WriteLine (ucode);
+					await conn.VisualizeAsync (u.ToString ());
+				}
 
-			//
-			// New
-			//
-			var newCode = "new " + newName + "()";
-			Console.WriteLine (newCode);
-			await conn.VisualizeAsync (newCode);
+				//
+				// Declare the type
+				//
+				var declCode = newDecl.ToString ();
+				Console.WriteLine (declCode);
+				await conn.VisualizeAsync (declCode);
+
+				//
+				// New it up
+				//
+				var newCode = "new " + newName + "()";
+				Console.WriteLine (newCode);
+				await conn.VisualizeAsync (newCode);
+			} catch (Exception ex) {
+				Alert ("Could not communicate with the app.\n\n{0}: {1}", ex.GetType (), ex.Message);
+			}
 		}
 
 		async Task<TypeDeclaration> FindTypeAtCursor ()
