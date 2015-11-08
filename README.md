@@ -12,12 +12,12 @@ It currently works only in Xamarin Studio and only for C#.
 
 ## Per-app Installation
 
-1. Reference the LiveCode nuget.
+1. Reference the [LiveCode nuget](https://www.nuget.org/packages/LiveCode/).
 
 2. Put this line of code somewhere in the initialization of your app (`AppDelegate.FinishedLaunching` is a great place):
 
 ```csharp
-new LiveCode.Server.HttpServer ().Run ();
+new LiveCode.Server.HttpServer().Run();
 ```
 
 ## Running
