@@ -35,16 +35,13 @@ namespace LiveCode.Client.XamarinStudio
 			dialog.Destroy ();
 		}
 
-		static string lastShownError = "";
-
-		protected async Task<bool> EvalAsync (string code, bool forceShowError)
+		protected async Task<bool> EvalAsync (string code, bool showError)
 		{
 			var r = await conn.VisualizeAsync (code);
 			var err = r.HasErrors;
 			if (err) {
 				var message = string.Join ("\n", r.Messages.Select (m => m.MessageType + ": " + m.Text));
-				if (forceShowError || message != lastShownError) {
-					lastShownError = message;
+				if (showError) {
 					Alert ("{0}", message);
 				}
 			}
@@ -65,7 +62,7 @@ namespace LiveCode.Client.XamarinStudio
 				var code = doc.Editor.SelectedText;
 
 				try {
-					await EvalAsync (code, forceShowError: true);
+					await EvalAsync (code, showError: true);
 				} catch (Exception ex) {
 					Alert ("Could not communicate with the app.\n\n{0}: {1}", ex.GetType (), ex.Message);
 				}
@@ -113,10 +110,10 @@ namespace LiveCode.Client.XamarinStudio
 
 			monitorTypeName = typeName;
 
-			await VisualizeTypeAsync (forceShowError: true);
+			await VisualizeTypeAsync (showError: true);
 		}
 
-		async Task VisualizeTypeAsync (bool forceShowError)
+		async Task VisualizeTypeAsync (bool showError)
 		{
 			if (string.IsNullOrWhiteSpace (monitorTypeName))
 				return;
@@ -144,7 +141,6 @@ namespace LiveCode.Client.XamarinStudio
 			//
 			try {
 				Connect ();
-				var ok = true;
 
 				//
 				// Send all the usings
@@ -156,7 +152,7 @@ namespace LiveCode.Client.XamarinStudio
 				foreach (var u in usings) {
 					var ucode = u.ToString ();
 					Console.WriteLine (ucode);
-					if (!await EvalAsync (u.ToString (), forceShowError)) return;
+					if (!await EvalAsync (u.ToString (), showError)) return;
 				}
 
 				//
@@ -164,14 +160,14 @@ namespace LiveCode.Client.XamarinStudio
 				//
 				var declCode = newDecl.ToString ();
 				Console.WriteLine (declCode);
-				if (!await EvalAsync (declCode, forceShowError)) return;
+				if (!await EvalAsync (declCode, showError)) return;
 
 				//
 				// New it up
 				//
 				var newCode = "new " + newName + "()";
 				Console.WriteLine (newCode);
-				if (!await EvalAsync (newCode, forceShowError)) return;
+				if (!await EvalAsync (newCode, showError)) return;
 			} catch (Exception ex) {
 				Alert ("Could not communicate with the app.\n\n{0}: {1}", ex.GetType (), ex.Message);
 			}
@@ -181,7 +177,7 @@ namespace LiveCode.Client.XamarinStudio
 		{
 			var doc = IdeApp.Workbench.ActiveDocument;
 			var resolver = await doc.GetSharedResolver ();
-			var editLoc = doc.Editor.Selections.FirstOrDefault ().Start;
+			var editLoc = doc.Editor.Caret.Location;
 			var editTLoc = new TextLocation (editLoc.Line, editLoc.Column);
 			var selTypeDecl =
 				resolver.RootNode.Descendants.
@@ -222,7 +218,7 @@ namespace LiveCode.Client.XamarinStudio
 		{
 			var doc = IdeApp.Workbench.ActiveDocument;
 			Console.WriteLine ("DOC PARSED {0}", doc.Name);
-			await VisualizeTypeAsync (forceShowError: false);
+			await VisualizeTypeAsync (showError: false);
 		}
 
 		protected override void Update (CommandInfo info)
