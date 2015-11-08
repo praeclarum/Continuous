@@ -6,9 +6,19 @@ It currently works only in Xamarin Studio and only for C#.
 
 ## One-time Installation
 
-1. Install the preview version of [Xamarin Inspector](https://developer.xamarin.com/guides/cross-platform/inspector/).
+**Install** the preview version of [Xamarin Inspector](https://developer.xamarin.com/guides/cross-platform/inspector/).
 
-2. Install the Xamarin Studio **Live Code Add-in** from the Gallery in the Add-in Manager.
+**Install** the **Live Code** Xamarin Studio Add-in one of two ways:
+
+* [Download the Live Code Add-in file](https://raw.githubusercontent.com/praeclarum/LiveCode/master/LiveCode.Client.MonoDevelop/AddinRepo/LiveCode.Client.MonoDevelop_1.0.mpack) and install it using the Add-in Manager in Xamarin Studio.
+
+or
+
+* Add a new *Add-in Repository* and point it to the URL `https://raw.githubusercontent.com/praeclarum/LiveCode/master/LiveCode.Client.MonoDevelop/AddinRepo`
+
+You will then be able to select the **Live Code** Add-in from the IDE extensions category.
+
+<img src="https://raw.githubusercontent.com/praeclarum/LiveCode/master/Documentation/AddAddinRepo.png" width="320px"/>
 
 ## Per-app Installation
 
