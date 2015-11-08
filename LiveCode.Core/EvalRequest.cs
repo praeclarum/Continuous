@@ -29,7 +29,7 @@ namespace LiveCode
 		public bool HasResult;
 
 		public bool HasErrors {
-			get { return Messages.Any (m => m.MessageType == "error"); }
+			get { return Messages != null && Messages.Any (m => m.MessageType == "error"); }
 		}
 	}
 
