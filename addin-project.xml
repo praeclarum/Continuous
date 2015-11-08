@@ -1,0 +1,7 @@
+<AddinProject appVersion="4.0">
+	<Project platforms="Mac Linux Win32">
+		<AddinFile>LiveCode.Client.MonoDevelop/bin/Debug/LiveCode.Client.MonoDevelop.dll</AddinFile>
+		<BuildFile>LiveCode.sln</BuildFile>
+		<BuildConfiguration>Debug</BuildConfiguration>
+	</Project>
+</AddinProject>
