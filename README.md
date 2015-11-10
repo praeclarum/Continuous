@@ -10,7 +10,7 @@ It currently works only in Xamarin Studio and only for C#.
 
 **Install** the **Live Code** Xamarin Studio Add-in one of two ways:
 
-* [Download the Live Code Add-in file](https://raw.githubusercontent.com/praeclarum/LiveCode/master/LiveCode.Client.MonoDevelop/AddinRepo/LiveCode.Client.MonoDevelop_1.0.mpack) and install it using the Add-in Manager in Xamarin Studio.
+* [Download the Live Code Add-in file](https://raw.githubusercontent.com/praeclarum/LiveCode/master/LiveCode.Client.MonoDevelop/AddinRepo/LiveCode.Client.MonoDevelop.mpack) and install it using the Add-in Manager in Xamarin Studio.
 
 or
 
