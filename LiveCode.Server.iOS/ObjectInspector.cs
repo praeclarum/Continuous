@@ -3,6 +3,7 @@ using UIKit;
 using System.Reflection;
 using System.Linq;
 using System.Collections.Generic;
+using System.Collections;
 
 namespace LiveCode.Server
 {
@@ -15,8 +16,10 @@ namespace LiveCode.Server
 
 		readonly Type[] hierarchy;
 
+		readonly object[] elements;
+
 		public ObjectInspector ()
-			: this (new UIView ())//new CoreGraphics.CGPath ())
+			: this (new UISlider ())
 		{
 		}
 
@@ -31,7 +34,12 @@ namespace LiveCode.Server
 			this.target = target;
 			this.targetType = targetType ?? typeof(object);
 
-			properties = targetType.GetProperties ().Where (x => x.DeclaringType == this.targetType).ToArray ();
+			properties = targetType.GetProperties ().
+				Where (x => x.DeclaringType == this.targetType &&
+					        x.GetIndexParameters().Length == 0 &&
+					        x.GetMethod != null &&
+					        !x.GetMethod.IsStatic).
+				ToArray ();
 
 			var h = new List<Type> ();
 			h.Add (this.targetType);
@@ -43,16 +51,29 @@ namespace LiveCode.Server
 					break;
 				}
 			}
-			h.RemoveAt (0); // Remove targetType
-			h.RemoveAt (h.Count - 1); // Remove object
+			h.Remove (this.targetType);
+			h.Remove (typeof(object));
+			h.Remove (typeof(ValueType));
 			hierarchy = h.ToArray ();
+
+			var ie = this.target as IEnumerable;
+			if (ie != null && !(this.target is string)) {
+				try {
+					elements = ie.Cast<object> ().Take (100).ToArray ();					
+				} catch (Exception ex) {
+					Log (ex);
+				}
+			}
+			if (elements == null) {
+				elements = new object[0];
+			}
 
 			Title = this.targetType.ToString ();
 		}
 
 		public override nint NumberOfSections (UITableView tableView)
 		{
-			return 3;
+			return 4;
 		}
 
 		public override nint RowsInSection (UITableView tableView, nint section)
@@ -63,6 +84,8 @@ namespace LiveCode.Server
 				return properties.Length;
 			if (section == 2)
 				return hierarchy.Length;
+			if (section == 3)
+				return elements.Length;
 			return 0;
 		}
 
@@ -74,13 +97,15 @@ namespace LiveCode.Server
 				return targetType.Name + " Properties";
 			if (section == 2)
 				return "Hierarchy";			
+			if (section == 3)
+				return "IEnumerable Elements";
 			return "";
 		}
 
 		public override nfloat GetHeightForRow (UITableView tableView, Foundation.NSIndexPath indexPath)
 		{
 			if (indexPath.Section == 0 && indexPath.Row == 0)
-				return 77.0f;
+				return 88.0f;
 			return 44.0f;
 		}
 
@@ -92,7 +117,7 @@ namespace LiveCode.Server
 					var c = tableView.DequeueReusableCell ("TS");
 					if (c == null) {
 						c = new UITableViewCell (UITableViewCellStyle.Default, "TS");
-						c.TextLabel.Lines = 2;
+						c.TextLabel.Lines = 3;
 						c.TextLabel.AdjustsFontSizeToFitWidth = true;
 						c.TextLabel.Font = UIFont.BoldSystemFontOfSize (22.0f);
 					}
@@ -100,6 +125,7 @@ namespace LiveCode.Server
 					try {
 						c.TextLabel.Text = target.ToString ();
 					} catch (Exception ex) {
+						c.TextLabel.Text = ex.Message;
 						Log (ex);
 					}
 					return c;
@@ -130,6 +156,21 @@ namespace LiveCode.Server
 					Log (ex);
 				}
 				return c;
+			
+			} else if (indexPath.Section == 3) {
+				var c = tableView.DequeueReusableCell ("E");
+				if (c == null) {
+					c = new UITableViewCell (UITableViewCellStyle.Default, "E");
+					c.Accessory = UITableViewCellAccessory.DisclosureIndicator;
+				}
+				c.TextLabel.Text = "";
+				try {
+					c.TextLabel.TextColor = tableView.TintColor;
+					c.TextLabel.Text = elements[indexPath.Row].ToString ();
+				} catch (Exception ex) {
+					Log (ex);
+				}
+				return c;
 			} else {
 				var c = tableView.DequeueReusableCell ("P");
 				if (c == null) {
@@ -155,6 +196,13 @@ namespace LiveCode.Server
 
 					} catch (Exception ex) {
 						Log (ex);
+						var i = ex;
+						while (i.InnerException != null) {
+							i = i.InnerException;
+						}
+						c.DetailTextLabel.Text = i.Message;
+						c.DetailTextLabel.TextColor = UIColor.Red;
+						c.Accessory = UITableViewCellAccessory.None;
 					}
 				} catch (Exception ex) {
 					Log (ex);
@@ -186,12 +234,19 @@ namespace LiveCode.Server
 				var vc = new ObjectInspector (target, asTyp);
 
 				n.PushViewController (vc, true);
+
+			} else if (indexPath.Section == 3) {
+
+				var e = elements [indexPath.Row];
+				var vc = new ObjectInspector (e);
+
+				n.PushViewController (vc, true);
 			}
 		}
 
 		bool IsPrimitive (Type type)
 		{
-			return type.IsPrimitive;
+			return type.IsPrimitive || type.IsEnum;
 		}
 
 		void Log (Exception ex)
