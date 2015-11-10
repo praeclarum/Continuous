@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using Mono.CSharp;
 using System.Reflection;
-using System.Diagnostics;
 
 namespace LiveCode.Server
 {
@@ -27,7 +26,7 @@ namespace LiveCode.Server
 			lock (mutex) {
 				InitIfNeeded ();
 
-				Debug.WriteLine ("EVAL ON THREAD {0}", System.Threading.Thread.CurrentThread.ManagedThreadId);
+				Log ("EVAL ON THREAD {0}", System.Threading.Thread.CurrentThread.ManagedThreadId);
 
 				printer.Messages.Clear ();
 
@@ -46,7 +45,7 @@ namespace LiveCode.Server
 
 				sw.Stop ();
 
-				Debug.WriteLine ("END EVAL ON THREAD {0}", System.Threading.Thread.CurrentThread.ManagedThreadId);
+				Log ("END EVAL ON THREAD {0}", System.Threading.Thread.CurrentThread.ManagedThreadId);
 			}
 
 			return new EvalResponse {
@@ -61,7 +60,7 @@ namespace LiveCode.Server
 		{
 			if (eval == null) {
 
-				Debug.WriteLine ("INIT EVAL");
+				Log ("INIT EVAL");
 
 				var settings = new CompilerSettings ();
 				var context = new CompilerContext (settings, printer);
@@ -71,11 +70,11 @@ namespace LiveCode.Server
 				// Add References to get UIKit, etc. Also add a hook to catch dynamically loaded assemblies.
 				//
 				AppDomain.CurrentDomain.AssemblyLoad += (_, e) => {
-					Debug.WriteLine ("DYNAMIC REF {0}", e.LoadedAssembly);
+					Log ("DYNAMIC REF {0}", e.LoadedAssembly);
 					AddReference (e.LoadedAssembly);
 				};
 				foreach (var a in AppDomain.CurrentDomain.GetAssemblies ()) {
-					Debug.WriteLine ("STATIC REF {0}", a);
+					Log ("STATIC REF {0}", a);
 					AddReference (a);
 				}
 
@@ -106,6 +105,20 @@ namespace LiveCode.Server
 			// TODO: Should this lock if called from the AssemblyLoad event?
 			//
 			eval.ReferenceAssembly (a);
+		}
+
+		void Log (string format, params object[] args)
+		{
+			#if DEBUG
+			Log (string.Format (format, args));
+			#endif
+		}
+
+		void Log (string msg)
+		{
+			#if DEBUG
+			System.Diagnostics.Debug.WriteLine (msg);
+			#endif
 		}
 
 		class Printer : ReportPrinter

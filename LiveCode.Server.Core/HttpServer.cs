@@ -97,12 +97,8 @@ namespace LiveCode.Server
 
 		void Log (Exception ex, string env)
 		{
-			if (ex != null) {
-				Log ("ERROR IN " + env);
-				Log (ex.ToString ());
-			} else {
-				Log ("null");
-			}
+			Console.WriteLine ("ERROR IN " + env);
+			Console.WriteLine ("{0}");
 		}
 
 		void Log (string format, params object[] args)
@@ -111,8 +107,10 @@ namespace LiveCode.Server
 		}
 
 		void Log (string msg)
-		{			
+		{
+			#if DEBUG
 			Console.WriteLine (msg);
+			#endif
 		}
 	}
 }

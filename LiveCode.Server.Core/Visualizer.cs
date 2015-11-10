@@ -1,11 +1,4 @@
 using System;
-using System.Net;
-using System.Threading.Tasks;
-using System.Text;
-using System.IO;
-using Newtonsoft.Json;
-using System.Threading;
-using System.Diagnostics;
 
 namespace LiveCode.Server
 {
@@ -23,6 +16,20 @@ namespace LiveCode.Server
 
 		partial void PlatformInitialize ();
 		partial void PlatformVisualize (EvalRequest req, EvalResponse resp);
+
+		void Log (string format, params object[] args)
+		{
+			#if DEBUG
+			Log (string.Format (format, args));
+			#endif
+		}
+
+		void Log (string msg)
+		{
+			#if DEBUG
+			System.Diagnostics.Debug.WriteLine (msg);
+			#endif
+		}
 	}
 
 }
