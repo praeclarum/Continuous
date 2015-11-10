@@ -130,11 +130,16 @@ namespace LiveCode.Client.XamarinStudio
 
 			//
 			// Rename it to make registered Objective-C types happy.
-			// Thanks NRefactory for making this so easy.
 			//
 			var newName = monitorTypeName + DateTime.UtcNow.Ticks;
 			var newDecl = (TypeDeclaration)selTypeDecl.Clone ();
 			newDecl.Name = newName;
+			var declCode = newDecl.ToString ();
+			// HACK: We do a terrible thing and blindly rename the class. This is because
+			// NRefactory doesn't do a complete job.
+			var renameRe = new System.Text.RegularExpressions.Regex ("\\b" + monitorTypeName + "\\b");
+			declCode = renameRe.Replace (declCode, newName);
+			Console.WriteLine (declCode);
 
 			//
 			// Send the code to the device
@@ -158,8 +163,8 @@ namespace LiveCode.Client.XamarinStudio
 				//
 				// Declare the type
 				//
-				var declCode = newDecl.ToString ();
-				Console.WriteLine (declCode);
+
+
 				if (!await EvalAsync (declCode, showError)) return;
 
 				//
