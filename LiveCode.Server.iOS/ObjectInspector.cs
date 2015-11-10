@@ -16,7 +16,7 @@ namespace LiveCode.Server
 		readonly Type[] hierarchy;
 
 		public ObjectInspector ()
-			: this (new CoreGraphics.CGPath ())
+			: this (new UIView ())//new CoreGraphics.CGPath ())
 		{
 		}
 
@@ -80,7 +80,7 @@ namespace LiveCode.Server
 		public override nfloat GetHeightForRow (UITableView tableView, Foundation.NSIndexPath indexPath)
 		{
 			if (indexPath.Section == 0 && indexPath.Row == 0)
-				return 66.0f;
+				return 77.0f;
 			return 44.0f;
 		}
 
@@ -94,6 +94,7 @@ namespace LiveCode.Server
 						c = new UITableViewCell (UITableViewCellStyle.Default, "TS");
 						c.TextLabel.Lines = 2;
 						c.TextLabel.AdjustsFontSizeToFitWidth = true;
+						c.TextLabel.Font = UIFont.BoldSystemFontOfSize (22.0f);
 					}
 					c.TextLabel.Text = "";
 					try {
@@ -105,9 +106,7 @@ namespace LiveCode.Server
 				} else {
 					var c = tableView.DequeueReusableCell ("GH");
 					if (c == null) {
-						c = new UITableViewCell (UITableViewCellStyle.Default, "TS");
-						c.TextLabel.Lines = 2;
-						c.TextLabel.AdjustsFontSizeToFitWidth = true;
+						c = new UITableViewCell (UITableViewCellStyle.Default, "GH");
 					}
 					c.TextLabel.Text = "";
 					try {
