@@ -11,7 +11,7 @@ namespace LiveCode.Server
 			var val = resp.Result;
 			var ty = val != null ? val.GetType () : typeof(object);
 
-			Console.WriteLine ("{0} value = {1}", ty.FullName, val);
+			Log ("{0} value = {1}", ty.FullName, val);
 
 			ShowViewer (GetViewer (req, resp));
 		}
@@ -23,20 +23,15 @@ namespace LiveCode.Server
 			if (vc != null)
 				return vc;
 
-			vc = new UIViewController ();
 
 			var v = GetSpecialView (resp.Result);
 
 			if (v != null) {
+				vc = new UIViewController ();
 				vc.View = v;
 			}
 			else {
-				var tv = new UITextView {
-					Text = resp.Result.ToString (),
-					Font = UIFont.FromDescriptor (UIFontDescriptor.PreferredHeadline, (nfloat)36.0),
-					TextAlignment = UITextAlignment.Center,
-				};
-				vc.View = tv;
+				vc = new ObjectInspector (resp.Result);
 			}
 			return vc;
 		}
