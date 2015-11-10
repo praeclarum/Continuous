@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Repository xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <Addin>
-    <Url>LiveCode.Client.MonoDevelop_1.0.mpack</Url>
+    <Url>LiveCode.Client.MonoDevelop.mpack</Url>
     <Addin>
       <Id>LiveCode.Client.MonoDevelop</Id>
       <Namespace>LiveCode.Client.MonoDevelop</Namespace>
       <Name>LiveCode</Name>
-      <Version>1.0</Version>
+      <Version>1.1</Version>
       <BaseVersion />
       <Author>Frank A. Krueger</Author>
       <Copyright />
@@ -29,7 +29,7 @@
       </Dependencies>
       <OptionalDependencies />
       <Properties>
-        <Property name="DownloadSize">8522</Property>
+        <Property name="DownloadSize">8617</Property>
       </Properties>
     </Addin>
   </Addin>
