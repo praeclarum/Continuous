@@ -1,6 +1,7 @@
 ﻿using System;
 using UIKit;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace LiveCode.Server
 {
@@ -13,7 +14,11 @@ namespace LiveCode.Server
 
 			Log ("{0} value = {1}", ty.FullName, val);
 
-			ShowViewer (GetViewer (req, resp));
+			ShowViewerAsync (GetViewer (req, resp)).ContinueWith (t => {
+				if (t.IsFaulted) {
+					Log ("ShowViewer ERROR {0}", t.Exception);
+				}
+			});
 		}
 
 		UIViewController GetViewer (EvalRequest req, EvalResponse resp)
@@ -38,7 +43,7 @@ namespace LiveCode.Server
 
 		UINavigationController presentedNav = null;
 
-		void ShowViewer (UIViewController vc)
+		async Task ShowViewerAsync (UIViewController vc)
 		{
 			var window = UIApplication.SharedApplication.KeyWindow;
 			if (window == null)
@@ -51,10 +56,12 @@ namespace LiveCode.Server
 				UIBarButtonSystemItem.Done,
 				(_, __) => rootVC.DismissViewController (true, null));
 
+			var canBeInNav = CanBeInNav (vc);
+
 			//
 			// Try to just swap out the root VC if we've already presented
 			//
-			if (presentedNav != null && rootVC.PresentedViewController == presentedNav) {
+			if (canBeInNav && presentedNav != null && rootVC.PresentedViewController == presentedNav) {
 				presentedNav.ViewControllers = new[] { vc };
 				return;
 			}
@@ -62,18 +69,23 @@ namespace LiveCode.Server
 			//
 			// Else, present a new nav VC
 			//
-			var nc = new UINavigationController (vc);
+			var nc = canBeInNav ? new UINavigationController (vc) : null;
 
 			var animate = true;
 
 			if (rootVC.PresentedViewController != null) {
-				rootVC.DismissViewController (false, null);
+				await rootVC.DismissViewControllerAsync (false);
 				animate = false;
 			}
 
 			presentedNav = nc;
 
-			rootVC.PresentViewController (nc, animate, null);
+			await rootVC.PresentViewControllerAsync (nc ?? vc, animate);
+		}
+
+		bool CanBeInNav (UIViewController vc)
+		{
+			return !(vc is UISplitViewController) && !(vc is UINavigationController);
 		}
 
 		UIView GetSpecialView (object obj)
