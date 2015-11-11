@@ -126,11 +126,10 @@ namespace LiveCode.Client.XamarinStudio
 
 			return new LinkedCode {
 				ValueExpression = "new " + Name + suffix + "()",
-				Declarations =
-					usings.Concat (
-						codes.
-						Select (x => rename (x.Code))).
-					ToArray (),
+				Declarations = new [] {
+					string.Join ("\n", usings) + "\n" +
+					string.Join ("\n", codes.Select (x => rename (x.Code))),
+				}
 			};
 		}
 	}
