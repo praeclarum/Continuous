@@ -50,6 +50,13 @@ namespace LiveCode.Client.XamarinStudio
 			return !err;
 		}
 
+		protected void Log (string format, params object[] args)
+		{
+			#if DEBUG
+			Log (string.Format (format, args));
+			#endif
+		}
+
 		protected void Log (string msg)
 		{
 			#if DEBUG
@@ -126,9 +133,9 @@ namespace LiveCode.Client.XamarinStudio
 
 		async Task VisualizeTypeAsync (bool showError)
 		{
-			if (string.IsNullOrWhiteSpace (monitorTypeName))
-				return;
-			
+			//
+			// Gobble up all we can about the types in the editor
+			//
 			var doc = IdeApp.Workbench.ActiveDocument;
 			var resolver = await doc.GetSharedResolver ();
 			var typeDecls =
@@ -136,12 +143,18 @@ namespace LiveCode.Client.XamarinStudio
 				OfType<TypeDeclaration> ().
 				ToList ();
 
-			var monitorTC = TypeCode.Get (monitorTypeName);
-
 			var typeTCs = new List<TypeCode> ();
 			foreach (var td in typeDecls) {
 				typeTCs.Add (TypeCode.Set (td, resolver));
 			}
+
+			//
+			// Refresh the monitored type
+			//
+			var monitorTC = TypeCode.Get (monitorTypeName);
+
+			if (string.IsNullOrWhiteSpace (monitorTypeName))
+				return;
 
 			var dependsChanged = typeTCs.Any (monitorTC.AllDependencies.Contains);
 
@@ -221,7 +234,7 @@ namespace LiveCode.Client.XamarinStudio
 		async void ActiveDoc_DocumentParsed (object sender, EventArgs e)
 		{
 			var doc = IdeApp.Workbench.ActiveDocument;
-			Console.WriteLine ("DOC PARSED {0}", doc.Name);
+			Log ("DOC PARSED {0}", doc.Name);
 			await VisualizeTypeAsync (showError: false);
 		}
 
