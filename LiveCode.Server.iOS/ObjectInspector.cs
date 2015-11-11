@@ -68,7 +68,7 @@ namespace LiveCode.Server
 				elements = new object[0];
 			}
 
-			Title = this.targetType.ToString ();
+			Title = this.targetType.FullName;
 		}
 
 		public override nint NumberOfSections (UITableView tableView)

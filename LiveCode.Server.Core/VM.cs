@@ -63,6 +63,7 @@ namespace LiveCode.Server
 				Log ("INIT EVAL");
 
 				var settings = new CompilerSettings ();
+				PlatformSettings (settings);
 				var context = new CompilerContext (settings, printer);
 				eval = new Evaluator (context);
 
@@ -89,6 +90,8 @@ namespace LiveCode.Server
 				PlatformInit ();
 			}
 		}
+
+		partial void PlatformSettings (CompilerSettings settings);
 
 		partial void PlatformInit ();
 

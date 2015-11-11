@@ -1,9 +1,15 @@
 ﻿using System;
+using Mono.CSharp;
 
 namespace LiveCode.Server
 {
 	public partial class VM
 	{
+		partial void PlatformSettings (CompilerSettings settings)
+		{
+			settings.AddConditionalSymbol ("__IOS__");
+		}
+
 		partial void PlatformInit ()
 		{
 			object res;
