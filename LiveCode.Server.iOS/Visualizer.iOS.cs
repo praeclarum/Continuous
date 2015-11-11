@@ -2,6 +2,7 @@
 using UIKit;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using CoreGraphics;
 
 namespace LiveCode.Server
 {
@@ -124,6 +125,7 @@ namespace LiveCode.Server
 			typeVisualizers = new Dictionary<Type, TypeVisualizer> {
 				{ typeof(UIView), o => GetView ((UIView)o) },
 				{ typeof(UITableViewCell), o => GetView ((UITableViewCell)o) },
+				{ typeof(UICollectionViewCell), o => GetView ((UICollectionViewCell)o) },
 				{ typeof(UIColor), o => GetView ((UIColor)o) },
 			};
 		}
@@ -164,6 +166,58 @@ namespace LiveCode.Server
 			public override UITableViewCell GetCell (UITableView tableView, Foundation.NSIndexPath indexPath)
 			{
 				return cell;
+			}
+		}
+
+		UIView GetView (UICollectionViewCell value)
+		{
+			var layout = new UICollectionViewFlowLayout ();
+			var bounds = UIScreen.MainScreen.Bounds;
+			var collectionView = new UICollectionView (
+				                     bounds,
+				                     layout);
+			layout.ItemSize = new CGSize (bounds.Width / 3, bounds.Width / 4);
+			collectionView.RegisterClassForCell (typeof (HostCell), "C");
+			collectionView.DataSource = new SingleCollectionViewCellDataSource (value);
+			return collectionView;
+		}
+
+		class SingleCollectionViewCellDataSource : UICollectionViewDataSource
+		{
+			UICollectionViewCell cell;
+			public SingleCollectionViewCellDataSource (UICollectionViewCell cell)
+			{
+				this.cell = cell;
+			}
+			public override nint NumberOfSections (UICollectionView collectionView)
+			{
+				return 1;
+			}
+			public override nint GetItemsCount (UICollectionView collectionView, nint section)
+			{
+				return 1;
+			}
+			public override UICollectionViewCell GetCell (UICollectionView collectionView, Foundation.NSIndexPath indexPath)
+			{
+				var c = collectionView.DequeueReusableCell ("C", indexPath) as HostCell;
+				if (c.VizView != cell) {
+					c.VizView = cell;
+					cell.Frame = c.ContentView.Bounds;
+					cell.AutoresizingMask = UIViewAutoresizing.FlexibleDimensions;
+					c.ContentView.Add (cell);
+				}
+				return c;
+			}
+		}
+
+		class HostCell : UICollectionViewCell
+		{
+			public UIView VizView;
+			public HostCell ()
+			{
+			}
+			public HostCell (IntPtr h) : base (h)
+			{
 			}
 		}
 	}

@@ -213,7 +213,7 @@ namespace LiveCode.Client.XamarinStudio
 	public class VisualizeClassHandler : LiveCodeCommandHandler
 	{
 		string monitorTypeName = "";
-		string monitorNamespace = "";
+//		string monitorNamespace = "";
 
 		protected override async void Run ()
 		{
@@ -241,7 +241,7 @@ namespace LiveCode.Client.XamarinStudio
 			Console.WriteLine ("MONITOR {0} --- {1}", nsName, typeName);
 
 			monitorTypeName = typeName;
-			monitorNamespace = nsName;
+//			monitorNamespace = nsName;
 
 			await VisualizeTypeAsync (showError: true);
 		}

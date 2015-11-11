@@ -33,6 +33,7 @@ namespace LiveCode.Server
 				sw.Start ();
 
 				try {
+//					Log (code);
 					eval.Evaluate (code, out result, out hasResult);					
 				} catch (InternalErrorException ex) {
 					eval = null; // Force re-init
