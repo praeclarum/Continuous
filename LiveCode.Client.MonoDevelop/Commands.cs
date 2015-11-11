@@ -6,10 +6,141 @@ using Gtk;
 using System.Linq;
 using System.Threading.Tasks;
 using ICSharpCode.NRefactory.CSharp;
+using ICSharpCode.NRefactory.CSharp.Resolver;
 using ICSharpCode.NRefactory;
+using System.Collections.Generic;
 
 namespace LiveCode.Client.XamarinStudio
 {
+	public class TypeCode
+	{
+		public string Name = "";
+		public TypeCode[] Dependencies = new TypeCode[0];
+		public string[] Usings = new string[0];
+		public string Code = "";
+		public bool NewCode = false;
+
+		public string Key {
+			get { return Name; }
+		}
+
+		public bool HasCode { get { return !string.IsNullOrWhiteSpace (Code); } }
+
+		static readonly Dictionary<string, TypeCode> infos = new Dictionary<string, TypeCode> ();
+
+		public static TypeCode Get (string name)
+		{			
+			var key = name;
+			TypeCode ci;
+			if (infos.TryGetValue (key, out ci)) {
+				return ci;
+			}
+
+			ci = new TypeCode {
+				Name = name,
+			};
+			infos [key] = ci;
+			return ci;
+		}
+
+		public static TypeCode Set (TypeDeclaration typedecl, CSharpAstResolver resolver)
+		{
+			var ns = typedecl.Parent as NamespaceDeclaration;
+			var nsName = ns == null ? "" : ns.FullName;
+			var name = typedecl.Name;
+
+			var tc = Get (name);
+
+			var usings =
+				resolver.RootNode.Descendants.
+				OfType<UsingDeclaration> ().
+				Select (x => x.ToString ().Trim ()).
+				ToList ();
+			
+			if (!string.IsNullOrWhiteSpace (nsName)) {
+				var nsUsing = "using " + nsName + ";";
+				usings.Add (nsUsing);
+			}
+
+			tc.Usings = usings.ToArray ();
+			var code = typedecl.ToString ();
+			if (tc.Code.Length > 0 && tc.Code != code) {
+				tc.NewCode = true;
+			}
+			tc.Code = code;
+
+			var deps = new List<String> ();
+			foreach (var d in typedecl.Descendants.OfType<SimpleType> ()) {
+				deps.Add (d.Identifier);
+			}
+			tc.Dependencies = deps.Distinct ().Select (Get).ToArray ();
+
+			return tc;
+		}
+
+		void GetDependencies (List<TypeCode> code)
+		{
+			if (code.Contains (this))
+				return;
+			code.Add (this);
+			foreach (var d in Dependencies) {
+				d.GetDependencies (code);
+			}
+			// Move us to the back
+			code.Remove (this);
+			code.Add (this);
+		}
+
+		public List<TypeCode> AllDependencies {
+			get {
+				var codes = new List<TypeCode> ();
+				GetDependencies (codes);
+				return codes;
+			}
+		}
+
+		public LinkedCode GetLinkedCode ()
+		{
+			NewCode = true; // Force ourselves to link
+
+			var codes = AllDependencies.Where (x => x.NewCode).ToList ();
+
+			var usings = codes.SelectMany (x => x.Usings).Distinct ().ToList ();
+
+			var suffix = DateTime.UtcNow.Ticks.ToString ();
+
+			var renames =
+				codes.
+				Select (x => Tuple.Create (
+					new System.Text.RegularExpressions.Regex ("\\b" + x.Name + "\\b"),
+					x.Name + suffix)).
+				ToList ();
+
+			Func<string, string> rename = c => {
+				var rc = c;
+				foreach (var r in renames) {
+					rc = r.Item1.Replace (rc, r.Item2);
+				}
+				return rc;
+			};
+
+			return new LinkedCode {
+				ValueExpression = "new " + Name + suffix + "()",
+				Declarations =
+					usings.Concat (
+						codes.
+						Select (x => rename (x.Code))).
+					ToArray (),
+			};
+		}
+	}
+
+	public class LinkedCode
+	{
+		public string[] Declarations;
+		public string ValueExpression;
+	}
+
 	public enum Commands
 	{
 		VisualizeSelection,
@@ -122,26 +253,24 @@ namespace LiveCode.Client.XamarinStudio
 			
 			var doc = IdeApp.Workbench.ActiveDocument;
 			var resolver = await doc.GetSharedResolver ();
-			var selTypeDecl =
+			var typeDecls =
 				resolver.RootNode.Descendants.
 				OfType<TypeDeclaration> ().
-				FirstOrDefault (x => x.Name == monitorTypeName);
+				ToList ();
 
-			if (selTypeDecl == null)
+			var monitorTC = TypeCode.Get (monitorTypeName);
+
+			var typeTCs = new List<TypeCode> ();
+			foreach (var td in typeDecls) {
+				typeTCs.Add (TypeCode.Set (td, resolver));
+			}
+
+			var dependsChanged = typeTCs.Any (monitorTC.AllDependencies.Contains);
+
+			if (!dependsChanged)
 				return;
 
-			//
-			// Rename it to make registered Objective-C types happy.
-			//
-			var newName = monitorTypeName + DateTime.UtcNow.Ticks;
-			var newDecl = (TypeDeclaration)selTypeDecl.Clone ();
-			newDecl.Name = newName;
-			var declCode = newDecl.ToString ();
-			// HACK: We do a terrible thing and blindly rename the class. This is because
-			// NRefactory doesn't do a complete job.
-			var renameRe = new System.Text.RegularExpressions.Regex ("\\b" + monitorTypeName + "\\b");
-			declCode = renameRe.Replace (declCode, newName);
-			Console.WriteLine (declCode);
+			var code = monitorTC.GetLinkedCode ();
 
 			//
 			// Send the code to the device
@@ -150,36 +279,19 @@ namespace LiveCode.Client.XamarinStudio
 				Connect ();
 
 				//
-				// Send all the usings
+				// Declare it
 				//
-				var usings =
-					resolver.RootNode.Descendants.
-					OfType<UsingDeclaration> ().
-					ToList ();
-				foreach (var u in usings) {
-					var ucode = u.ToString ();
-					Console.WriteLine (ucode);
-					if (!await EvalAsync (ucode, showError)) return;
-				}
-				if (!string.IsNullOrWhiteSpace (monitorNamespace)) {
-					var nsUsing = "using " + monitorNamespace + ";";
-					Console.WriteLine (nsUsing);
-					if (!await EvalAsync (nsUsing, showError)) return;
+				foreach (var c in code.Declarations) {
+					Console.WriteLine (c);
+					if (!await EvalAsync (c, showError)) return;
 				}
 
 				//
-				// Declare the type
+				// Show it
 				//
+				Console.WriteLine (code.ValueExpression);
+				if (!await EvalAsync (code.ValueExpression, showError)) return;
 
-
-				if (!await EvalAsync (declCode, showError)) return;
-
-				//
-				// New it up
-				//
-				var newCode = "new " + newName + "()";
-				Console.WriteLine (newCode);
-				if (!await EvalAsync (newCode, showError)) return;
 			} catch (Exception ex) {
 				if (showError) {
 					Alert ("Could not communicate with the app.\n\n{0}: {1}", ex.GetType (), ex.Message);
