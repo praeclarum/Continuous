@@ -12,134 +12,6 @@ using System.Collections.Generic;
 
 namespace LiveCode.Client.XamarinStudio
 {
-	public class TypeCode
-	{
-		public string Name = "";
-		public TypeCode[] Dependencies = new TypeCode[0];
-		public string[] Usings = new string[0];
-		public string Code = "";
-		public bool NewCode = false;
-
-		public string Key {
-			get { return Name; }
-		}
-
-		public bool HasCode { get { return !string.IsNullOrWhiteSpace (Code); } }
-
-		static readonly Dictionary<string, TypeCode> infos = new Dictionary<string, TypeCode> ();
-
-		public static TypeCode Get (string name)
-		{			
-			var key = name;
-			TypeCode ci;
-			if (infos.TryGetValue (key, out ci)) {
-				return ci;
-			}
-
-			ci = new TypeCode {
-				Name = name,
-			};
-			infos [key] = ci;
-			return ci;
-		}
-
-		public static TypeCode Set (TypeDeclaration typedecl, CSharpAstResolver resolver)
-		{
-			var ns = typedecl.Parent as NamespaceDeclaration;
-			var nsName = ns == null ? "" : ns.FullName;
-			var name = typedecl.Name;
-
-			var tc = Get (name);
-
-			var usings =
-				resolver.RootNode.Descendants.
-				OfType<UsingDeclaration> ().
-				Select (x => x.ToString ().Trim ()).
-				ToList ();
-			
-			if (!string.IsNullOrWhiteSpace (nsName)) {
-				var nsUsing = "using " + nsName + ";";
-				usings.Add (nsUsing);
-			}
-
-			tc.Usings = usings.ToArray ();
-			var code = typedecl.ToString ();
-			if (tc.Code.Length > 0 && tc.Code != code) {
-				tc.NewCode = true;
-			}
-			tc.Code = code;
-
-			var deps = new List<String> ();
-			foreach (var d in typedecl.Descendants.OfType<SimpleType> ()) {
-				deps.Add (d.Identifier);
-			}
-			tc.Dependencies = deps.Distinct ().Select (Get).ToArray ();
-
-			return tc;
-		}
-
-		void GetDependencies (List<TypeCode> code)
-		{
-			if (code.Contains (this))
-				return;
-			code.Add (this);
-			foreach (var d in Dependencies) {
-				d.GetDependencies (code);
-			}
-			// Move us to the back
-			code.Remove (this);
-			code.Add (this);
-		}
-
-		public List<TypeCode> AllDependencies {
-			get {
-				var codes = new List<TypeCode> ();
-				GetDependencies (codes);
-				return codes;
-			}
-		}
-
-		public LinkedCode GetLinkedCode ()
-		{
-			NewCode = true; // Force ourselves to link
-
-			var codes = AllDependencies.Where (x => x.NewCode).ToList ();
-
-			var usings = codes.SelectMany (x => x.Usings).Distinct ().ToList ();
-
-			var suffix = DateTime.UtcNow.Ticks.ToString ();
-
-			var renames =
-				codes.
-				Select (x => Tuple.Create (
-					new System.Text.RegularExpressions.Regex ("\\b" + x.Name + "\\b"),
-					x.Name + suffix)).
-				ToList ();
-
-			Func<string, string> rename = c => {
-				var rc = c;
-				foreach (var r in renames) {
-					rc = r.Item1.Replace (rc, r.Item2);
-				}
-				return rc;
-			};
-
-			return new LinkedCode {
-				ValueExpression = "new " + Name + suffix + "()",
-				Declarations = new [] {
-					string.Join ("\n", usings) + "\n" +
-					string.Join ("\n", codes.Select (x => rename (x.Code))),
-				}
-			};
-		}
-	}
-
-	public class LinkedCode
-	{
-		public string[] Declarations;
-		public string ValueExpression;
-	}
-
 	public enum Commands
 	{
 		VisualizeSelection,
@@ -176,6 +48,13 @@ namespace LiveCode.Client.XamarinStudio
 				}
 			}
 			return !err;
+		}
+
+		protected void Log (string msg)
+		{
+			#if DEBUG
+			Console.WriteLine (msg);
+			#endif
 		}
 	}
 
@@ -281,14 +160,14 @@ namespace LiveCode.Client.XamarinStudio
 				// Declare it
 				//
 				foreach (var c in code.Declarations) {
-					Console.WriteLine (c);
+					Log (c);
 					if (!await EvalAsync (c, showError)) return;
 				}
 
 				//
 				// Show it
 				//
-				Console.WriteLine (code.ValueExpression);
+				Log (code.ValueExpression);
 				if (!await EvalAsync (code.ValueExpression, showError)) return;
 
 			} catch (Exception ex) {
