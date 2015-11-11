@@ -136,11 +136,13 @@ namespace LiveCode.Server
 				Messages.Add (m);
 
 				//
-				// Print it to the console cause the console always works
+				// Print it to the console if there's an error
 				//
-				var tm = msg.ToString ();
-				System.Threading.ThreadPool.QueueUserWorkItem (_ =>
-					Console.WriteLine (tm));
+				if (msg.MessageType == "error") {
+					var tm = msg.Text;
+					System.Threading.ThreadPool.QueueUserWorkItem (_ =>
+						Console.WriteLine ("ERROR: {0}", tm));
+				}
 			}
 		}
 	}
