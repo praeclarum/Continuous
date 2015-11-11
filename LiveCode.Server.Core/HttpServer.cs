@@ -98,7 +98,7 @@ namespace LiveCode.Server
 		void Log (Exception ex, string env)
 		{
 			Console.WriteLine ("ERROR IN " + env);
-			Console.WriteLine ("{0}");
+			Console.WriteLine ("{0}", ex);
 		}
 
 		void Log (string format, params object[] args)
