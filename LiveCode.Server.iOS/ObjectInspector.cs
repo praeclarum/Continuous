@@ -68,6 +68,8 @@ namespace LiveCode.Server
 				elements = new object[0];
 			}
 
+			NavigationItem.RightBarButtonItem = new UIBarButtonItem (UIBarButtonSystemItem.Add);
+
 			Title = this.targetType.FullName;
 		}
 

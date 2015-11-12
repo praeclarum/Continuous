@@ -3,6 +3,7 @@ using UIKit;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using CoreGraphics;
+using System.Linq;
 
 namespace LiveCode.Server
 {
@@ -53,9 +54,13 @@ namespace LiveCode.Server
 			if (rootVC == null)
 				return;
 
-			vc.NavigationItem.RightBarButtonItem = new UIBarButtonItem (
+			var doneButton = new UIBarButtonItem (
 				UIBarButtonSystemItem.Done,
 				(_, __) => rootVC.DismissViewController (true, null));
+			vc.NavigationItem.RightBarButtonItems =
+				new[]{ doneButton }.
+				Concat (vc.NavigationItem.RightBarButtonItems ?? new UIBarButtonItem[0]).
+				ToArray ();
 
 			var canBeInNav = CanBeInNav (vc);
 
