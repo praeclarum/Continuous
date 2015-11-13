@@ -122,9 +122,9 @@ namespace LiveCode.Server
 
 		void Log (string msg)
 		{
-//			#if DEBUG
+			#if DEBUG
 			Console.WriteLine (msg);
-//			#endif
+			#endif
 		}
 	}
 }

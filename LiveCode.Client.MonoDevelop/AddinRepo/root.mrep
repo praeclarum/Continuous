@@ -6,7 +6,7 @@
       <Id>LiveCode.Client.MonoDevelop</Id>
       <Namespace>LiveCode.Client.MonoDevelop</Namespace>
       <Name>LiveCode</Name>
-      <Version>1.2.5</Version>
+      <Version>1.2.6</Version>
       <BaseVersion />
       <Author>Frank A. Krueger</Author>
       <Copyright />
@@ -29,7 +29,7 @@
       </Dependencies>
       <OptionalDependencies />
       <Properties>
-        <Property name="DownloadSize">10994</Property>
+        <Property name="DownloadSize">10991</Property>
       </Properties>
     </Addin>
   </Addin>
