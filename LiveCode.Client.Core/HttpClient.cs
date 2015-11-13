@@ -7,12 +7,16 @@ namespace LiveCode.Client
 {
 	public class HttpClient
 	{
-		readonly Uri baseUrl;
+//		readonly Uri baseUrl;
+		readonly Uri visualizeUrl;
+		readonly Uri stopVisualizingUrl;
 		readonly WebClient client;
 
 		public HttpClient (Uri baseUrl)
 		{
-			this.baseUrl = baseUrl;
+//			this.baseUrl = baseUrl;
+			visualizeUrl = new Uri (baseUrl, "visualize");
+			stopVisualizingUrl = new Uri (baseUrl, "stopVisualizing");
 			client = new WebClient ();
 		}
 
@@ -22,9 +26,14 @@ namespace LiveCode.Client
 
 			var reqStr = JsonConvert.SerializeObject (req);
 
-			var respStr = await client.UploadStringTaskAsync (baseUrl, reqStr);
+			var respStr = await client.UploadStringTaskAsync (visualizeUrl, reqStr);
 
 			return JsonConvert.DeserializeObject<EvalResponse> (respStr);
+		}
+
+		public async Task StopVisualizingAsync ()
+		{
+			await client.UploadStringTaskAsync (stopVisualizingUrl, "");
 		}
 	}
 }

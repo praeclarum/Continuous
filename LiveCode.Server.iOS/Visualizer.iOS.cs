@@ -9,6 +9,20 @@ namespace LiveCode.Server
 {
 	public partial class Visualizer
 	{
+		partial void PlatformStopVisualizing ()
+		{
+			var window = UIApplication.SharedApplication.KeyWindow;
+			if (window == null)
+				return;
+			var rootVC = window.RootViewController;
+			if (rootVC == null)
+				return;
+
+			if (rootVC.PresentedViewController != null) {
+				rootVC.DismissViewController (false, null);
+			}
+		}
+
 		partial void PlatformVisualize (EvalRequest req, EvalResponse resp)
 		{
 			var val = resp.Result;

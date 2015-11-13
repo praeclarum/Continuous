@@ -16,11 +16,12 @@ namespace LiveCode.Client.XamarinStudio
 	{
 		VisualizeSelection,
 		VisualizeClass,
+		StopVisualizingClass,
 	}
 
 	public class LiveCodeCommandHandler : CommandHandler
 	{
-		HttpClient conn = null;
+		protected HttpClient conn = null;
 		protected void Connect ()
 		{
 			conn = new HttpClient (new Uri ("http://127.0.0.1:" + Http.DefaultPort));
@@ -97,7 +98,7 @@ namespace LiveCode.Client.XamarinStudio
 
 	public class VisualizeClassHandler : LiveCodeCommandHandler
 	{
-		string monitorTypeName = "";
+		public static string monitorTypeName = "";
 //		string monitorNamespace = "";
 
 		protected override async void Run ()
@@ -125,7 +126,10 @@ namespace LiveCode.Client.XamarinStudio
 
 			Console.WriteLine ("MONITOR {0} --- {1}", nsName, typeName);
 
-			monitorTypeName = typeName;
+			if (monitorTypeName != typeName) {
+				TypeCode.Clear (); // Reset
+				monitorTypeName = typeName;
+			}
 //			monitorNamespace = nsName;
 
 			await VisualizeTypeAsync (showError: true);
@@ -245,6 +249,38 @@ namespace LiveCode.Client.XamarinStudio
 			var doc = IdeApp.Workbench.ActiveDocument;
 
 			info.Enabled = doc != null;
+		}
+	}
+
+	public class StopVisualizingClassHandler : LiveCodeCommandHandler
+	{		
+		protected override async void Run ()
+		{
+			base.Run ();
+			VisualizeClassHandler.monitorTypeName = "";
+			TypeCode.Clear ();
+			try {
+				Connect ();
+				await conn.StopVisualizingAsync ();
+			} catch (Exception ex) {
+				Log ("ERROR: {0}", ex);
+			}
+		}
+
+		protected override void Update (CommandInfo info)
+		{
+			base.Update (info);
+
+			string t = VisualizeClassHandler.monitorTypeName;
+
+			if (string.IsNullOrWhiteSpace (t)) {
+				info.Text = "Stop Visualizing Class";
+				info.Enabled = false;
+			}
+			else {
+				info.Text = "Stop Visualizing " + t;
+				info.Enabled = true;
+			}
 		}
 	}
 }

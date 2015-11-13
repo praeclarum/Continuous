@@ -15,11 +15,20 @@
             shortcut="Ctrl|Shift|C"
             macShortcut="Ctrl|Shift|C"
             defaultHandler="LiveCode.Client.XamarinStudio.VisualizeClassHandler" />
+	    <Command
+	    	id="LiveCode.Client.XamarinStudio.Commands.StopVisualizingClass"
+            _label="Stop Visualizing Class"
+            shortcut="Alt|Ctrl|Shift|C"
+            macShortcut="Alt|Ctrl|Shift|C"
+            defaultHandler="LiveCode.Client.XamarinStudio.StopVisualizingClassHandler" />
 	</Extension>
 	<Extension path="/MonoDevelop/Ide/MainMenu/Tools">
 	    <CommandItem id="LiveCode.Client.XamarinStudio.Commands.VisualizeSelection" />
 	</Extension>
 	<Extension path="/MonoDevelop/Ide/MainMenu/Tools">
 	    <CommandItem id="LiveCode.Client.XamarinStudio.Commands.VisualizeClass" />
+	</Extension>
+	<Extension path="/MonoDevelop/Ide/MainMenu/Tools">
+	    <CommandItem id="LiveCode.Client.XamarinStudio.Commands.StopVisualizingClass" />
 	</Extension>
 </ExtensionModel>

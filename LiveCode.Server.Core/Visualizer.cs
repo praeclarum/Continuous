@@ -14,8 +14,14 @@ namespace LiveCode.Server
 			PlatformVisualize (req, resp);
 		}
 
+		public void StopVisualizing ()
+		{
+			PlatformStopVisualizing ();
+		}
+
 		partial void PlatformInitialize ();
 		partial void PlatformVisualize (EvalRequest req, EvalResponse resp);
+		partial void PlatformStopVisualizing ();
 
 		void Log (string format, params object[] args)
 		{

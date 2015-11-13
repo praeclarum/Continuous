@@ -31,6 +31,11 @@ namespace LiveCode.Client
 
 		static readonly Dictionary<string, TypeCode> infos = new Dictionary<string, TypeCode> ();
 
+		public static void Clear ()
+		{
+			infos.Clear ();
+		}
+
 		public static TypeCode Get (string name)
 		{			
 			var key = name;

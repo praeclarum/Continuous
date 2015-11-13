@@ -46,35 +46,49 @@ namespace LiveCode.Server
 		{
 			try {
 
-				Log ("REQ ON THREAD {0}", Thread.CurrentThread.ManagedThreadId);
+				var path = c.Request.Url.AbsolutePath;
+				var resString = "";
 
-				var reqStr = await new StreamReader (c.Request.InputStream, Encoding.UTF8).ReadToEndAsync ().ConfigureAwait (false);
+				Log ("REQ ON THREAD {0} {1}", Thread.CurrentThread.ManagedThreadId, path);
 
-				var req = JsonConvert.DeserializeObject<EvalRequest> (reqStr);
-
-				var resp = await Task.Factory.StartNew (() => {
-					var r = new EvalResponse ();
+				if (path == "/stopVisualizing") {
 					try {
-						r = vm.Eval (req.Code);
+						resString = await Task.Factory.StartNew (() => {
+							visualizer.StopVisualizing ();
+							return "";
+						}, CancellationToken.None, TaskCreationOptions.None, mainScheduler);
+					} catch (Exception ex) {
+						Log (ex, "/stopVisualizing");
 					}
-					catch (Mono.CSharp.InternalErrorException ex) {
-						Log (ex, "vm.Eval");
-					}
-					catch (Exception ex) {
-						Log (ex, "vm.Eval");
-					}
-					try {
-						Visualize (req, r);
-					}
-					catch (Exception ex) {
-						Log (ex, "Visualize");
-					}
-					return Tuple.Create (r, JsonConvert.SerializeObject (r));
-				}, CancellationToken.None, TaskCreationOptions.None, mainScheduler);
+				}
+				else {
+					var reqStr = await new StreamReader (c.Request.InputStream, Encoding.UTF8).ReadToEndAsync ().ConfigureAwait (false);
 
-				Log (resp.Item2);
+					var req = JsonConvert.DeserializeObject<EvalRequest> (reqStr);
 
-				var bytes = Encoding.UTF8.GetBytes (resp.Item2);
+					var resp = await Task.Factory.StartNew (() => {
+						var r = new EvalResponse ();
+						try {
+							r = vm.Eval (req.Code);
+						}
+						catch (Exception ex) {
+							Log (ex, "vm.Eval");
+						}
+						try {
+							Visualize (req, r);
+						}
+						catch (Exception ex) {
+							Log (ex, "Visualize");
+						}
+						return Tuple.Create (r, JsonConvert.SerializeObject (r));
+					}, CancellationToken.None, TaskCreationOptions.None, mainScheduler);
+
+					Log (resp.Item2);
+
+					resString = resp.Item2;
+				}
+
+				var bytes = Encoding.UTF8.GetBytes (resString);
 				c.Response.StatusCode = 200;
 				c.Response.ContentLength64 = bytes.LongLength;
 				await c.Response.OutputStream.WriteAsync (bytes, 0, bytes.Length).ConfigureAwait (false);
@@ -108,9 +122,9 @@ namespace LiveCode.Server
 
 		void Log (string msg)
 		{
-			#if DEBUG
+//			#if DEBUG
 			Console.WriteLine (msg);
-			#endif
+//			#endif
 		}
 	}
 }
