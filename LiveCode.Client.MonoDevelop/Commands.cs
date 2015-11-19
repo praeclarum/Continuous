@@ -145,6 +145,7 @@ namespace LiveCode.Client.XamarinStudio
 			var typeDecls =
 				resolver.RootNode.Descendants.
 				OfType<TypeDeclaration> ().
+				Where (x => !(x.Parent is TypeDeclaration)).
 				ToList ();
 
 			var typeTCs = new List<TypeCode> ();
