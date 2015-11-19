@@ -29,10 +29,11 @@ namespace LiveCode.Client.XamarinStudio
 
 		protected void Alert (string format, params object[] args)
 		{
-			Console.WriteLine (format, args);
+			Log (format, args);
 			var parentWindow = IdeApp.Workbench.RootWindow;
 			var dialog = new MessageDialog(parentWindow, DialogFlags.DestroyWithParent,
 				MessageType.Info, ButtonsType.Ok,
+				false,
 				format, args);
 			dialog.Run ();
 			dialog.Destroy ();
