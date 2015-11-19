@@ -11,6 +11,7 @@ namespace LiveCode.Client
 	{
 		public string[] Declarations = new string[0];
 		public string ValueExpression = "";
+		public TypeCode[] Types = new TypeCode[0];
 	}
 
 	public class TypeCode
@@ -26,6 +27,11 @@ namespace LiveCode.Client
 
 		public string Key {
 			get { return Name; }
+		}
+
+		public override string ToString ()
+		{
+			return Name;
 		}
 
 		public bool HasCode { get { return !string.IsNullOrWhiteSpace (Code); } }
@@ -125,7 +131,26 @@ namespace LiveCode.Client
 
 		public LinkedCode GetLinkedCode ()
 		{
-			var codes = AllDependencies.Where (x => x.HasCode).ToList ();
+			var allDeps = AllDependencies.Where (x => x.HasCode).ToList ();
+
+			var changedDeps = allDeps.Where (x => x.CodeChanged || x == this).ToList ();
+			var notChangedDeps = allDeps.Where (x => !x.CodeChanged && x != this).ToList ();
+
+			var changedDepsChanged = true;
+			while (changedDepsChanged) {
+				changedDepsChanged = false;
+				foreach (var nc in notChangedDeps) {
+					var ncDeps = nc.AllDependencies;
+					var depChanged = ncDeps.Any (changedDeps.Contains);
+					if (depChanged) {
+						changedDeps.Add (nc);
+						notChangedDeps.Remove (nc);
+						changedDepsChanged = true;
+						break;
+					}
+				}
+			}
+			var codes = changedDeps;
 
 			var usings = codes.SelectMany (x => x.Usings).Distinct ().ToList ();
 
@@ -151,7 +176,8 @@ namespace LiveCode.Client
 				Declarations = new [] {
 					string.Join (Environment.NewLine, usings) + Environment.NewLine +
 					string.Join (Environment.NewLine, codes.Select (x => rename (x.Code))),
-				}
+				},
+				Types = codes.ToArray (),
 			};
 		}
 	}
