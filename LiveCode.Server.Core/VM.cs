@@ -42,6 +42,7 @@ namespace LiveCode.Server
 					if (ex.StackTrace.Contains ("Mono.CSharp.InternalErrorException")) {
 						eval = null; // Force re-init
 					}
+					printer.AddError (ex);
 				}
 
 				sw.Stop ();
@@ -155,6 +156,25 @@ namespace LiveCode.Server
 					System.Threading.ThreadPool.QueueUserWorkItem (_ =>
 						Console.WriteLine ("ERROR: {0}", tm));
 				}
+			}
+			public void AddError (Exception ex)
+			{
+				var text = ex.ToString ();
+
+				var m = new EvalMessage {
+					MessageType = "error",
+					Text = text,
+					Line = 0,
+					Column = 0,
+				};
+
+				Messages.Add (m);
+
+				//
+				// Print it to the console if there's an error
+				//
+				System.Threading.ThreadPool.QueueUserWorkItem (_ =>
+					Console.WriteLine ("EVAL ERROR: {0}", text));
 			}
 		}
 	}
