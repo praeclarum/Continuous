@@ -130,11 +130,19 @@ namespace LiveCode.Server
 			public readonly List<EvalMessage> Messages = new List<EvalMessage> ();
 			public override void Print (AbstractMessage msg, bool showFullPath)
 			{
+				var line = 0;
+				var column = 0;
+				try {
+					line = msg.Location.Row;
+					column = msg.Location.Column;
+				} catch {
+					//Log (ex);
+				}
 				var m = new EvalMessage {
 					MessageType = msg.MessageType,
 					Text = msg.Text,
-					Line = msg.Location.Row,
-					Column = msg.Location.Column,
+					Line = line,
+					Column = column,
 				};
 
 				Messages.Add (m);

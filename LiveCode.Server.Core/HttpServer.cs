@@ -64,6 +64,8 @@ namespace LiveCode.Server
 				else {
 					var reqStr = await new StreamReader (c.Request.InputStream, Encoding.UTF8).ReadToEndAsync ().ConfigureAwait (false);
 
+//					Log (reqStr);
+
 					var req = JsonConvert.DeserializeObject<EvalRequest> (reqStr);
 
 					var resp = await Task.Factory.StartNew (() => {
