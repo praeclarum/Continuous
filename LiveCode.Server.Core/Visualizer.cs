@@ -4,8 +4,11 @@ namespace LiveCode.Server
 {
 	public partial class Visualizer
 	{
-		public Visualizer ()
+		readonly object context;
+
+		public Visualizer (object context)
 		{
+			this.context = context;
 			PlatformInitialize ();
 		}
 

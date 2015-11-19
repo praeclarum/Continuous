@@ -23,8 +23,10 @@ You will then be able to select the **Live Code** Add-in from the **IDE extensio
 2. Put this line of code somewhere in the initialization of your app (`AppDelegate.FinishedLaunching` or `Activity.OnCreate` are great places):
 
 ```csharp
-new LiveCode.Server.HttpServer().Run();
+new LiveCode.Server.HttpServer(this).Run();
 ```
+
+where `this` should refer to a `Context` on Android, and is ignored (can be anything or `null`) on iOS.
 
 ## Android Emulator Extra Step
 

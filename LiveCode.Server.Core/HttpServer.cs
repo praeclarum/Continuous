@@ -1,31 +1,36 @@
 ﻿using System;
-using System.Net;
-using System.Threading.Tasks;
-using System.Text;
 using System.IO;
-using Newtonsoft.Json;
+using System.Net;
+using System.Text;
 using System.Threading;
-using System.Linq;
+using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace LiveCode.Server
 {
 	public class HttpServer
 	{
-		readonly Visualizer visualizer = new Visualizer ();
+		readonly int port;
+		readonly Visualizer visualizer;
 
 		HttpListener listener;
 		TaskScheduler mainScheduler;
 
 		readonly VM vm = new VM ();
 
-		public void Run (int port = Http.DefaultPort)
+		public HttpServer (object context = null, int port = Http.DefaultPort)
+		{
+			this.port = port;
+			visualizer = new Visualizer (context);
+		}
+
+		public void Run ()
 		{
 			mainScheduler = TaskScheduler.FromCurrentSynchronizationContext ();
 
 			Task.Run (() => {
 				listener = new HttpListener ();
-				var ip = GetIp ();
-				listener.Prefixes.Add ("http://" + ip + ":" + port + "/");
+				listener.Prefixes.Add ("http://127.0.0.1:" + port + "/");
 				listener.Start ();
 				Loop ();
 			});
@@ -111,19 +116,6 @@ namespace LiveCode.Server
 				return;
 			}
 			visualizer.Visualize (req, resp);
-		}
-
-		string GetIp ()
-		{
-			var interfaces = System.Net.NetworkInformation.NetworkInterface.GetAllNetworkInterfaces ().
-				Where (x => x.OperationalStatus == System.Net.NetworkInformation.OperationalStatus.Up &&
-					x.NetworkInterfaceType == 0);
-			foreach (var i in interfaces) {
-				var x = i.GetIPProperties ();
-				var addr = x.UnicastAddresses.First ();
-				Console.WriteLine (addr.Address);
-			}
-			return "127.0.0.1";
 		}
 
 		void Log (Exception ex, string env)

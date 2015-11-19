@@ -13,7 +13,7 @@ namespace LiveCode.Sample.Android
 		{
 			base.OnCreate (savedInstanceState);
 
-			new LiveCode.Server.HttpServer ().Run ();
+			new LiveCode.Server.HttpServer (this).Run ();
 
 			// Set our view from the "main" layout resource
 			SetContentView (Resource.Layout.Main);
@@ -21,7 +21,7 @@ namespace LiveCode.Sample.Android
 			// Get our button from the layout resource,
 			// and attach an event to it
 			Button button = FindViewById<Button> (Resource.Id.myButton);
-			
+
 			button.Click += delegate {
 				button.Text = string.Format ("{0} clicks!", count++);
 			};
