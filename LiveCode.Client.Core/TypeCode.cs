@@ -22,6 +22,7 @@ namespace LiveCode.Client
 		public TypeCode[] Dependencies = new TypeCode[0];
 		public string[] Usings = new string[0];
 		public string Code = "";
+		public bool CodeChanged = false;
 
 		public string Key {
 			get { return Name; }
@@ -57,8 +58,6 @@ namespace LiveCode.Client
 			var nsName = ns == null ? "" : ns.FullName;
 			var name = typedecl.Name;
 
-			var tc = Get (name);
-
 			var usings =
 				resolver.RootNode.Descendants.
 				OfType<UsingDeclaration> ().
@@ -70,26 +69,35 @@ namespace LiveCode.Client
 				usings.Add (nsUsing);
 			}
 
-			tc.Usings = usings.ToArray ();
 			var code = typedecl.ToString ();
-			tc.Code = code ?? "";
 
 			var deps = new List<String> ();
 			foreach (var d in typedecl.Descendants.OfType<SimpleType> ()) {
 				deps.Add (d.Identifier);
 			}
-			tc.Dependencies = deps.Distinct ().Select (Get).ToArray ();
 
-			return tc;
+			return Set (name, usings, code, deps);
 		}
-
 		public static TypeCode Set (string name, IEnumerable<string> usings, string code, IEnumerable<string> deps)
 		{
 			var tc = Get (name);
 
 			tc.Usings = usings.ToArray ();
-			tc.Code = code ?? "";
 			tc.Dependencies = deps.Distinct ().Select (Get).ToArray ();
+
+			var safeCode = code ?? "";
+
+			if (!string.IsNullOrEmpty (safeCode)) {
+				if (string.IsNullOrWhiteSpace (tc.Code)) {
+					tc.Code = safeCode;
+					tc.CodeChanged = false;
+				} else {
+					if (tc.Code != safeCode) {
+						tc.Code = safeCode;
+						tc.CodeChanged = true;
+					}
+				}
+			}
 
 			return tc;
 		}
