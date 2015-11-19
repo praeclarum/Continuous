@@ -9,14 +9,14 @@ namespace LiveCode.Client
 {
 	public class LinkedCode
 	{
-		public string[] Declarations = new string[0];
+		public string Declarations = "";
 		public string ValueExpression = "";
 		public TypeCode[] Types = new TypeCode[0];
 	}
 
 	public class TypeCode
 	{
-		// No namespace support because I can't figureout how to
+		// Only partial namespace support because I can't figureout how to
 		// get good TypeDeclarations from SimpleTypes.
 
 		public string Name = "";
@@ -24,6 +24,7 @@ namespace LiveCode.Client
 		public string[] Usings = new string[0];
 		public string Code = "";
 		public bool CodeChanged = false;
+		public string FullNamespace = "";
 
 		public string Key {
 			get { return Name; }
@@ -35,6 +36,7 @@ namespace LiveCode.Client
 		}
 
 		public bool HasCode { get { return !string.IsNullOrWhiteSpace (Code); } }
+		public bool HasNamespace { get { return !string.IsNullOrWhiteSpace (FullNamespace); } }
 
 		static readonly Dictionary<string, TypeCode> infos = new Dictionary<string, TypeCode> ();
 
@@ -70,11 +72,6 @@ namespace LiveCode.Client
 				Select (x => x.ToString ().Trim ()).
 				ToList ();
 
-			if (!string.IsNullOrWhiteSpace (nsName)) {
-				var nsUsing = "using " + nsName + ";";
-				usings.Add (nsUsing);
-			}
-
 			var code = typedecl.ToString ();
 
 			var deps = new List<String> ();
@@ -82,14 +79,15 @@ namespace LiveCode.Client
 				deps.Add (d.Identifier);
 			}
 
-			return Set (name, usings, code, deps);
+			return Set (name, usings, code, deps, nsName);
 		}
-		public static TypeCode Set (string name, IEnumerable<string> usings, string code, IEnumerable<string> deps)
+		public static TypeCode Set (string name, IEnumerable<string> usings, string code, IEnumerable<string> deps, string fullNamespace = "")
 		{
 			var tc = Get (name);
 
 			tc.Usings = usings.ToArray ();
 			tc.Dependencies = deps.Distinct ().Select (Get).ToArray ();
+			tc.FullNamespace = fullNamespace;
 
 			var safeCode = code ?? "";
 
@@ -172,11 +170,21 @@ namespace LiveCode.Client
 			};
 
 			return new LinkedCode {
-				ValueExpression = "new " + Name + suffix + "()",
-				Declarations = new [] {
+				ValueExpression =
+					"new " +
+					(HasNamespace ? FullNamespace + "." : "") +
+					Name + suffix + "()",
+				Declarations =
 					string.Join (Environment.NewLine, usings) + Environment.NewLine +
-					string.Join (Environment.NewLine, codes.Select (x => rename (x.Code))),
-				},
+					string.Join (Environment.NewLine, codes.Select (x => {
+						var renamedCode = rename (x.Code);
+						if (x.HasNamespace) {
+							return "namespace " + x.FullNamespace + "{" + renamedCode + "}";
+						}
+						else {
+							return renamedCode;
+						}
+					})),
 				Types = codes.ToArray (),
 			};
 		}

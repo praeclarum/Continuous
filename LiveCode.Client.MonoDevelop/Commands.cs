@@ -176,10 +176,8 @@ namespace LiveCode.Client.XamarinStudio
 				//
 				// Declare it
 				//
-				foreach (var c in code.Declarations) {
-					Log (c);
-					if (!await EvalAsync (c, showError)) return;
-				}
+				Log (code.Declarations);
+				if (!await EvalAsync (code.Declarations, showError)) return;
 
 				//
 				// Show it
