@@ -20,11 +20,7 @@ namespace LiveCode.Server
 
 			Log ("{0} value = {1}", ty.FullName, val);
 
-			ShowViewerAsync (GetViewer (req, resp)).ContinueWith (t => {
-				if (t.IsFaulted) {
-					Log ("ShowViewer ERROR {0}", t.Exception);
-				}
-			});
+			ShowViewer (GetViewer (req, resp));
 		}
 
 		object GetViewer (EvalRequest req, EvalResponse resp)
@@ -32,7 +28,7 @@ namespace LiveCode.Server
 			return resp.Result;
 		}
 
-		async Task ShowViewerAsync (object obj)
+		void ShowViewer (object obj)
 		{
 			var c = context as global::Android.Content.Context;
 			if (c == null)

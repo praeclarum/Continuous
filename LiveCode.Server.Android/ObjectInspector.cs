@@ -8,15 +8,17 @@ namespace LiveCode.Server
 	[Activity (Label = "ObjectInspector")]
 	public class ObjectInspector : ListActivity
 	{
-		object target;
+		ObjectInspectorData data = new ObjectInspectorData ();
 
 		protected override void OnCreate (Bundle savedInstanceState)
 		{
 			base.OnCreate (savedInstanceState);
 			var objectKey = Intent.GetStringExtra ("objectKey");
-			target = GetKeyedObject (objectKey);
+			var target = GetKeyedObject (objectKey);
 
-			Title = string.Format ("{0}", target);
+			data = new ObjectInspectorData (target);
+
+			Title = data.Title;
 		}
 
 		static readonly Dictionary<string, object> keyedObjects = new Dictionary<string, object> ();
@@ -32,7 +34,6 @@ namespace LiveCode.Server
 			keyedObjects.TryGetValue (key ?? "", out r);
 			return r;
 		}
-
 	}
 }
 

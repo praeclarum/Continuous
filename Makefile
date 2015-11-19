@@ -4,6 +4,7 @@ all:
 
 nuget:
 	xbuild /p:Configuration=Release LiveCode.Server.iOS/LiveCode.Server.iOS.csproj
+	xbuild /p:Configuration=Release LiveCode.Server.Android/LiveCode.Server.Android.csproj
 	nuget pack LiveCode.nuspec
 
 mpack:

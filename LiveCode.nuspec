@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>LiveCode</id>
-    <version>1.2.8</version>
+    <version>1.3</version>
     <title>LiveCode</title>
     <authors>Frank A. Krueger</authors>
     <owners>Frank A. Krueger</owners>
@@ -11,7 +11,7 @@
     <iconUrl>https://raw.githubusercontent.com/praeclarum/LiveCode/master/Documentation/Icon32.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Live Coding environment for .NET</description>
-    <releaseNotes>Dependency tracking.</releaseNotes>
+    <releaseNotes>Support for Android.</releaseNotes>
     <copyright>Copyright 2015 Frank A. Krueger</copyright>
     <tags>live code</tags>
     <dependencies>
@@ -22,5 +22,8 @@
     <!-- Xamarin.iOS -->
     <file src="LiveCode.Server.iOS/bin/Release/LiveCode.Server.iOS.dll" target="lib\Xamarin.iOS10\LiveCode.Server.iOS.dll" />
     <file src="LiveCode.Server.iOS/bin/Release/LiveCode.Server.iOS.xml" target="lib\Xamarin.iOS10\LiveCode.Server.iOS.xml" />
+    <!-- Xamarin.Android -->
+    <file src="LiveCode.Server.Android/bin/Release/LiveCode.Server.Android.dll" target="lib\MonoAndroid10\LiveCode.Server.Android.dll" />
+    <file src="LiveCode.Server.Android/bin/Release/LiveCode.Server.Android.xml" target="lib\MonoAndroid10\LiveCode.Server.Android.xml" />
   </files>
 </package>
