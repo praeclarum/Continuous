@@ -49,7 +49,7 @@ namespace LiveCode.Server
 			if (section == 1)
 				return "Properties";
 			if (section == 2)
-				return "Hierarchy";			
+				return "Hierarchy";
 			if (section == 3)
 				return "IEnumerable Elements";
 			return "";
@@ -126,8 +126,8 @@ namespace LiveCode.Server
 					c.TextLabel.Text = prop.Name;
 
 					try {
-						var v = prop.GetValue (data.Target);
-						c.DetailTextLabel.Text = v == null ? "null" : v.ToString ();
+						var v = prop.Value;
+						c.DetailTextLabel.Text = prop.ValueString;
 
 						if (v != null && !IsPrimitive (v.GetType ())) {
 							c.Accessory = UITableViewCellAccessory.DisclosureIndicator;
@@ -162,7 +162,7 @@ namespace LiveCode.Server
 
 				var prop = data.Properties [indexPath.Row];
 				try {
-					var v = prop.GetValue (data.Target);
+					var v = prop.Value;
 					var vc = new ObjectInspector (v);
 					n.PushViewController (vc, true);
 				} catch (Exception ex) {

@@ -13,7 +13,14 @@ namespace LiveCode.Server
 
 		public object Target { get { return target; } }
 
-		public PropertyInfo[] Properties { get; private set; }
+		public class ObjectProperty
+		{
+			public string Name;
+			public object Value;
+			public string ValueString;
+		}
+
+		public ObjectProperty[] Properties { get; private set; }
 
 		public Type[] Hierarchy { get; private set; }
 
@@ -36,9 +43,26 @@ namespace LiveCode.Server
 
 			Properties = targetType.GetProperties ().
 				Where (x =>
-					x.GetIndexParameters().Length == 0 &&
+					x.GetIndexParameters ().Length == 0 &&
 					x.GetMethod != null &&
 					!x.GetMethod.IsStatic).
+				OrderBy (x => x.Name).
+				Select (x => {
+					object val = null;
+					string valStr = "";
+					try {
+						val = x.GetValue (target);
+						valStr = val != null ? val.ToString () : "null";
+					} catch (Exception ex) {
+						valStr = string.Format ("{0}: {1}", ex.GetType (), ex.Message);
+						Log (ex);
+					}
+					return new ObjectProperty {
+						Name = x.Name,
+						Value = val,
+						ValueString = valStr,
+					};
+				}).					
 				ToArray ();
 
 			var h = new List<Type> ();
