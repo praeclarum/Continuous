@@ -118,6 +118,8 @@ namespace LiveCode.Server
 					c = new UITableViewCell (UITableViewCellStyle.Subtitle, "P");
 					c.TextLabel.Font = UIFont.FromDescriptor (UIFontDescriptor.PreferredCaption1, 12.0f);
 					c.DetailTextLabel.Font = UIFont.FromDescriptor (UIFontDescriptor.PreferredCaption1, 16.0f);
+					c.DetailTextLabel.MinimumFontSize = 10.0f;
+					c.DetailTextLabel.AdjustsFontSizeToFitWidth = true;
 				}
 				try {
 					c.DetailTextLabel.TextColor = tableView.TintColor;

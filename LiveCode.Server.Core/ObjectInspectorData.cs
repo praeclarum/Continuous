@@ -54,7 +54,8 @@ namespace LiveCode.Server
 						val = x.GetValue (target);
 						valStr = val != null ? val.ToString () : "null";
 					} catch (Exception ex) {
-						valStr = string.Format ("{0}: {1}", ex.GetType (), ex.Message);
+						var iex = GetInnerException (ex);
+						valStr = string.Format ("{0}: {1}", iex.GetType ().Name, iex.Message);
 						Log (ex);
 					}
 					return new ObjectProperty {
@@ -92,8 +93,6 @@ namespace LiveCode.Server
 				Elements = new object[0];
 			}
 
-			//			NavigationItem.RightBarButtonItem = new UIBarButtonItem (UIBarButtonSystemItem.Add);
-
 			Title = this.targetType.FullName;
 
 			if (target == null) {
@@ -114,6 +113,13 @@ namespace LiveCode.Server
 					Log (ex);
 				}
 			}
+		}
+
+		Exception GetInnerException (Exception ex)
+		{
+			if (ex.InnerException == null)
+				return ex;
+			return GetInnerException (ex.InnerException);
 		}
 
 		void Log (Exception ex)
