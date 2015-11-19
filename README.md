@@ -1,6 +1,6 @@
 # Live Code for .NET
 
-Live Code is my attempt to build a live coding environment for the development of iOS apps using Xamarin technologies.
+Live Code is my attempt to build a live coding environment for the development of iOS and Android apps using Xamarin technologies.
 
 It currently works only in Xamarin Studio and only for C#.
 
@@ -20,10 +20,18 @@ You will then be able to select the **Live Code** Add-in from the **IDE extensio
 
 1. Reference the [LiveCode nuget](https://www.nuget.org/packages/LiveCode/).
 
-2. Put this line of code somewhere in the initialization of your app (`AppDelegate.FinishedLaunching` is a great place):
+2. Put this line of code somewhere in the initialization of your app (`AppDelegate.FinishedLaunching` or `Activity.OnCreate` are great places):
 
 ```csharp
 new LiveCode.Server.HttpServer().Run();
+```
+
+## Android Emulator Extra Step
+
+If you want to run with the Android Emulator, you will have to forward the TCP port used by LiveCode:
+
+```bash
+$ adb forward tcp:9634 tcp:9634
 ```
 
 ## Running

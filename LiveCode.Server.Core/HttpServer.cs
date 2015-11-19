@@ -5,6 +5,7 @@ using System.Text;
 using System.IO;
 using Newtonsoft.Json;
 using System.Threading;
+using System.Linq;
 
 namespace LiveCode.Server
 {
@@ -23,7 +24,8 @@ namespace LiveCode.Server
 
 			Task.Run (() => {
 				listener = new HttpListener ();
-				listener.Prefixes.Add ("http://127.0.0.1:" + port + "/");
+				var ip = GetIp ();
+				listener.Prefixes.Add ("http://" + ip + ":" + port + "/");
 				listener.Start ();
 				Loop ();
 			});
@@ -109,6 +111,19 @@ namespace LiveCode.Server
 				return;
 			}
 			visualizer.Visualize (req, resp);
+		}
+
+		string GetIp ()
+		{
+			var interfaces = System.Net.NetworkInformation.NetworkInterface.GetAllNetworkInterfaces ().
+				Where (x => x.OperationalStatus == System.Net.NetworkInformation.OperationalStatus.Up &&
+					x.NetworkInterfaceType == 0);
+			foreach (var i in interfaces) {
+				var x = i.GetIPProperties ();
+				var addr = x.UnicastAddresses.First ();
+				Console.WriteLine (addr.Address);
+			}
+			return "127.0.0.1";
 		}
 
 		void Log (Exception ex, string env)
