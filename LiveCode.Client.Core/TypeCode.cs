@@ -83,6 +83,17 @@ namespace LiveCode.Client
 			return tc;
 		}
 
+		public static TypeCode Set (string name, IEnumerable<string> usings, string code, IEnumerable<string> deps)
+		{
+			var tc = Get (name);
+
+			tc.Usings = usings.ToArray ();
+			tc.Code = code ?? "";
+			tc.Dependencies = deps.Distinct ().Select (Get).ToArray ();
+
+			return tc;
+		}
+
 		void GetDependencies (List<TypeCode> code)
 		{
 			if (code.Contains (this))
