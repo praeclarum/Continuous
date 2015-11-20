@@ -28,7 +28,7 @@ new LiveCode.Server.HttpServer(this).Run();
 
 where `this` should refer to a `Context` on Android, and is ignored (can be anything or `null`) on iOS.
 
-## Android Emulator Extra Step
+### Android Emulator Extra Step
 
 If you want to run with the Android Emulator, you will have to forward the TCP port used by LiveCode:
 
@@ -39,6 +39,8 @@ $ adb forward tcp:9634 tcp:9634
 ## Running
 
 Run the debug version of your app. It should start as normal.
+
+Verify that the Xamarin Inspector is installed and running by looking for the enabled cross-hair icon in the debug toolbar. If you see that while debugging, you're all set. If not, make sure you have a debug build and that the Inspector is installed.
 
 ### Running Snippets
 
