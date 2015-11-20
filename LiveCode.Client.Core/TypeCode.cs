@@ -9,9 +9,18 @@ namespace LiveCode.Client
 {
 	public class LinkedCode
 	{
-		public string Declarations = "";
-		public string ValueExpression = "";
-		public TypeCode[] Types = new TypeCode[0];
+		public readonly string Declarations;
+		public readonly string ValueExpression;
+		public readonly TypeCode[] Types;
+		public readonly string CacheKey;
+		public LinkedCode (string declarations, string valueExpression, TypeCode[] types, TypeCode mainType)
+		{
+			Declarations = declarations??"";
+			ValueExpression = valueExpression??"";
+			Types = types;
+
+			CacheKey = mainType.UsingsAndCode + string.Join ("", types.Select (x => x.UsingsAndCode));
+		}
 	}
 
 	public class TypeCode
@@ -127,6 +136,12 @@ namespace LiveCode.Client
 			}
 		}
 
+		public string UsingsAndCode {
+			get {
+				return string.Join (Environment.NewLine, Usings) + Environment.NewLine + Code;
+			}
+		}
+
 		public LinkedCode GetLinkedCode ()
 		{
 			var allDeps = AllDependencies.Where (x => x.HasCode).ToList ();
@@ -169,12 +184,12 @@ namespace LiveCode.Client
 				return rc;
 			};
 
-			return new LinkedCode {
-				ValueExpression =
+			return new LinkedCode (
+				valueExpression:
 					"new " +
 					(HasNamespace ? FullNamespace + "." : "") +
 					Name + suffix + "()",
-				Declarations =
+				declarations:
 					string.Join (Environment.NewLine, usings) + Environment.NewLine +
 					string.Join (Environment.NewLine, codes.Select (x => {
 						var renamedCode = rename (x.Code);
@@ -185,8 +200,8 @@ namespace LiveCode.Client
 							return renamedCode;
 						}
 					})),
-				Types = codes.ToArray (),
-			};
+				types: codes.ToArray (),
+				mainType: this);
 		}
 	}
 }

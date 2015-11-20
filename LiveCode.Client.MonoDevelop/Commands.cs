@@ -130,41 +130,40 @@ namespace LiveCode.Client.XamarinStudio
 			monitorTypeName = typeName;
 //			monitorNamespace = nsName;
 
-			await VisualizeTypeAsync (showError: true);
+			await VisualizeTypeAsync (forceEval: true, showError: true);
 		}
 
-		async Task VisualizeTypeAsync (bool showError)
+		LinkedCode lastLinkedCode = null;
+
+		async Task VisualizeTypeAsync (bool forceEval, bool showError)
 		{
 			//
-			// Gobble up all we can about the types in the editor
+			// Gobble up all we can about the types in the active document
 			//
 			var doc = IdeApp.Workbench.ActiveDocument;
 			var resolver = await doc.GetSharedResolver ();
 			var typeDecls =
 				resolver.RootNode.Descendants.
 				OfType<TypeDeclaration> ().
-				Where (x => !(x.Parent is TypeDeclaration)).
-				ToList ();
-
-			var typeTCs = new List<TypeCode> ();
+				Where (x => !(x.Parent is TypeDeclaration));
 			foreach (var td in typeDecls) {
-				typeTCs.Add (TypeCode.Set (td, resolver));
+				TypeCode.Set (td, resolver);
 			}
 
 			//
 			// Refresh the monitored type
 			//
-			var monitorTC = TypeCode.Get (monitorTypeName);
-
 			if (string.IsNullOrWhiteSpace (monitorTypeName))
 				return;
 
-			var dependsChanged = typeTCs.Any (monitorTC.AllDependencies.Contains);
+			var monitorTC = TypeCode.Get (monitorTypeName);
 
-			if (!dependsChanged)
+			var code = await Task.Run (() => monitorTC.GetLinkedCode ());
+
+			if (!forceEval && lastLinkedCode != null && lastLinkedCode.CacheKey == code.CacheKey) {
 				return;
-
-			var code = monitorTC.GetLinkedCode ();
+			}
+			lastLinkedCode = code;
 
 			//
 			// Send the code to the device
@@ -236,7 +235,7 @@ namespace LiveCode.Client.XamarinStudio
 		{
 			var doc = IdeApp.Workbench.ActiveDocument;
 			Log ("DOC PARSED {0}", doc.Name);
-			await VisualizeTypeAsync (showError: false);
+			await VisualizeTypeAsync (forceEval: false, showError: false);
 		}
 
 		protected override void Update (CommandInfo info)
