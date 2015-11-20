@@ -125,12 +125,9 @@ namespace LiveCode.Client.XamarinStudio
 
 			var nsName = ns == null ? "" : ns.FullName;
 
-			Console.WriteLine ("MONITOR {0} --- {1}", nsName, typeName);
+			Log ("MONITOR {0} --- {1}", nsName, typeName);
 
-			if (monitorTypeName != typeName) {
-				TypeCode.Clear (); // Reset
-				monitorTypeName = typeName;
-			}
+			monitorTypeName = typeName;
 //			monitorNamespace = nsName;
 
 			await VisualizeTypeAsync (showError: true);
