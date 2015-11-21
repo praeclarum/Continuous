@@ -163,7 +163,6 @@ namespace LiveCode.Client.XamarinStudio
 			if (!forceEval && lastLinkedCode != null && lastLinkedCode.CacheKey == code.CacheKey) {
 				return;
 			}
-			lastLinkedCode = code;
 
 			//
 			// Send the code to the device
@@ -182,6 +181,12 @@ namespace LiveCode.Client.XamarinStudio
 				//
 				Log (code.ValueExpression);
 				if (!await EvalAsync (code.ValueExpression, showError)) return;
+
+				//
+				// If we made it this far, remember so we don't re-send the same
+				// thing immediately
+				//
+				lastLinkedCode = code;
 
 			} catch (Exception ex) {
 				if (showError) {
