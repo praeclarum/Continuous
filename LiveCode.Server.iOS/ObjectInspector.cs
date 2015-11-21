@@ -17,7 +17,7 @@ namespace LiveCode.Server
 		}
 
 		public ObjectInspector (object target)
-			: base (UITableViewStyle.Grouped)
+			: base (UITableViewStyle.Plain)
 		{
 			data = new ObjectInspectorData (target);
 
@@ -26,11 +26,14 @@ namespace LiveCode.Server
 
 		public override nint NumberOfSections (UITableView tableView)
 		{
-			return 4;
+			return data.IsList ? 1 : (data.Elements.Length > 0 ? 4 : 3);
 		}
 
 		public override nint RowsInSection (UITableView tableView, nint section)
 		{
+			if (data.IsList) {
+				return data.Elements.Length;
+			}
 			if (section == 0)
 				return 2;
 			if (section == 1)
@@ -39,32 +42,34 @@ namespace LiveCode.Server
 				return data.Hierarchy.Length;
 			if (section == 3)
 				return data.Elements.Length;
-			return 0;
+			return 1;
 		}
 
 		public override string TitleForHeader (UITableView tableView, nint section)
 		{
+			if (data.IsList)
+				return "";
+			
 			if (section == 0)
 				return "";
 			if (section == 1)
-				return "Properties";
-			if (section == 2)
-				return "Hierarchy";
+				return " ";
 			if (section == 3)
-				return "IEnumerable Elements";
+				return " ";
 			return "";
 		}
 
 		public override nfloat GetHeightForRow (UITableView tableView, Foundation.NSIndexPath indexPath)
 		{
-			if (indexPath.Section == 0 && indexPath.Row == 0)
-				return 88.0f;
+			if (!data.IsList && indexPath.Section == 0) {
+				return indexPath.Row == 0 ? 66.0f : 22.0f;
+			}
 			return 44.0f;
 		}
 
 		public override UITableViewCell GetCell (UITableView tableView, Foundation.NSIndexPath indexPath)
 		{
-			if (indexPath.Section == 0) {
+			if (!data.IsList && indexPath.Section == 0) {
 				if (indexPath.Row == 0) {
 					
 					var c = tableView.DequeueReusableCell ("TS");
@@ -72,7 +77,7 @@ namespace LiveCode.Server
 						c = new UITableViewCell (UITableViewCellStyle.Default, "TS");
 						c.TextLabel.Lines = 3;
 						c.TextLabel.AdjustsFontSizeToFitWidth = true;
-						c.TextLabel.Font = UIFont.BoldSystemFontOfSize (22.0f);
+						c.TextLabel.Font = UIFont.FromName ("Menlo-Bold", 16.0f);
 					}
 					c.TextLabel.Text = data.ToStringValue;
 					return c;
@@ -80,11 +85,12 @@ namespace LiveCode.Server
 					var c = tableView.DequeueReusableCell ("GH");
 					if (c == null) {
 						c = new UITableViewCell (UITableViewCellStyle.Default, "GH");
+						c.TextLabel.TextColor = UIColor.Gray;
 					}
 					c.TextLabel.Text = data.HashDisplayString;
 					return c;
 				}
-			} else if (indexPath.Section == 2) {
+			} else if (!data.IsList && indexPath.Section == 2000) {
 				var c = tableView.DequeueReusableCell ("H");
 				if (c == null) {
 					c = new UITableViewCell (UITableViewCellStyle.Default, "H");
@@ -98,7 +104,7 @@ namespace LiveCode.Server
 				}
 				return c;
 			
-			} else if (indexPath.Section == 3) {
+			} else if ((!data.IsList && indexPath.Section == 2) || (data.IsList && indexPath.Section == 0)) {
 				var c = tableView.DequeueReusableCell ("E");
 				if (c == null) {
 					c = new UITableViewCell (UITableViewCellStyle.Default, "E");
@@ -107,7 +113,7 @@ namespace LiveCode.Server
 				c.TextLabel.Text = "";
 				try {
 					c.TextLabel.TextColor = tableView.TintColor;
-					c.TextLabel.Text = data.Elements[indexPath.Row].ToString ();
+					c.TextLabel.Text = data.Elements[indexPath.Row].Title;
 				} catch (Exception ex) {
 					Log (ex);
 				}
@@ -160,7 +166,7 @@ namespace LiveCode.Server
 			if (n == null)
 				return;
 			
-			if (indexPath.Section == 1) {
+			if (!data.IsList && indexPath.Section == 1) {
 
 				var prop = data.Properties [indexPath.Row];
 				try {
@@ -171,9 +177,9 @@ namespace LiveCode.Server
 					Log (ex);
 				}
 
-			} else if (indexPath.Section == 3) {
+			} else if ((!data.IsList && indexPath.Section == 2) || (data.IsList && indexPath.Section == 0)) {
 
-				var e = data.Elements [indexPath.Row];
+				var e = data.Elements [indexPath.Row].Value;
 				var vc = new ObjectInspector (e);
 
 				n.PushViewController (vc, true);
@@ -188,6 +194,30 @@ namespace LiveCode.Server
 		void Log (Exception ex)
 		{
 			Console.WriteLine (ex);
+		}
+	}
+
+	public class TestObjectInspector : ObjectInspector
+	{
+		class TestObject
+		{
+			public List<int> ListOfInt { get; private set; }
+			public int[] ArrayOfInt { get; private set; }
+			public readonly Dictionary<string, object> Dict;
+			public TestObject ()
+			{
+				ListOfInt = new List<int> { 1, 2, 3, 4 };
+				ArrayOfInt = new [] { 1, 2 };
+				Dict = new Dictionary<string, object> {
+					{"Hello", 12} 
+				};
+			}
+		}
+
+		public TestObjectInspector ()
+			: base (new TestObject ())
+		{
+			
 		}
 	}
 }
