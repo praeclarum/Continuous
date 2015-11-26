@@ -190,14 +190,14 @@ namespace LiveCode.Client
 					(HasNamespace ? FullNamespace + "." : "") +
 					Name + suffix + "()",
 				declarations:
-					string.Join (Environment.NewLine, usings) + Environment.NewLine +
 					string.Join (Environment.NewLine, codes.Select (x => {
+						var us = string.Join (Environment.NewLine, usings);
 						var renamedCode = rename (x.Code);
 						if (x.HasNamespace) {
-							return "namespace " + x.FullNamespace + "{" + renamedCode + "}";
+							return "namespace " + x.FullNamespace + "{" + us + "\n" + renamedCode + "}";
 						}
 						else {
-							return renamedCode;
+							return us + "\n" + renamedCode;
 						}
 					})),
 				types: codes.ToArray (),
