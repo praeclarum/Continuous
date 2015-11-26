@@ -75,7 +75,7 @@ namespace LiveCode.Server
 					var c = tableView.DequeueReusableCell ("TS");
 					if (c == null) {
 						c = new UITableViewCell (UITableViewCellStyle.Default, "TS");
-						c.TextLabel.Lines = 3;
+						c.TextLabel.Lines = 5;
 						c.TextLabel.AdjustsFontSizeToFitWidth = true;
 						c.TextLabel.Font = UIFont.FromName ("Menlo-Bold", 16.0f);
 					}
