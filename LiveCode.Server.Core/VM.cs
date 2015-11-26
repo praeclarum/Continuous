@@ -65,6 +65,8 @@ namespace LiveCode.Server
 				Log ("INIT EVAL");
 
 				var settings = new CompilerSettings ();
+				settings.AddConditionalSymbol ("__LIVECODE__");
+				settings.AddConditionalSymbol ("DEBUG");
 				PlatformSettings (settings);
 				var context = new CompilerContext (settings, printer);
 				eval = new Evaluator (context);
