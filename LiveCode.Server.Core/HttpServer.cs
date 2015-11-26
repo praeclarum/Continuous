@@ -115,6 +115,11 @@ namespace LiveCode.Server
 			if (!resp.HasResult) {
 				return;
 			}
+			try {
+				Console.WriteLine ("LiveCode.Visualize: {0}", resp.Result);
+			// Analysis disable once EmptyGeneralCatchClause
+			} catch (Exception) {				
+			}
 			visualizer.Visualize (req, resp);
 		}
 
