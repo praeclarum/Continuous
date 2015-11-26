@@ -65,6 +65,7 @@
     <Compile Include="CodeChangedTest.cs" />
     <Compile Include="LinkerTest.cs" />
     <Compile Include="NamespaceTest.cs" />
+    <Compile Include="UsingsTest.cs" />
   </ItemGroup>
   <Import Project="..\LiveCode.Client.Core\LiveCode.Client.Core.projitems" Label="Shared" Condition="Exists('..\LiveCode.Client.Core\LiveCode.Client.Core.projitems')" />
   <Import Project="..\LiveCode.Core\LiveCode.Core.projitems" Label="Shared" Condition="Exists('..\LiveCode.Core\LiveCode.Core.projitems')" />
