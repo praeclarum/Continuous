@@ -121,11 +121,6 @@ namespace LiveCode.Client.XamarinStudio
 			StartMonitoring ();
 
 			var typeName = typedecl.Name;
-			var ns = typedecl.Parent as NamespaceDeclaration;
-
-			var nsName = ns == null ? "" : ns.FullName;
-
-			Log ("MONITOR {0} --- {1}", nsName, typeName);
 
 			monitorTypeName = typeName;
 //			monitorNamespace = nsName;
@@ -140,14 +135,9 @@ namespace LiveCode.Client.XamarinStudio
 			//
 			// Gobble up all we can about the types in the active document
 			//
-			var doc = IdeApp.Workbench.ActiveDocument;
-			var resolver = await doc.GetSharedResolver ();
-			var typeDecls =
-				resolver.RootNode.Descendants.
-				OfType<TypeDeclaration> ().
-				Where (x => !(x.Parent is TypeDeclaration));
+			var typeDecls = await GetTopLevelTypeDeclsAsync ();
 			foreach (var td in typeDecls) {
-				TypeCode.Set (td, resolver);
+				td.SetTypeCode ();
 			}
 
 			//
@@ -195,15 +185,111 @@ namespace LiveCode.Client.XamarinStudio
 			}
 		}
 
-		async Task<TypeDeclaration> FindTypeAtCursor ()
+		abstract class TypeDecl
+		{
+			public abstract string Name { get; }
+			public abstract TextLocation StartLocation { get; }
+			public abstract TextLocation EndLocation { get; }
+			public abstract void SetTypeCode ();
+		}
+
+		class CSharpTypeDecl : TypeDecl
+		{
+			public TypeDeclaration Declaration;
+			public CSharpAstResolver Resolver;
+			public override string Name {
+				get {
+					return Declaration.Name;
+				}
+			}
+			public override TextLocation StartLocation {
+				get {
+					return Declaration.StartLocation;
+				}
+			}
+			public override TextLocation EndLocation {
+				get {
+					return Declaration.EndLocation;
+				}
+			}
+			public override void SetTypeCode ()
+			{
+				TypeCode.Set (Declaration, Resolver);
+			}
+		}
+
+		class XamlTypeDecl : TypeDecl
+		{
+			public string XamlText;
+			public override string Name {
+				get {
+					Console.WriteLine ("XAML TYPE GET NAME");
+					return "??";
+				}
+			}
+			public override TextLocation StartLocation {
+				get {
+					return new TextLocation (TextLocation.MinLine, TextLocation.MinColumn);
+				}
+			}
+			public override TextLocation EndLocation {
+				get {
+					return new TextLocation (1000000, TextLocation.MinColumn);
+				}
+			}
+			public override void SetTypeCode ()
+			{
+				Console.WriteLine ("SET XAML TYPE CODE");
+			}
+		}
+
+		async Task<TypeDecl[]> GetTopLevelTypeDeclsAsync ()
 		{
 			var doc = IdeApp.Workbench.ActiveDocument;
-			var resolver = await doc.GetSharedResolver ();
+			Log ("Doc = {0}", doc);
+			if (doc == null) {
+				return new TypeDecl[0];
+			}
+
+			var ext = doc.FileName.Extension;
+
+			if (ext == ".cs") {
+				var resolver = await doc.GetSharedResolver ();
+				var typeDecls =
+					resolver.RootNode.Descendants.
+				OfType<TypeDeclaration> ().
+				Where (x => !(x.Parent is TypeDeclaration)).
+				Select (x => new CSharpTypeDecl {
+						Declaration = x,
+						Resolver = resolver,
+					});
+				return typeDecls.ToArray ();
+			}
+
+			if (ext == ".xaml") {
+				var xaml = doc.Editor.Text;
+				return new TypeDecl[] {
+					new XamlTypeDecl {
+						XamlText = xaml,
+					},
+				};
+			}
+
+			return new TypeDecl[0];
+		}
+
+		async Task<TypeDecl> FindTypeAtCursor ()
+		{
+			var doc = IdeApp.Workbench.ActiveDocument;
+			if (doc == null) {
+				return null;
+			}
+
 			var editLoc = doc.Editor.Caret.Location;
 			var editTLoc = new TextLocation (editLoc.Line, editLoc.Column);
+
 			var selTypeDecl =
-				resolver.RootNode.Descendants.
-				OfType<TypeDeclaration> ().
+				(await GetTopLevelTypeDeclsAsync ()).
 				FirstOrDefault (x => x.StartLocation <= editTLoc && editTLoc <= x.EndLocation);
 			return selTypeDecl;
 		}
