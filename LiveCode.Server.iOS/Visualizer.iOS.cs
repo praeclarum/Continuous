@@ -129,7 +129,7 @@ namespace LiveCode.Server
 				return null;
 			
 			TypeVisualizer v;
-			if (typeVisualizers.TryGetValue (type, out v)) {
+			if (typeVisualizers.TryGetValue (type.FullName, out v)) {
 				return v;
 			}
 
@@ -141,14 +141,15 @@ namespace LiveCode.Server
 
 		partial void PlatformInitialize ()
 		{
-			typeVisualizers = new Dictionary<Type, TypeVisualizer> {
-				{ typeof(UIView), o => GetView ((UIView)o) },
-				{ typeof(UITableViewCell), o => GetView ((UITableViewCell)o) },
-				{ typeof(UICollectionViewCell), o => GetView ((UICollectionViewCell)o) },
-				{ typeof(UIColor), o => GetView ((UIColor)o) },
+			typeVisualizers = new Dictionary<string, TypeVisualizer> {
+				{ typeof(UIView).FullName, o => GetView ((UIView)o) },
+				{ typeof(UITableViewCell).FullName, o => GetView ((UITableViewCell)o) },
+				{ typeof(UICollectionViewCell).FullName, o => GetView ((UICollectionViewCell)o) },
+				{ typeof(UIColor).FullName, o => GetView ((UIColor)o) },
+				{ "Xamarin.Forms.ContentPage", GetFormsContentPage },
 			};
 		}
-		Dictionary<Type, TypeVisualizer> typeVisualizers = new Dictionary<Type, TypeVisualizer> ();
+		Dictionary<string, TypeVisualizer> typeVisualizers = new Dictionary<string, TypeVisualizer> ();
 
 		UIView GetView (UIView value)
 		{
@@ -238,6 +239,12 @@ namespace LiveCode.Server
 			public HostCell (IntPtr h) : base (h)
 			{
 			}
+		}
+
+		UIView GetFormsContentPage (object pageObj)
+		{
+			dynamic page = pageObj;
+			return null;
 		}
 	}
 }
