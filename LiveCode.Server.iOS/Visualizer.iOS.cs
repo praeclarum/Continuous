@@ -23,21 +23,21 @@ namespace LiveCode.Server
 			}
 		}
 
-		partial void PlatformVisualize (EvalRequest req, EvalResponse resp)
+		partial void PlatformVisualize (EvalResult res)
 		{
-			var val = resp.Result;
+			var val = res.Result;
 			var ty = val != null ? val.GetType () : typeof(object);
 
 			Log ("{0} value = {1}", ty.FullName, val);
 
-			ShowViewerAsync (GetViewer (req, resp)).ContinueWith (t => {
+			ShowViewerAsync (GetViewer (res)).ContinueWith (t => {
 				if (t.IsFaulted) {
 					Log ("ShowViewer ERROR {0}", t.Exception);
 				}
 			});
 		}
 
-		UIViewController GetViewer (EvalRequest req, EvalResponse resp)
+		UIViewController GetViewer (EvalResult resp)
 		{
 			var vc = resp.Result as UIViewController;
 

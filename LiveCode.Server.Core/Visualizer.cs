@@ -12,9 +12,9 @@ namespace LiveCode.Server
 			PlatformInitialize ();
 		}
 
-		public void Visualize (EvalRequest req, EvalResponse resp)
+		public void Visualize (EvalResult res)
 		{
-			PlatformVisualize (req, resp);
+			PlatformVisualize (res);
 		}
 
 		public void StopVisualizing ()
@@ -23,7 +23,7 @@ namespace LiveCode.Server
 		}
 
 		partial void PlatformInitialize ();
-		partial void PlatformVisualize (EvalRequest req, EvalResponse resp);
+		partial void PlatformVisualize (EvalResult res);
 		partial void PlatformStopVisualizing ();
 
 		void Log (string format, params object[] args)

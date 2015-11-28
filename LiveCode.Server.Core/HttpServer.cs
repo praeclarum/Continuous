@@ -76,7 +76,7 @@ namespace LiveCode.Server
 					var req = JsonConvert.DeserializeObject<EvalRequest> (reqStr);
 
 					var resp = await Task.Factory.StartNew (() => {
-						var r = new EvalResponse ();
+						var r = new EvalResult ();
 						try {
 							r = vm.Eval (req.Code);
 						}
@@ -84,12 +84,16 @@ namespace LiveCode.Server
 							Log (ex, "vm.Eval");
 						}
 						try {
-							Visualize (req, r);
+							Visualize (r);
 						}
 						catch (Exception ex) {
 							Log (ex, "Visualize");
 						}
-						return Tuple.Create (r, JsonConvert.SerializeObject (r));
+						var response = new EvalResponse {
+							Messages = r.Messages,
+							Duration = r.Duration
+						};
+						return Tuple.Create (r, JsonConvert.SerializeObject (response));
 					}, CancellationToken.None, TaskCreationOptions.None, mainScheduler);
 
 					Log (resp.Item2);
@@ -110,17 +114,17 @@ namespace LiveCode.Server
 			}
 		}
 
-		void Visualize (EvalRequest req, EvalResponse resp)
+		void Visualize (EvalResult res)
 		{
-			if (!resp.HasResult) {
+			if (!res.HasResult) {
 				return;
 			}
 			try {
-				Console.WriteLine ("LiveCode.Visualize: {0}", resp.Result);
+				Console.WriteLine ("LiveCode.Visualize: {0}", res.Result);
 			// Analysis disable once EmptyGeneralCatchClause
 			} catch (Exception) {				
 			}
-			visualizer.Visualize (req, resp);
+			visualizer.Visualize (res);
 		}
 
 		void Log (Exception ex, string env)

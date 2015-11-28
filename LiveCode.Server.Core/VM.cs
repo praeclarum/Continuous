@@ -16,7 +16,7 @@ namespace LiveCode.Server
 
 		Evaluator eval;
 
-		public EvalResponse Eval (string code)
+		public EvalResult Eval (string code)
 		{
 			var sw = new System.Diagnostics.Stopwatch ();
 
@@ -50,7 +50,8 @@ namespace LiveCode.Server
 				Log ("END EVAL ON THREAD {0}", System.Threading.Thread.CurrentThread.ManagedThreadId);
 			}
 
-			return new EvalResponse {
+			return new EvalResult {
+				Code = code,
 				Messages = printer.Messages.ToArray (),
 				Duration = sw.Elapsed,
 				Result = result,

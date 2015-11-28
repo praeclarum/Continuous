@@ -13,17 +13,17 @@ namespace LiveCode.Server
 		{
 		}
 
-		partial void PlatformVisualize (EvalRequest req, EvalResponse resp)
+		partial void PlatformVisualize (EvalResult resp)
 		{
 			var val = resp.Result;
 			var ty = val != null ? val.GetType () : typeof(object);
 
 			Log ("{0} value = {1}", ty.FullName, val);
 
-			ShowViewer (GetViewer (req, resp));
+			ShowViewer (GetViewer (resp));
 		}
 
-		object GetViewer (EvalRequest req, EvalResponse resp)
+		object GetViewer (EvalResult resp)
 		{
 			return resp.Result;
 		}

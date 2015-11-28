@@ -21,8 +21,9 @@ namespace LiveCode
 		public int Column;
 	}
 
-	public class EvalResponse
+	public class EvalResult
 	{
+		public string Code;
 		public EvalMessage[] Messages;
 		public TimeSpan Duration;
 		public object Result;
@@ -33,5 +34,14 @@ namespace LiveCode
 		}
 	}
 
+	public class EvalResponse
+	{
+		public EvalMessage[] Messages;
+		public TimeSpan Duration;
+
+		public bool HasErrors {
+			get { return Messages != null && Messages.Any (m => m.MessageType == "error"); }
+		}
+	}
 }
 
