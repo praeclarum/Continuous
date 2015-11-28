@@ -243,8 +243,15 @@ namespace LiveCode.Server
 
 		UIView GetFormsContentPage (object pageObj)
 		{
-			dynamic page = pageObj;
-			return null;
+			var asms = AppDomain.CurrentDomain.GetAssemblies ();
+			var platasm = asms.FirstOrDefault (x => x.GetName ().Name == "Xamarin.Forms.Platform.iOS");
+			var pagex = platasm.GetType ("Xamarin.Forms.PageExtensions");
+
+			var cvc = pagex.GetMethod ("CreateViewController");
+
+			var vc = (UIViewController)cvc.Invoke (null, new[]{ pageObj });
+
+			return vc.View;
 		}
 	}
 }
