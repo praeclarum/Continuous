@@ -9,7 +9,8 @@ nuget:
 
 mpack:
 	xbuild /p:Configuration=Release LiveCode.Client.MonoDevelop/LiveCode.Client.MonoDevelop.csproj
-	/Applications/Xamarin\ Studio.app/Contents/MacOS/mdtool setup pack LiveCode.Client.MonoDevelop/bin/Release/LiveCode.Client.MonoDevelop.dll
-	mv LiveCode.Client.MonoDevelop.LiveCode.Client.MonoDevelop_*.mpack LiveCode.Client.MonoDevelop/AddinRepo/LiveCode.Client.MonoDevelop.mpack
+	cp LiveCode.Client.MonoDevelop/bin/Release/LiveCode.Client.MonoDevelop.dll LiveCode.Client.MonoDevelop/AddinRepo/
+	cp LiveCode.Client.MonoDevelop/Properties/addin.info LiveCode.Client.MonoDevelop/AddinRepo/
+	cd LiveCode.Client.MonoDevelop/AddinRepo/ && zip LiveCode.Client.MonoDevelop.mpack addin.info LiveCode.Client.MonoDevelop.dll && rm addin.info LiveCode.Client.MonoDevelop.dll
 	/Applications/Xamarin\ Studio.app/Contents/MacOS/mdtool setup rep-build LiveCode.Client.MonoDevelop/AddinRepo
 
