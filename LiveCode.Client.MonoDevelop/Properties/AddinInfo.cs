@@ -5,7 +5,7 @@ using Mono.Addins.Description;
 [assembly:Addin (
 	"LiveCode.Client.MonoDevelop", 
 	Namespace = "LiveCode.Client.MonoDevelop",
-	Version = "1.3.3"
+	Version = "1.3.4"
 )]
 
 [assembly:AddinName ("LiveCode")]
