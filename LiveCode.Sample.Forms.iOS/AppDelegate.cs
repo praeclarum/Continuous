@@ -5,7 +5,7 @@ using System.Linq;
 using Foundation;
 using UIKit;
 
-namespace LiveCode.Sample.Forms.iOS
+namespace Continuous.Sample.Forms.iOS
 {
 	[Register ("AppDelegate")]
 	public partial class AppDelegate : global::Xamarin.Forms.Platform.iOS.FormsApplicationDelegate
@@ -16,7 +16,7 @@ namespace LiveCode.Sample.Forms.iOS
 
 			LoadApplication (new App ());
 
-			new LiveCode.Server.HttpServer ().Run ();
+			new Continuous.Server.HttpServer ().Run ();
 
 			return base.FinishedLaunching (app, options);
 		}

@@ -6,7 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
-namespace LiveCode.Server
+namespace Continuous.Server
 {
 	public class HttpServer
 	{
@@ -120,7 +120,7 @@ namespace LiveCode.Server
 				return;
 			}
 			try {
-				Console.WriteLine ("LiveCode.Visualize: {0}", res.Result);
+				Console.WriteLine ("Continuous.Visualize: {0}", res.Result);
 			// Analysis disable once EmptyGeneralCatchClause
 			} catch (Exception) {				
 			}

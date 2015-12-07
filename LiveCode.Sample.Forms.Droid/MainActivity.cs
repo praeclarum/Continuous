@@ -8,9 +8,9 @@ using Android.Views;
 using Android.Widget;
 using Android.OS;
 
-namespace LiveCode.Sample.Forms.Droid
+namespace Continuous.Sample.Forms.Droid
 {
-	[Activity (Label = "LiveCode.Sample.Forms.Droid", Icon = "@drawable/icon", MainLauncher = true, ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation)]
+	[Activity (Label = "Continuous.Sample.Forms.Droid", Icon = "@drawable/icon", MainLauncher = true, ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation)]
 	public class MainActivity : global::Xamarin.Forms.Platform.Android.FormsApplicationActivity
 	{
 		protected override void OnCreate (Bundle bundle)

@@ -5,7 +5,7 @@ using System.Linq;
 using ICSharpCode.NRefactory.CSharp;
 using ICSharpCode.NRefactory.CSharp.Resolver;
 
-namespace LiveCode.Client
+namespace Continuous.Client
 {
 	public class LinkedCode
 	{

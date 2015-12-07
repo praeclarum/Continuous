@@ -5,8 +5,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{FF4CCB03-A51E-4CD0-9E64-054B57ED5F36}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>LiveCode.Client.Test</RootNamespace>
-    <AssemblyName>LiveCode.Client.Test</AssemblyName>
+    <RootNamespace>Continuous.Client.Test</RootNamespace>
+    <AssemblyName>Continuous.Client.Test</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -67,8 +67,8 @@
     <Compile Include="NamespaceTest.cs" />
     <Compile Include="UsingsTest.cs" />
   </ItemGroup>
-  <Import Project="..\LiveCode.Client.Core\LiveCode.Client.Core.projitems" Label="Shared" Condition="Exists('..\LiveCode.Client.Core\LiveCode.Client.Core.projitems')" />
-  <Import Project="..\LiveCode.Core\LiveCode.Core.projitems" Label="Shared" Condition="Exists('..\LiveCode.Core\LiveCode.Core.projitems')" />
+  <Import Project="..\Continuous.Client.Core\Continuous.Client.Core.projitems" Label="Shared" Condition="Exists('..\Continuous.Client.Core\Continuous.Client.Core.projitems')" />
+  <Import Project="..\Continuous.Core\Continuous.Core.projitems" Label="Shared" Condition="Exists('..\Continuous.Core\Continuous.Core.projitems')" />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <None Include="packages.config" />

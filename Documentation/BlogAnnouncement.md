@@ -91,7 +91,7 @@ With live code, we can have the best of both worlds. We write the UI using code,
 
 ## Time to Hack
 
-[In two days I have been able to put together on tenth of the tool I described in my email](https://github.com/praeclarum/LiveCode/commits/master). But even this small version of it has me really excited.
+[In two days I have been able to put together on tenth of the tool I described in my email](https://github.com/praeclarum/Continuous/commits/master). But even this small version of it has me really excited.
 
 It is able to do two things:
 
@@ -99,7 +99,7 @@ It is able to do two things:
 
 2. Monitor whole classes that are evaluated and visualized whenever they are edited. This makes creating UIs super fun and is the part I'm most excited about.
 
-[Please go follow the instructions to run it and let me know what you think.](https://github.com/praeclarum/LiveCode/blob/master/README.md) (This only works in Xamarin Studio.)
+[Please go follow the instructions to run it and let me know what you think.](https://github.com/praeclarum/Continuous/blob/master/README.md) (This only works in Xamarin Studio.)
 
 I am not sure how well words can describe the tool, so I took the time to record a video of me using it. The video's a bit long, but I think you can get the general idea after just a few minutes (and if you skip the first 6 minutes describing installation).
 

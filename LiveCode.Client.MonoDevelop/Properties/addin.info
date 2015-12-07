@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Addin id="LiveCode.Client.MonoDevelop" version="1.3.4" namespace="LiveCode.Client.MonoDevelop" name="LiveCode" author="Frank A. Krueger" description="Live coding environment visualizes objects as you type them." category="IDE extensions">
+<Addin id="Continuous.Client.MonoDevelop" version="1.3.4" namespace="Continuous.Client.MonoDevelop" name="Continuous" author="Frank A. Krueger" description="Live coding environment visualizes objects as you type them." category="IDE extensions">
   <Runtime>
-    <Import assembly="LiveCode.Client.MonoDevelop.dll" />
+    <Import assembly="Continuous.Client.MonoDevelop.dll" />
   </Runtime>
   <Dependencies>
     <Addin id="::MonoDevelop.Core" version="5.10" />

@@ -3,14 +3,14 @@
 all:
 
 nuget:
-	xbuild /p:Configuration=Release LiveCode.Server.iOS/LiveCode.Server.iOS.csproj
-	xbuild /p:Configuration=Release LiveCode.Server.Android/LiveCode.Server.Android.csproj
-	nuget pack LiveCode.nuspec
+	xbuild /p:Configuration=Release Continuous.Server.iOS/Continuous.Server.iOS.csproj
+	xbuild /p:Configuration=Release Continuous.Server.Android/Continuous.Server.Android.csproj
+	nuget pack Continuous.nuspec
 
 mpack:
-	xbuild /p:Configuration=Release LiveCode.Client.MonoDevelop/LiveCode.Client.MonoDevelop.csproj
-	cp LiveCode.Client.MonoDevelop/bin/Release/LiveCode.Client.MonoDevelop.dll LiveCode.Client.MonoDevelop/AddinRepo/
-	cp LiveCode.Client.MonoDevelop/Properties/addin.info LiveCode.Client.MonoDevelop/AddinRepo/
-	cd LiveCode.Client.MonoDevelop/AddinRepo/ && zip LiveCode.Client.MonoDevelop.mpack addin.info LiveCode.Client.MonoDevelop.dll && rm addin.info LiveCode.Client.MonoDevelop.dll
-	/Applications/Xamarin\ Studio.app/Contents/MacOS/mdtool setup rep-build LiveCode.Client.MonoDevelop/AddinRepo
+	xbuild /p:Configuration=Release Continuous.Client.MonoDevelop/Continuous.Client.MonoDevelop.csproj
+	cp Continuous.Client.MonoDevelop/bin/Release/Continuous.Client.MonoDevelop.dll Continuous.Client.MonoDevelop/AddinRepo/
+	cp Continuous.Client.MonoDevelop/Properties/addin.info Continuous.Client.MonoDevelop/AddinRepo/
+	cd Continuous.Client.MonoDevelop/AddinRepo/ && zip Continuous.Client.MonoDevelop.mpack addin.info Continuous.Client.MonoDevelop.dll && rm addin.info Continuous.Client.MonoDevelop.dll
+	/Applications/Xamarin\ Studio.app/Contents/MacOS/mdtool setup rep-build Continuous.Client.MonoDevelop/AddinRepo
 

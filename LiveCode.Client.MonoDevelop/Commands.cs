@@ -10,7 +10,7 @@ using ICSharpCode.NRefactory.CSharp.Resolver;
 using ICSharpCode.NRefactory;
 using System.Collections.Generic;
 
-namespace LiveCode.Client.XamarinStudio
+namespace Continuous.Client.XamarinStudio
 {
 	public enum Commands
 	{
@@ -19,7 +19,7 @@ namespace LiveCode.Client.XamarinStudio
 		StopVisualizingClass,
 	}
 
-	public class LiveCodeCommandHandler : CommandHandler
+	public class ContinuousCommandHandler : CommandHandler
 	{
 		protected HttpClient conn = null;
 		protected void Connect ()
@@ -67,7 +67,7 @@ namespace LiveCode.Client.XamarinStudio
 		}
 	}
 
-	public class VisualizeSelectionHandler : LiveCodeCommandHandler
+	public class VisualizeSelectionHandler : ContinuousCommandHandler
 	{		
 		protected override async void Run ()
 		{
@@ -97,7 +97,7 @@ namespace LiveCode.Client.XamarinStudio
 		}
 	}
 
-	public class VisualizeClassHandler : LiveCodeCommandHandler
+	public class VisualizeClassHandler : ContinuousCommandHandler
 	{
 		public static string monitorTypeName = "";
 //		string monitorNamespace = "";
@@ -339,7 +339,7 @@ namespace LiveCode.Client.XamarinStudio
 		}
 	}
 
-	public class StopVisualizingClassHandler : LiveCodeCommandHandler
+	public class StopVisualizingClassHandler : ContinuousCommandHandler
 	{		
 		protected override async void Run ()
 		{

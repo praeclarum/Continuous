@@ -5,7 +5,7 @@ using Android.App;
 // Information about this assembly is defined by the following attributes.
 // Change them to the values specific to your project.
 
-[assembly: AssemblyTitle ("LiveCode.Sample.Forms.Droid")]
+[assembly: AssemblyTitle ("Continuous.Sample.Forms.Droid")]
 [assembly: AssemblyDescription ("")]
 [assembly: AssemblyConfiguration ("")]
 [assembly: AssemblyCompany ("Krueger Systems, Inc.")]

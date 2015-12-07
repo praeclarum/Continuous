@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace LiveCode.Client.Test
+namespace Continuous.Client.Test
 {
 	[TestFixture]
 	public class LinkerTest

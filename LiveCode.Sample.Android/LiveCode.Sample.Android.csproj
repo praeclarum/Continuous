@@ -6,14 +6,14 @@
     <ProjectTypeGuids>{EFBA0AD7-5A72-4C68-AF49-83D382785DCF};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <ProjectGuid>{8828F8F5-13A5-4142-9DC2-209D89AB8841}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>LiveCode.Sample.Android</RootNamespace>
+    <RootNamespace>Continuous.Sample.Android</RootNamespace>
     <MonoAndroidAssetsPrefix>Assets</MonoAndroidAssetsPrefix>
     <MonoAndroidResourcePrefix>Resources</MonoAndroidResourcePrefix>
     <AndroidResgenClass>Resource</AndroidResgenClass>
     <AndroidResgenFile>Resources\Resource.designer.cs</AndroidResgenFile>
     <AndroidApplication>True</AndroidApplication>
     <AndroidUseLatestPlatformSdk>False</AndroidUseLatestPlatformSdk>
-    <AssemblyName>LiveCode.Sample.Android</AssemblyName>
+    <AssemblyName>Continuous.Sample.Android</AssemblyName>
     <AndroidManifest>Properties\AndroidManifest.xml</AndroidManifest>
     <TargetFrameworkVersion>v4.4</TargetFrameworkVersion>
   </PropertyGroup>
@@ -67,9 +67,9 @@
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <ItemGroup>
-    <ProjectReference Include="..\LiveCode.Server.Android\LiveCode.Server.Android.csproj">
+    <ProjectReference Include="..\Continuous.Server.Android\Continuous.Server.Android.csproj">
       <Project>{224B1ED5-4BC5-4962-A47A-4D7134B88BEE}</Project>
-      <Name>LiveCode.Server.Android</Name>
+      <Name>Continuous.Server.Android</Name>
     </ProjectReference>
   </ItemGroup>
 </Project>

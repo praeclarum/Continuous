@@ -6,13 +6,13 @@
     <ProjectTypeGuids>{EFBA0AD7-5A72-4C68-AF49-83D382785DCF};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <ProjectGuid>{224B1ED5-4BC5-4962-A47A-4D7134B88BEE}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>LiveCode.Server.Android</RootNamespace>
+    <RootNamespace>Continuous.Server.Android</RootNamespace>
     <MonoAndroidAssetsPrefix>Assets</MonoAndroidAssetsPrefix>
     <MonoAndroidResourcePrefix>Resources</MonoAndroidResourcePrefix>
     <AndroidResgenClass>Resource</AndroidResgenClass>
     <AndroidResgenFile>Resources\Resource.designer.cs</AndroidResgenFile>
     <AndroidUseLatestPlatformSdk>False</AndroidUseLatestPlatformSdk>
-    <AssemblyName>LiveCode.Server.Android</AssemblyName>
+    <AssemblyName>Continuous.Server.Android</AssemblyName>
     <TargetFrameworkVersion>v4.4</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -33,7 +33,7 @@
     <WarningLevel>4</WarningLevel>
     <AndroidUseSharedRuntime>false</AndroidUseSharedRuntime>
     <ConsolePause>false</ConsolePause>
-    <DocumentationFile>bin\Release\LiveCode.Server.Android.xml</DocumentationFile>
+    <DocumentationFile>bin\Release\Continuous.Server.Android.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -59,7 +59,7 @@
   <ItemGroup>
     <AndroidResource Include="Resources\values\Strings.xml" />
   </ItemGroup>
-  <Import Project="..\LiveCode.Server.Core\LiveCode.Server.Core.projitems" Label="Shared" Condition="Exists('..\LiveCode.Server.Core\LiveCode.Server.Core.projitems')" />
-  <Import Project="..\LiveCode.Core\LiveCode.Core.projitems" Label="Shared" Condition="Exists('..\LiveCode.Core\LiveCode.Core.projitems')" />
+  <Import Project="..\Continuous.Server.Core\Continuous.Server.Core.projitems" Label="Shared" Condition="Exists('..\Continuous.Server.Core\Continuous.Server.Core.projitems')" />
+  <Import Project="..\Continuous.Core\Continuous.Core.projitems" Label="Shared" Condition="Exists('..\Continuous.Core\Continuous.Core.projitems')" />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
 </Project>

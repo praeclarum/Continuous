@@ -4,7 +4,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Collections;
 
-namespace LiveCode.Server
+namespace Continuous.Server
 {
 	public class ObjectInspectorData
 	{

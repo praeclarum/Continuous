@@ -1,7 +1,7 @@
 ﻿using Foundation;
 using UIKit;
 
-namespace LiveCode.Sample.iOS
+namespace Continuous.Sample.iOS
 {
 	[Register ("AppDelegate")]
 	public class AppDelegate : UIApplicationDelegate
@@ -13,7 +13,7 @@ namespace LiveCode.Sample.iOS
 
 		public override bool FinishedLaunching (UIApplication application, NSDictionary launchOptions)
 		{
-			new LiveCode.Server.HttpServer ().Run ();
+			new Continuous.Server.HttpServer ().Run ();
 
 			Window = new UIWindow (UIScreen.MainScreen.Bounds);
 			Window.RootViewController = new UIViewController ();

@@ -5,7 +5,7 @@ using System.Linq;
 using Foundation;
 using UIKit;
 
-namespace LiveCode.Sample.Forms.iOS
+namespace Continuous.Sample.Forms.iOS
 {
 	public class Application
 	{

@@ -4,31 +4,31 @@
 	</Runtime>
 	<Extension path="/MonoDevelop/Ide/Commands">
         <Command
-	    	id="LiveCode.Client.XamarinStudio.Commands.VisualizeSelection"
+	    	id="Continuous.Client.XamarinStudio.Commands.VisualizeSelection"
             _label="Visualize Selection"
             shortcut="Ctrl|Shift|Return"
             macShortcut="Ctrl|Shift|Return"
-            defaultHandler="LiveCode.Client.XamarinStudio.VisualizeSelectionHandler" />
+            defaultHandler="Continuous.Client.XamarinStudio.VisualizeSelectionHandler" />
 	    <Command
-	    	id="LiveCode.Client.XamarinStudio.Commands.VisualizeClass"
+	    	id="Continuous.Client.XamarinStudio.Commands.VisualizeClass"
             _label="Visualize Class"
             shortcut="Ctrl|Shift|C"
             macShortcut="Ctrl|Shift|C"
-            defaultHandler="LiveCode.Client.XamarinStudio.VisualizeClassHandler" />
+            defaultHandler="Continuous.Client.XamarinStudio.VisualizeClassHandler" />
 	    <Command
-	    	id="LiveCode.Client.XamarinStudio.Commands.StopVisualizingClass"
+	    	id="Continuous.Client.XamarinStudio.Commands.StopVisualizingClass"
             _label="Stop Visualizing Class"
             shortcut="Alt|Ctrl|Shift|C"
             macShortcut="Alt|Ctrl|Shift|C"
-            defaultHandler="LiveCode.Client.XamarinStudio.StopVisualizingClassHandler" />
+            defaultHandler="Continuous.Client.XamarinStudio.StopVisualizingClassHandler" />
 	</Extension>
 	<Extension path="/MonoDevelop/Ide/MainMenu/Tools">
-	    <CommandItem id="LiveCode.Client.XamarinStudio.Commands.VisualizeSelection" />
+	    <CommandItem id="Continuous.Client.XamarinStudio.Commands.VisualizeSelection" />
 	</Extension>
 	<Extension path="/MonoDevelop/Ide/MainMenu/Tools">
-	    <CommandItem id="LiveCode.Client.XamarinStudio.Commands.VisualizeClass" />
+	    <CommandItem id="Continuous.Client.XamarinStudio.Commands.VisualizeClass" />
 	</Extension>
 	<Extension path="/MonoDevelop/Ide/MainMenu/Tools">
-	    <CommandItem id="LiveCode.Client.XamarinStudio.Commands.StopVisualizingClass" />
+	    <CommandItem id="Continuous.Client.XamarinStudio.Commands.StopVisualizingClass" />
 	</Extension>
 </ExtensionModel>

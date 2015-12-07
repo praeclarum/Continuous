@@ -6,10 +6,10 @@
     <SharedGUID>{167F9264-AA99-4CC2-B9FA-46D26328103C}</SharedGUID>
   </PropertyGroup>
   <PropertyGroup Label="Configuration">
-    <Import_RootNamespace>LiveCode.Sample.Forms</Import_RootNamespace>
+    <Import_RootNamespace>Continuous.Sample.Forms</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="$(MSBuildThisFileDirectory)LiveCode.Sample.Forms.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Continuous.Sample.Forms.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>

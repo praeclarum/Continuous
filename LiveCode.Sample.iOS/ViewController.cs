@@ -2,7 +2,7 @@
 
 using UIKit;
 
-namespace LiveCode.Sample.iOS
+namespace Continuous.Sample.iOS
 {
 	public partial class ViewController : UIViewController
 	{

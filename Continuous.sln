@@ -1,36 +1,36 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LiveCode.Client.MonoDevelop", "LiveCode.Client.MonoDevelop\LiveCode.Client.MonoDevelop.csproj", "{4C795766-9EBF-4969-9FCA-791F530A6E46}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Continuous.Client.MonoDevelop", "Continuous.Client.MonoDevelop\Continuous.Client.MonoDevelop.csproj", "{4C795766-9EBF-4969-9FCA-791F530A6E46}"
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "LiveCode.Client.Core", "LiveCode.Client.Core\LiveCode.Client.Core.shproj", "{53F8E04C-682B-4D3C-A2F5-C17FF440DD63}"
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Continuous.Client.Core", "Continuous.Client.Core\Continuous.Client.Core.shproj", "{53F8E04C-682B-4D3C-A2F5-C17FF440DD63}"
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "LiveCode.Core", "LiveCode.Core\LiveCode.Core.shproj", "{B268CB01-B12B-4712-A19D-055D5343F7AA}"
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Continuous.Core", "Continuous.Core\Continuous.Core.shproj", "{B268CB01-B12B-4712-A19D-055D5343F7AA}"
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "LiveCode.Server.Core", "LiveCode.Server.Core\LiveCode.Server.Core.shproj", "{D3BC60B8-9F38-43C1-B6A0-FCD6845D7F3F}"
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Continuous.Server.Core", "Continuous.Server.Core\Continuous.Server.Core.shproj", "{D3BC60B8-9F38-43C1-B6A0-FCD6845D7F3F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LiveCode.Server.iOS", "LiveCode.Server.iOS\LiveCode.Server.iOS.csproj", "{00144521-688B-49D0-9753-C02FF06DE345}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Continuous.Server.iOS", "Continuous.Server.iOS\Continuous.Server.iOS.csproj", "{00144521-688B-49D0-9753-C02FF06DE345}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LiveCode.Sample.iOS", "LiveCode.Sample.iOS\LiveCode.Sample.iOS.csproj", "{C7F96A0E-87C8-4FCB-8065-C812FB018E5A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Continuous.Sample.iOS", "Continuous.Sample.iOS\Continuous.Sample.iOS.csproj", "{C7F96A0E-87C8-4FCB-8065-C812FB018E5A}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{3881B4EC-35A1-4255-91F1-48C858EDA45E}"
 	ProjectSection(SolutionItems) = preProject
-		LiveCode.nuspec = LiveCode.nuspec
+		Continuous.nuspec = Continuous.nuspec
 		Makefile = Makefile
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LiveCode.Client.Test", "LiveCode.Client.Test\LiveCode.Client.Test.csproj", "{FF4CCB03-A51E-4CD0-9E64-054B57ED5F36}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Continuous.Client.Test", "Continuous.Client.Test\Continuous.Client.Test.csproj", "{FF4CCB03-A51E-4CD0-9E64-054B57ED5F36}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LiveCode.Sample.Android", "LiveCode.Sample.Android\LiveCode.Sample.Android.csproj", "{8828F8F5-13A5-4142-9DC2-209D89AB8841}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Continuous.Sample.Android", "Continuous.Sample.Android\Continuous.Sample.Android.csproj", "{8828F8F5-13A5-4142-9DC2-209D89AB8841}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LiveCode.Server.Android", "LiveCode.Server.Android\LiveCode.Server.Android.csproj", "{224B1ED5-4BC5-4962-A47A-4D7134B88BEE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Continuous.Server.Android", "Continuous.Server.Android\Continuous.Server.Android.csproj", "{224B1ED5-4BC5-4962-A47A-4D7134B88BEE}"
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "LiveCode.Sample.Forms", "LiveCode.Sample.Forms\LiveCode.Sample.Forms.shproj", "{167F9264-AA99-4CC2-B9FA-46D26328103C}"
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Continuous.Sample.Forms", "Continuous.Sample.Forms\Continuous.Sample.Forms.shproj", "{167F9264-AA99-4CC2-B9FA-46D26328103C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LiveCode.Sample.Forms.iOS", "LiveCode.Sample.Forms.iOS\LiveCode.Sample.Forms.iOS.csproj", "{9C9C23C3-8F0F-4B48-B394-0AAC30B4173F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Continuous.Sample.Forms.iOS", "Continuous.Sample.Forms.iOS\Continuous.Sample.Forms.iOS.csproj", "{9C9C23C3-8F0F-4B48-B394-0AAC30B4173F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LiveCode.Sample.Forms.Droid", "LiveCode.Sample.Forms.Droid\LiveCode.Sample.Forms.Droid.csproj", "{E5FBD557-2B3A-4C83-9BF3-61226A1606B8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Continuous.Sample.Forms.Droid", "Continuous.Sample.Forms.Droid\Continuous.Sample.Forms.Droid.csproj", "{E5FBD557-2B3A-4C83-9BF3-61226A1606B8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

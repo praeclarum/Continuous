@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleDisplayName</key>
-	<string>LiveCode</string>
+	<string>Continuous</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.kruegersystems.livecode</string>
+	<string>com.kruegersystems.Continuous</string>
 	<key>CFBundleShortVersionString</key>
 	<string>1.0</string>
 	<key>CFBundleVersion</key>

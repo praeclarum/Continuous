@@ -1,6 +1,6 @@
 ﻿using UIKit;
 
-namespace LiveCode.Sample.iOS
+namespace Continuous.Sample.iOS
 {
 	public class Application
 	{

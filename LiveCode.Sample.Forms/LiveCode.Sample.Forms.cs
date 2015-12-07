@@ -2,7 +2,7 @@
 
 using Xamarin.Forms;
 
-namespace LiveCode.Sample.Forms
+namespace Continuous.Sample.Forms
 {
 	public class App : Application
 	{

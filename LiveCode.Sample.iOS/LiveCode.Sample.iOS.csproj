@@ -6,9 +6,9 @@
     <ProjectTypeGuids>{FEACFBD2-3405-455C-9665-78FE426C6842};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <ProjectGuid>{C7F96A0E-87C8-4FCB-8065-C812FB018E5A}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>LiveCode.Sample.iOS</RootNamespace>
+    <RootNamespace>Continuous.Sample.iOS</RootNamespace>
     <IPhoneResourcePrefix>Resources</IPhoneResourcePrefix>
-    <AssemblyName>LiveCode.Sample.iOS</AssemblyName>
+    <AssemblyName>Continuous.Sample.iOS</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|iPhoneSimulator' ">
     <DebugSymbols>true</DebugSymbols>
@@ -107,9 +107,9 @@
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
   <ItemGroup>
-    <ProjectReference Include="..\LiveCode.Server.iOS\LiveCode.Server.iOS.csproj">
+    <ProjectReference Include="..\Continuous.Server.iOS\Continuous.Server.iOS.csproj">
       <Project>{00144521-688B-49D0-9753-C02FF06DE345}</Project>
-      <Name>LiveCode.Server.iOS</Name>
+      <Name>Continuous.Server.iOS</Name>
     </ProjectReference>
   </ItemGroup>
 </Project>

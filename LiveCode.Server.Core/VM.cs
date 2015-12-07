@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Mono.CSharp;
 using System.Reflection;
 
-namespace LiveCode.Server
+namespace Continuous.Server
 {
 	/// <summary>
 	/// Evaluates expressions using the mono C# REPL.
@@ -66,7 +66,7 @@ namespace LiveCode.Server
 				Log ("INIT EVAL");
 
 				var settings = new CompilerSettings ();
-				settings.AddConditionalSymbol ("__LIVECODE__");
+				settings.AddConditionalSymbol ("__Continuous__");
 				settings.AddConditionalSymbol ("DEBUG");
 				PlatformSettings (settings);
 				var context = new CompilerContext (settings, printer);

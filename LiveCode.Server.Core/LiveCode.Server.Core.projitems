@@ -6,7 +6,7 @@
     <SharedGUID>{D3BC60B8-9F38-43C1-B6A0-FCD6845D7F3F}</SharedGUID>
   </PropertyGroup>
   <PropertyGroup Label="Configuration">
-    <Import_RootNamespace>LiveCode.Server</Import_RootNamespace>
+    <Import_RootNamespace>Continuous.Server</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)HttpServer.cs" />

@@ -6,7 +6,7 @@ using Android.Widget;
 using Android.Views;
 using Android.Content;
 
-namespace LiveCode.Server
+namespace Continuous.Server
 {
 	[Activity (Label = "ObjectInspector")]
 	public class ObjectInspector : ListActivity

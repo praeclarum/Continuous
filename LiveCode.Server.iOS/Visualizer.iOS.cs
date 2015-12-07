@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using CoreGraphics;
 using System.Linq;
 
-namespace LiveCode.Server
+namespace Continuous.Server
 {
 	public partial class Visualizer
 	{

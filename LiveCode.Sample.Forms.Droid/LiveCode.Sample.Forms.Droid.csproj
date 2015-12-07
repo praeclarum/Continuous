@@ -6,14 +6,14 @@
     <ProjectTypeGuids>{EFBA0AD7-5A72-4C68-AF49-83D382785DCF};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <ProjectGuid>{E5FBD557-2B3A-4C83-9BF3-61226A1606B8}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>LiveCode.Sample.Forms.Droid</RootNamespace>
+    <RootNamespace>Continuous.Sample.Forms.Droid</RootNamespace>
     <MonoAndroidAssetsPrefix>Assets</MonoAndroidAssetsPrefix>
     <MonoAndroidResourcePrefix>Resources</MonoAndroidResourcePrefix>
     <AndroidResgenClass>Resource</AndroidResgenClass>
     <AndroidResgenFile>Resources\Resource.designer.cs</AndroidResgenFile>
     <AndroidApplication>True</AndroidApplication>
     <AndroidUseLatestPlatformSdk>True</AndroidUseLatestPlatformSdk>
-    <AssemblyName>LiveCode.Sample.Forms.Droid</AssemblyName>
+    <AssemblyName>Continuous.Sample.Forms.Droid</AssemblyName>
     <AndroidManifest>Properties\AndroidManifest.xml</AndroidManifest>
     <TargetFrameworkVersion>v5.1</TargetFrameworkVersion>
   </PropertyGroup>
@@ -94,7 +94,7 @@
     <AndroidResource Include="Resources\drawable-xhdpi\icon.png" />
     <AndroidResource Include="Resources\drawable-xxhdpi\icon.png" />
   </ItemGroup>
-  <Import Project="..\LiveCode.Sample.Forms\LiveCode.Sample.Forms.projitems" Label="Shared" Condition="Exists('..\LiveCode.Sample.Forms\LiveCode.Sample.Forms.projitems')" />
+  <Import Project="..\Continuous.Sample.Forms\Continuous.Sample.Forms.projitems" Label="Shared" Condition="Exists('..\Continuous.Sample.Forms\Continuous.Sample.Forms.projitems')" />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <Import Project="..\packages\Xamarin.Forms.2.0.0.6484\build\portable-win+net45+wp80+win81+wpa81+MonoAndroid10+MonoTouch10+Xamarin.iOS10\Xamarin.Forms.targets" Condition="Exists('..\packages\Xamarin.Forms.2.0.0.6484\build\portable-win+net45+wp80+win81+wpa81+MonoAndroid10+MonoTouch10+Xamarin.iOS10\Xamarin.Forms.targets')" />
 </Project>

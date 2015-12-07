@@ -1,14 +1,14 @@
 <?xml version="1.0"?>
 <package >
   <metadata>
-    <id>LiveCode</id>
+    <id>Continuous</id>
     <version>1.3.4</version>
-    <title>LiveCode</title>
+    <title>Continuous</title>
     <authors>Frank A. Krueger</authors>
     <owners>Frank A. Krueger</owners>
-    <licenseUrl>https://github.com/praeclarum/LiveCode</licenseUrl>
-    <projectUrl>https://github.com/praeclarum/LiveCode</projectUrl>
-    <iconUrl>https://raw.githubusercontent.com/praeclarum/LiveCode/master/Documentation/Icon32.png</iconUrl>
+    <licenseUrl>https://github.com/praeclarum/Continuous</licenseUrl>
+    <projectUrl>https://github.com/praeclarum/Continuous</projectUrl>
+    <iconUrl>https://raw.githubusercontent.com/praeclarum/Continuous/master/Documentation/Icon32.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Live Coding environment for .NET</description>
     <releaseNotes>Support for Android.</releaseNotes>
@@ -20,10 +20,10 @@
   </metadata>
   <files>
     <!-- Xamarin.iOS -->
-    <file src="LiveCode.Server.iOS/bin/Release/LiveCode.Server.iOS.dll" target="lib\Xamarin.iOS10\LiveCode.Server.iOS.dll" />
-    <file src="LiveCode.Server.iOS/bin/Release/LiveCode.Server.iOS.xml" target="lib\Xamarin.iOS10\LiveCode.Server.iOS.xml" />
+    <file src="Continuous.Server.iOS/bin/Release/Continuous.Server.iOS.dll" target="lib\Xamarin.iOS10\Continuous.Server.iOS.dll" />
+    <file src="Continuous.Server.iOS/bin/Release/Continuous.Server.iOS.xml" target="lib\Xamarin.iOS10\Continuous.Server.iOS.xml" />
     <!-- Xamarin.Android -->
-    <file src="LiveCode.Server.Android/bin/Release/LiveCode.Server.Android.dll" target="lib\MonoAndroid10\LiveCode.Server.Android.dll" />
-    <file src="LiveCode.Server.Android/bin/Release/LiveCode.Server.Android.xml" target="lib\MonoAndroid10\LiveCode.Server.Android.xml" />
+    <file src="Continuous.Server.Android/bin/Release/Continuous.Server.Android.dll" target="lib\MonoAndroid10\Continuous.Server.Android.dll" />
+    <file src="Continuous.Server.Android/bin/Release/Continuous.Server.Android.xml" target="lib\MonoAndroid10\Continuous.Server.Android.xml" />
   </files>
 </package>

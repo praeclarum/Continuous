@@ -6,9 +6,9 @@
     <ProjectTypeGuids>{FEACFBD2-3405-455C-9665-78FE426C6842};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <ProjectGuid>{00144521-688B-49D0-9753-C02FF06DE345}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>LiveCode.Server.iOS</RootNamespace>
+    <RootNamespace>Continuous.Server.iOS</RootNamespace>
     <IPhoneResourcePrefix>Resources</IPhoneResourcePrefix>
-    <AssemblyName>LiveCode.Server.iOS</AssemblyName>
+    <AssemblyName>Continuous.Server.iOS</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -26,7 +26,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
-    <DocumentationFile>bin\Release\LiveCode.Server.iOS.xml</DocumentationFile>
+    <DocumentationFile>bin\Release\Continuous.Server.iOS.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -47,8 +47,8 @@
     <Compile Include="Visualizer.iOS.cs" />
     <Compile Include="VM.iOS.cs" />
   </ItemGroup>
-  <Import Project="..\LiveCode.Core\LiveCode.Core.projitems" Label="Shared" Condition="Exists('..\LiveCode.Core\LiveCode.Core.projitems')" />
-  <Import Project="..\LiveCode.Server.Core\LiveCode.Server.Core.projitems" Label="Shared" Condition="Exists('..\LiveCode.Server.Core\LiveCode.Server.Core.projitems')" />
+  <Import Project="..\Continuous.Core\Continuous.Core.projitems" Label="Shared" Condition="Exists('..\Continuous.Core\Continuous.Core.projitems')" />
+  <Import Project="..\Continuous.Server.Core\Continuous.Server.Core.projitems" Label="Shared" Condition="Exists('..\Continuous.Server.Core\Continuous.Server.Core.projitems')" />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
   <ItemGroup>
     <None Include="packages.config" />

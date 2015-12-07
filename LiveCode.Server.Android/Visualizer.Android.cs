@@ -5,7 +5,7 @@ using System.Linq;
 using Android.App;
 using Android.Views;
 
-namespace LiveCode.Server
+namespace Continuous.Server
 {
 	public partial class Visualizer
 	{

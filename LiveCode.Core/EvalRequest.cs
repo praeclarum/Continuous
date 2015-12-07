@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 
-namespace LiveCode
+namespace Continuous
 {
 	public static class Http
 	{

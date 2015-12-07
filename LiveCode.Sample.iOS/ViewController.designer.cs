@@ -5,7 +5,7 @@
 //
 using Foundation;
 
-namespace LiveCode.Sample.iOS
+namespace Continuous.Sample.iOS
 {
 	[Register ("ViewController")]
 	partial class ViewController

@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using System.Net;
 using Newtonsoft.Json;
 
-namespace LiveCode.Client
+namespace Continuous.Client
 {
 	public class HttpClient
 	{

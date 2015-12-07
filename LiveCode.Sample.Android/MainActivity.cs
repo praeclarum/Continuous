@@ -2,9 +2,9 @@
 using Android.Widget;
 using Android.OS;
 
-namespace LiveCode.Sample.Android
+namespace Continuous.Sample.Android
 {
-	[Activity (Label = "LiveCode", MainLauncher = true, Icon = "@mipmap/icon")]
+	[Activity (Label = "Continuous", MainLauncher = true, Icon = "@mipmap/icon")]
 	public class MainActivity : Activity
 	{
 		int count = 1;
@@ -13,7 +13,7 @@ namespace LiveCode.Sample.Android
 		{
 			base.OnCreate (savedInstanceState);
 
-			new LiveCode.Server.HttpServer (this).Run ();
+			new Continuous.Server.HttpServer (this).Run ();
 
 			// Set our view from the "main" layout resource
 			SetContentView (Resource.Layout.Main);

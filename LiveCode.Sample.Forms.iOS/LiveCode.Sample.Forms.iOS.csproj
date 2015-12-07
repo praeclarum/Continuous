@@ -6,9 +6,9 @@
     <ProjectTypeGuids>{FEACFBD2-3405-455C-9665-78FE426C6842};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <ProjectGuid>{9C9C23C3-8F0F-4B48-B394-0AAC30B4173F}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>LiveCode.Sample.Forms.iOS</RootNamespace>
+    <RootNamespace>Continuous.Sample.Forms.iOS</RootNamespace>
     <IPhoneResourcePrefix>Resources</IPhoneResourcePrefix>
-    <AssemblyName>LiveCode.Sample.Forms.iOS</AssemblyName>
+    <AssemblyName>Continuous.Sample.Forms.iOS</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|iPhoneSimulator' ">
     <DebugSymbols>true</DebugSymbols>
@@ -111,13 +111,13 @@
     <Compile Include="Main.cs" />
     <Compile Include="AppDelegate.cs" />
   </ItemGroup>
-  <Import Project="..\LiveCode.Sample.Forms\LiveCode.Sample.Forms.projitems" Label="Shared" Condition="Exists('..\LiveCode.Sample.Forms\LiveCode.Sample.Forms.projitems')" />
+  <Import Project="..\Continuous.Sample.Forms\Continuous.Sample.Forms.projitems" Label="Shared" Condition="Exists('..\Continuous.Sample.Forms\Continuous.Sample.Forms.projitems')" />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
   <Import Project="..\packages\Xamarin.Forms.2.0.0.6484\build\portable-win+net45+wp80+win81+wpa81+MonoAndroid10+MonoTouch10+Xamarin.iOS10\Xamarin.Forms.targets" Condition="Exists('..\packages\Xamarin.Forms.2.0.0.6484\build\portable-win+net45+wp80+win81+wpa81+MonoAndroid10+MonoTouch10+Xamarin.iOS10\Xamarin.Forms.targets')" />
   <ItemGroup>
-    <ProjectReference Include="..\LiveCode.Server.iOS\LiveCode.Server.iOS.csproj">
+    <ProjectReference Include="..\Continuous.Server.iOS\Continuous.Server.iOS.csproj">
       <Project>{00144521-688B-49D0-9753-C02FF06DE345}</Project>
-      <Name>LiveCode.Server.iOS</Name>
+      <Name>Continuous.Server.iOS</Name>
     </ProjectReference>
   </ItemGroup>
 </Project>

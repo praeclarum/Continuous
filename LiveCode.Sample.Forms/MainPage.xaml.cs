@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 using Xamarin.Forms;
 
-namespace LiveCode.Sample.Forms
+namespace Continuous.Sample.Forms
 {
 	public partial class MainPage : ContentPage
 	{

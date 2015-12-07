@@ -1,6 +1,6 @@
 using System;
 
-namespace LiveCode.Server
+namespace Continuous.Server
 {
 	public partial class Visualizer
 	{

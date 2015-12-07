@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Repository xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <Addin>
-    <Url>LiveCode.Client.MonoDevelop.mpack</Url>
+    <Url>Continuous.Client.MonoDevelop.mpack</Url>
     <Addin>
-      <Id>LiveCode.Client.MonoDevelop</Id>
-      <Namespace>LiveCode.Client.MonoDevelop</Namespace>
-      <Name>LiveCode</Name>
+      <Id>Continuous.Client.MonoDevelop</Id>
+      <Namespace>Continuous.Client.MonoDevelop</Namespace>
+      <Name>Continuous</Name>
       <Version>1.3.4</Version>
       <BaseVersion />
       <Author>Frank A. Krueger</Author>
