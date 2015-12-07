@@ -8,7 +8,7 @@ using Mono.Addins.Description;
 	Version = "1.4.1"
 )]
 
-[assembly:AddinName ("Continuous")]
+[assembly:AddinName ("Continuous Coding")]
 [assembly:AddinCategory ("IDE extensions")]
 [assembly:AddinDescription ("Continuous coding environment visualizes objects as you type them.")]
 [assembly:AddinAuthor ("Frank A. Krueger")]
