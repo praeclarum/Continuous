@@ -46,7 +46,7 @@ Verify that the Xamarin Inspector is installed and running by looking for the en
 
 Send snippets of code to be compiled, executed, and visualized using the **Visualize Selection** (Ctrl+Shift+Return) command.
 
-### Live Coding a Class
+### Continuously Coding a Class
 
 You can mark a class to be monitored and automatically displayed whenever you edit it (and there are no code errors).
 
