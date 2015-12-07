@@ -2,16 +2,16 @@
 <package >
   <metadata>
     <id>Continuous</id>
-    <version>1.3.4</version>
-    <title>Continuous</title>
+    <version>1.4.0</version>
+    <title>Continuous Coding</title>
     <authors>Frank A. Krueger</authors>
     <owners>Frank A. Krueger</owners>
     <licenseUrl>https://github.com/praeclarum/Continuous</licenseUrl>
     <projectUrl>https://github.com/praeclarum/Continuous</projectUrl>
     <iconUrl>https://raw.githubusercontent.com/praeclarum/Continuous/master/Documentation/Icon32.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>Live Coding environment for .NET</description>
-    <releaseNotes>Support for Android.</releaseNotes>
+    <description>Continuous Coding environment for .NET visualizes objects as quickly as you can code them. Get the Xamarin Studio add-in with the same name in order to use this library.</description>
+    <releaseNotes>Renamed from LiveCode.</releaseNotes>
     <copyright>Copyright 2015 Frank A. Krueger</copyright>
     <tags>live code</tags>
     <dependencies>
