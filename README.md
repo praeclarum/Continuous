@@ -18,12 +18,14 @@ You will then be able to select the **Continuous Coding** Add-in from the **IDE 
 
 ## Per-app Installation
 
-1. Reference the [Continuous nuget](https://www.nuget.org/packages/Continuous/).
+1. Reference the [Continuous Coding nuget](https://www.nuget.org/packages/Continuous/).
 
 2. Put this line of code somewhere in the initialization of your app (`AppDelegate.FinishedLaunching` or `Activity.OnCreate` are great places):
 
 ```csharp
+#if DEBUG
 new Continuous.Server.HttpServer(this).Run();
+#endif
 ```
 
 where `this` should refer to a `Context` on Android, and is ignored (can be anything or `null`) on iOS.
