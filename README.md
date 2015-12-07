@@ -1,6 +1,6 @@
-# Live Code for .NET
+# Continuous Coding for .NET
 
-Live Code is my attempt to build a live coding environment for the development of iOS and Android apps using Xamarin technologies.
+**Continuous** is my attempt to build a live coding environment for .NET. It currently specializes in the development of iOS and Android apps using Xamarin technologies.
 
 It currently works only in Xamarin Studio and only for C#.
 
@@ -10,27 +10,27 @@ It currently works only in Xamarin Studio and only for C#.
 
 **Install the Live Code Xamarin Studio Add-in** by adding a New Gallery Repository pointing at the URL:
 
-	https://raw.githubusercontent.com/praeclarum/LiveCode/master/LiveCode.Client.MonoDevelop/AddinRepo
+	https://raw.githubusercontent.com/praeclarum/Continuous/master/Continuous.Client.MonoDevelop/AddinRepo
 
-You will then be able to select the **Live Code** Add-in from the **IDE extensions** category.
+You will then be able to select the **Continuous Coding** Add-in from the **IDE extensions** category.
 
-<img src="https://raw.githubusercontent.com/praeclarum/LiveCode/master/Documentation/AddAddinRepo.png" width="420px"/>
+<img src="https://raw.githubusercontent.com/praeclarum/Continuous/master/Documentation/AddAddinRepo.png" width="420px"/>
 
 ## Per-app Installation
 
-1. Reference the [LiveCode nuget](https://www.nuget.org/packages/LiveCode/).
+1. Reference the [Continuous nuget](https://www.nuget.org/packages/Continuous/).
 
 2. Put this line of code somewhere in the initialization of your app (`AppDelegate.FinishedLaunching` or `Activity.OnCreate` are great places):
 
 ```csharp
-new LiveCode.Server.HttpServer(this).Run();
+new Continuous.Server.HttpServer(this).Run();
 ```
 
 where `this` should refer to a `Context` on Android, and is ignored (can be anything or `null`) on iOS.
 
 ### Android Emulator Extra Step
 
-If you want to run with the Android Emulator, you will have to forward the TCP port used by LiveCode:
+If you want to run with the Android Emulator, you will have to forward the TCP port used by Continuous:
 
 ```bash
 $ adb forward tcp:9634 tcp:9634
@@ -55,7 +55,7 @@ Move your cursor to be within a class and select the **Visualize Class** (Ctrl+S
 
 ## Building
 
-Build the solution `LiveCode.sln`
+Build the solution `Continuous.sln`
 
 ### Prerequisties
 
@@ -64,25 +64,10 @@ Install the Xamarin Studio **Addin Maker** from the **Addin Development** group 
 
 ## How it Works
 
-**Live Code** uses the class [`Mono.CSharp.Evaluator`](http://www.mono-project.com/docs/about-mono/languages/csharp/) to compile and execute code snippets while the app is running.
+**Continuous** uses the class [`Mono.CSharp.Evaluator`](http://www.mono-project.com/docs/about-mono/languages/csharp/) to compile and execute code snippets while the app is running.
 
 The IDE add-in allows the user to send snippets to this evaluator. The code is compiled and executed.
 
 If the code produces a value (if it is an expression) then the value is automatically displayed.
 
 The IDE communicates with the device using HTTP on port 9634. Requests and responses are simple JSON bundles.
-
-### Example Request and Response
-
-```bash
-$ curl -d "{\"Code\":\"2+2\"}" http://127.0.0.1:9634
-```
-
-```json
-{"Messages":[],"Duration":"00:00:00.0025132","Result":4,"HasResult":true}
-```
-
-
-
-
-
