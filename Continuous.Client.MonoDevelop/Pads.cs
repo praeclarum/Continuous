@@ -51,7 +51,7 @@ namespace Continuous.Client.XamarinStudio
 		readonly HBox toolbar = new HBox ();
 		readonly Button runButton = new Button { Label = "Visualize" };
 		readonly Button stopButton = new Button { Label = "Stop" };
-		readonly Button clearButton = new Button { Label = "Forget All" };
+		readonly Button clearButton = new Button { Label = "Clear Edits" };
 		readonly NodeStore typesStore = new NodeStore (typeof(TypeTreeNode));
 		readonly NodeView typesView;
 		readonly Label errorLabel = new Label ("Errors") {
@@ -60,34 +60,48 @@ namespace Continuous.Client.XamarinStudio
 
 		public MainPadControl ()
 		{
+			Env.LinkedMonitoredCode += Env_LinkedMonitoredCode;
+
+			runButton.Clicked += RunButton_Clicked;
+			stopButton.Clicked += StopButton_Clicked;
 			clearButton.Clicked += ClearButton_Clicked;
 
 			typesView = new NodeView (typesStore);
 			typesView.AppendColumn ("Type", new CellRendererText (), "text", 0);
 			typesView.AppendColumn ("Status", new CellRendererText (), "text", 1);
 
-			toolbar.PackStart (runButton, false, false, 8);
-			toolbar.PackStart (stopButton, false, false, 8);
-			toolbar.PackEnd (clearButton, false, false, 8);
+			toolbar.PackStart (runButton, false, false, 6);
+			toolbar.PackStart (stopButton, false, false, 6);
+			toolbar.PackEnd (clearButton, false, false, 6);
 			PackStart (toolbar, false, false, 0);
-			PackStart (errorLabel, false, false, 8);
+//			PackStart (errorLabel, false, false, 8);
 			PackEnd (typesView, true, true, 0);
-
-			RefreshTypesStore ();
 		}
 
-		void ClearButton_Clicked (object sender, EventArgs e)
-		{
-			TypeCode.Clear ();
-			RefreshTypesStore ();
-		}
-
-		void RefreshTypesStore ()
+		void Env_LinkedMonitoredCode (LinkedCode obj)
 		{
 			typesStore.Clear ();
-			foreach (var t in TypeCode.All) {
+			var q = obj.Types.OrderBy (x => x.Name);
+			foreach (var t in q) {
 				typesStore.AddNode (new TypeTreeNode (t));
 			}
+		}
+
+		async void ClearButton_Clicked (object sender, EventArgs e)
+		{
+			TypeCode.ClearEdits ();
+			await Env.RevisualizeAsync (forceEval: false, showError: false);
+		}
+
+		async void RunButton_Clicked (object sender, EventArgs e)
+		{
+			await Env.VisualizeAsync ();
+		}
+
+		async void StopButton_Clicked (object sender, EventArgs e)
+		{
+			await Env.StopVisualizingAsync ();
+			typesStore.Clear ();
 		}
 	}
 
@@ -97,7 +111,8 @@ namespace Continuous.Client.XamarinStudio
 		public TypeTreeNode (TypeCode type)
 		{
 			Name = type.Name;
-			Status = type.CodeChanged ? "Edited" : "";
+			var timeStr = type.CodeChangedTime.ToLocalTime ().ToString ("T");
+			Status = type.CodeChanged ? ("Edited " + timeStr) : "";
 		}
 
 		[Gtk.TreeNodeValue (Column=0)]

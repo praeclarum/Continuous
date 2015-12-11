@@ -19,12 +19,8 @@ namespace Continuous.Client
 
 		public string MonitorTypeName = "";
 
-		public ContinuousEnv ()
-		{
-		}
-
-		protected HttpClient conn = null;
-		protected void Connect ()
+		HttpClient conn = null;
+		void Connect ()
 		{
 			if (conn == null) {
 				conn = new HttpClient (new Uri ("http://127.0.0.1:" + Http.DefaultPort));
@@ -45,7 +41,7 @@ namespace Continuous.Client
 			#endif
 		}
 
-		public async Task<bool> EvalAsync (string code, bool showError)
+		async Task<bool> EvalAsync (string code, bool showError)
 		{
 			Connect ();
 			var r = await conn.VisualizeAsync (code);
@@ -71,6 +67,8 @@ namespace Continuous.Client
 			}
 		}
 
+		public event Action<LinkedCode> LinkedMonitoredCode = delegate {};
+
 		#if MONODEVELOP
 		public async Task VisualizeAsync ()
 		{
@@ -93,12 +91,12 @@ namespace Continuous.Client
 			MonitorTypeName = typeName;
 			//			monitorNamespace = nsName;
 
-			await VisualizeTypeAsync (forceEval: true, showError: true);
+			await RevisualizeAsync (forceEval: true, showError: true);
 		}
 
 		LinkedCode lastLinkedCode = null;
 
-		async Task VisualizeTypeAsync (bool forceEval, bool showError)
+		public async Task RevisualizeAsync (bool forceEval, bool showError)
 		{
 			//
 			// Gobble up all we can about the types in the active document
@@ -121,6 +119,8 @@ namespace Continuous.Client
 			if (!forceEval && lastLinkedCode != null && lastLinkedCode.CacheKey == code.CacheKey) {
 				return;
 			}
+
+			LinkedMonitoredCode (code);
 
 			//
 			// Send the code to the device
@@ -292,8 +292,24 @@ namespace Continuous.Client
 		{
 			var doc = IdeApp.Workbench.ActiveDocument;
 			Log ("DOC PARSED {0}", doc.Name);
-			await VisualizeTypeAsync (forceEval: false, showError: false);
+			await RevisualizeAsync (forceEval: false, showError: false);
 		}
+
+		public async Task VisualizeSelectionAsync ()
+		{
+			var doc = IdeApp.Workbench.ActiveDocument;
+
+			if (doc != null) {
+				var code = doc.Editor.SelectedText;
+
+				try {
+					await EvalAsync (code, showError: true);
+				} catch (Exception ex) {
+					Alert ("Could not communicate with the app.\n\n{0}: {1}", ex.GetType (), ex.Message);
+				}
+			}
+		}
+
 		#endif
 
 		protected void Log (string format, params object[] args)

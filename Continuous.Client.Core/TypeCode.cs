@@ -33,6 +33,7 @@ namespace Continuous.Client
 		public string[] Usings = new string[0];
 		public string Code = "";
 		public bool CodeChanged = false;
+		public DateTime CodeChangedTime = DateTime.MinValue;
 		public string FullNamespace = "";
 
 		public string Key {
@@ -56,6 +57,13 @@ namespace Continuous.Client
 		public static void Clear ()
 		{
 			infos.Clear ();
+		}
+
+		public static void ClearEdits ()
+		{
+			foreach (var t in infos.Values) {
+				t.CodeChanged = false;
+			}
 		}
 
 		public static TypeCode Get (string name)
@@ -112,6 +120,7 @@ namespace Continuous.Client
 					if (tc.Code != safeCode) {
 						tc.Code = safeCode;
 						tc.CodeChanged = true;
+						tc.CodeChangedTime = DateTime.UtcNow;
 					}
 				}
 			}

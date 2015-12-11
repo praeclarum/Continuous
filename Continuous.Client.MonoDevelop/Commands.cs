@@ -29,18 +29,8 @@ namespace Continuous.Client.XamarinStudio
 		protected override async void Run ()
 		{
 			base.Run ();
+			await Env.VisualizeSelectionAsync ();
 
-			var doc = IdeApp.Workbench.ActiveDocument;
-
-			if (doc != null) {
-				var code = doc.Editor.SelectedText;
-
-				try {
-					await Env.EvalAsync (code, showError: true);
-				} catch (Exception ex) {
-					Env.Alert ("Could not communicate with the app.\n\n{0}: {1}", ex.GetType (), ex.Message);
-				}
-			}
 		}
 
 		protected override void Update (CommandInfo info)
