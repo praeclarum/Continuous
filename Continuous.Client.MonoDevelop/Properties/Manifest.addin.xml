@@ -2,6 +2,14 @@
 <ExtensionModel>
 	<Runtime>
 	</Runtime>
+	<Extension path="/MonoDevelop/Ide/Pads">
+		<Pad id="Continuous.Client.XamarinStudio.Pads.MainPad" 
+			defaultLayout="*" 
+			defaultPlacement="Bottom" 
+			_label="Continuous Coding" 
+			icon="md-cs-project" 
+			class="Continuous.Client.XamarinStudio.MainPad" />
+	</Extension>
 	<Extension path="/MonoDevelop/Ide/Commands">
         <Command
 	    	id="Continuous.Client.XamarinStudio.Commands.VisualizeSelection"
