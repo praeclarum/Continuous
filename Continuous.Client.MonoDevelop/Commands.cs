@@ -1,14 +1,6 @@
 ﻿using System;
 using MonoDevelop.Components.Commands;
 using MonoDevelop.Ide;
-using MonoDevelop.Refactoring;
-using Gtk;
-using System.Linq;
-using System.Threading.Tasks;
-using ICSharpCode.NRefactory.CSharp;
-using ICSharpCode.NRefactory.CSharp.Resolver;
-using ICSharpCode.NRefactory;
-using System.Collections.Generic;
 
 namespace Continuous.Client.XamarinStudio
 {
@@ -30,7 +22,6 @@ namespace Continuous.Client.XamarinStudio
 		{
 			base.Run ();
 			await Env.VisualizeSelectionAsync ();
-
 		}
 
 		protected override void Update (CommandInfo info)

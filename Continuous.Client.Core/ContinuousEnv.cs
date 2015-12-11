@@ -96,7 +96,7 @@ namespace Continuous.Client
 
 		LinkedCode lastLinkedCode = null;
 
-		public async Task SetTypesAndVisualizeMonitoredTypeAsync (bool forceEval, bool showError)
+		async Task SetTypesAndVisualizeMonitoredTypeAsync (bool forceEval, bool showError)
 		{
 			//
 			// Gobble up all we can about the types in the active document

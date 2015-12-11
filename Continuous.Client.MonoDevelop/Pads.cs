@@ -1,14 +1,6 @@
 ﻿using System;
-using MonoDevelop.Components.Commands;
-using MonoDevelop.Ide;
-using MonoDevelop.Refactoring;
-using Gtk;
 using System.Linq;
-using System.Threading.Tasks;
-using ICSharpCode.NRefactory.CSharp;
-using ICSharpCode.NRefactory.CSharp.Resolver;
-using ICSharpCode.NRefactory;
-using System.Collections.Generic;
+using Gtk;
 using MonoDevelop.Ide.Gui;
 
 namespace Continuous.Client.XamarinStudio
@@ -49,48 +41,45 @@ namespace Continuous.Client.XamarinStudio
 		protected ContinuousEnv Env { get { return ContinuousEnv.Shared; } }
 
 		readonly HBox toolbar = new HBox ();
-		readonly Button runButton = new Button { Label = "Visualize" };
+		readonly Button runButton = new Button { Label = "Set Type" };
+		readonly Button refreshButton = new Button { Label = "Refresh" };
 		readonly Button stopButton = new Button { Label = "Stop" };
 		readonly Button clearButton = new Button { Label = "Clear Edits" };
-		readonly NodeStore typesStore = new NodeStore (typeof(TypeTreeNode));
-		readonly NodeView typesView;
-		readonly Label errorLabel = new Label ("Errors") {
-			Justify = Justification.Left,
-		};
+		readonly NodeStore dependenciesStore = new NodeStore (typeof(DependencyTreeNode));
+		readonly NodeView dependenciesView;
+//		readonly Label errorLabel = new Label ("Errors") {
+//			Justify = Justification.Left,
+//		};
 
 		public MainPadControl ()
 		{
 			Env.LinkedMonitoredCode += Env_LinkedMonitoredCode;
 
 			runButton.Clicked += RunButton_Clicked;
+			refreshButton.Clicked += RefreshButton_Clicked;
 			stopButton.Clicked += StopButton_Clicked;
 			clearButton.Clicked += ClearButton_Clicked;
 
-			typesView = new NodeView (typesStore);
-			typesView.AppendColumn ("Type", new CellRendererText (), "text", 0);
-			typesView.AppendColumn ("Status", new CellRendererText (), "text", 1);
+			dependenciesView = new NodeView (dependenciesStore);
+			dependenciesView.AppendColumn ("Dependency", new CellRendererText (), "text", 0);
+			dependenciesView.AppendColumn ("Status", new CellRendererText (), "text", 1);
 
-			toolbar.PackStart (runButton, false, false, 6);
-			toolbar.PackStart (stopButton, false, false, 6);
-			toolbar.PackEnd (clearButton, false, false, 6);
+			toolbar.PackStart (runButton, false, false, 4);
+			toolbar.PackStart (refreshButton, false, false, 4);
+			toolbar.PackStart (stopButton, false, false, 4);
+			toolbar.PackEnd (clearButton, false, false, 4);
 			PackStart (toolbar, false, false, 0);
 //			PackStart (errorLabel, false, false, 8);
-			PackEnd (typesView, true, true, 0);
+			PackEnd (dependenciesView, true, true, 0);
 		}
 
 		void Env_LinkedMonitoredCode (LinkedCode obj)
 		{
-			typesStore.Clear ();
+			dependenciesStore.Clear ();
 			var q = obj.Types.OrderBy (x => x.Name);
 			foreach (var t in q) {
-				typesStore.AddNode (new TypeTreeNode (t));
+				dependenciesStore.AddNode (new DependencyTreeNode (t));
 			}
-		}
-
-		async void ClearButton_Clicked (object sender, EventArgs e)
-		{
-			TypeCode.ClearEdits ();
-			await Env.VisualizeMonitoredTypeAsync (forceEval: false, showError: false);
 		}
 
 		async void RunButton_Clicked (object sender, EventArgs e)
@@ -98,21 +87,32 @@ namespace Continuous.Client.XamarinStudio
 			await Env.VisualizeAsync ();
 		}
 
+		async void RefreshButton_Clicked (object sender, EventArgs e)
+		{
+			await Env.VisualizeMonitoredTypeAsync (forceEval: true, showError: true);
+		}
+
 		async void StopButton_Clicked (object sender, EventArgs e)
 		{
 			await Env.StopVisualizingAsync ();
-			typesStore.Clear ();
+			dependenciesStore.Clear ();
+		}
+
+		async void ClearButton_Clicked (object sender, EventArgs e)
+		{
+			TypeCode.ClearEdits ();
+			await Env.VisualizeMonitoredTypeAsync (forceEval: false, showError: false);
 		}
 	}
 
 	[Gtk.TreeNode (ListOnly=true)]
-	public class TypeTreeNode : TreeNode
+	public class DependencyTreeNode : TreeNode
 	{
-		public TypeTreeNode (TypeCode type)
+		public DependencyTreeNode (TypeCode type)
 		{
 			Name = type.Name;
 			var timeStr = type.CodeChangedTime.ToLocalTime ().ToString ("T");
-			Status = type.CodeChanged ? ("Edited " + timeStr) : "";
+			Status = type.CodeChanged ? ("Edit " + timeStr) : "";
 		}
 
 		[Gtk.TreeNodeValue (Column=0)]
