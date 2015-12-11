@@ -11,5 +11,6 @@
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)HttpClient.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TypeCode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ContinuousEnv.cs" />
   </ItemGroup>
 </Project>

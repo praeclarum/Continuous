@@ -49,6 +49,10 @@ namespace Continuous.Client
 
 		static readonly Dictionary<string, TypeCode> infos = new Dictionary<string, TypeCode> ();
 
+		public static IEnumerable<TypeCode> All {
+			get { return infos.Values; }
+		}
+
 		public static void Clear ()
 		{
 			infos.Clear ();

@@ -20,7 +20,7 @@ namespace Continuous.Client.XamarinStudio
 
 	public class MainPad : IPadContent
 	{
-		MainPadControl control = new MainPadControl ();
+		readonly MainPadControl control = new MainPadControl ();
 
 		#region IPadContent implementation
 		public void Initialize (IPadWindow window)
@@ -46,8 +46,12 @@ namespace Continuous.Client.XamarinStudio
 
 	public class MainPadControl : VBox
 	{
+		protected ContinuousEnv Env { get { return ContinuousEnv.Shared; } }
+
 		readonly HBox toolbar = new HBox ();
-		readonly ToggleButton runButton = new ToggleButton { Label = "Do it" };
+		readonly Button runButton = new Button { Label = "Visualize" };
+		readonly Button stopButton = new Button { Label = "Stop" };
+		readonly Button clearButton = new Button { Label = "Forget All" };
 		readonly NodeStore typesStore = new NodeStore (typeof(TypeTreeNode));
 		readonly NodeView typesView;
 		readonly Label errorLabel = new Label ("Errors") {
@@ -56,28 +60,44 @@ namespace Continuous.Client.XamarinStudio
 
 		public MainPadControl ()
 		{
-			typesStore.AddNode (new TypeTreeNode ("Hello"));
-			typesStore.AddNode (new TypeTreeNode ("World"));
+			clearButton.Clicked += ClearButton_Clicked;
 
 			typesView = new NodeView (typesStore);
 			typesView.AppendColumn ("Type", new CellRendererText (), "text", 0);
 			typesView.AppendColumn ("Status", new CellRendererText (), "text", 1);
 
-			runButton.Active = true;
 			toolbar.PackStart (runButton, false, false, 8);
+			toolbar.PackStart (stopButton, false, false, 8);
+			toolbar.PackEnd (clearButton, false, false, 8);
 			PackStart (toolbar, false, false, 0);
 			PackStart (errorLabel, false, false, 8);
 			PackEnd (typesView, true, true, 0);
+
+			RefreshTypesStore ();
+		}
+
+		void ClearButton_Clicked (object sender, EventArgs e)
+		{
+			TypeCode.Clear ();
+			RefreshTypesStore ();
+		}
+
+		void RefreshTypesStore ()
+		{
+			typesStore.Clear ();
+			foreach (var t in TypeCode.All) {
+				typesStore.AddNode (new TypeTreeNode (t));
+			}
 		}
 	}
 
 	[Gtk.TreeNode (ListOnly=true)]
 	public class TypeTreeNode : TreeNode
 	{
-		public TypeTreeNode (string name)
+		public TypeTreeNode (TypeCode type)
 		{
-			Name = name;
-			Status = "";
+			Name = type.Name;
+			Status = type.CodeChanged ? "Edited" : "";
 		}
 
 		[Gtk.TreeNodeValue (Column=0)]
