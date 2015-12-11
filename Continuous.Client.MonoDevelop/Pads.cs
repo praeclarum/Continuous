@@ -90,7 +90,7 @@ namespace Continuous.Client.XamarinStudio
 		async void ClearButton_Clicked (object sender, EventArgs e)
 		{
 			TypeCode.ClearEdits ();
-			await Env.RevisualizeAsync (forceEval: false, showError: false);
+			await Env.VisualizeMonitoredTypeAsync (forceEval: false, showError: false);
 		}
 
 		async void RunButton_Clicked (object sender, EventArgs e)

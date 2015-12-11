@@ -91,12 +91,12 @@ namespace Continuous.Client
 			MonitorTypeName = typeName;
 			//			monitorNamespace = nsName;
 
-			await RevisualizeAsync (forceEval: true, showError: true);
+			await SetTypesAndVisualizeMonitoredTypeAsync (forceEval: true, showError: true);
 		}
 
 		LinkedCode lastLinkedCode = null;
 
-		public async Task RevisualizeAsync (bool forceEval, bool showError)
+		public async Task SetTypesAndVisualizeMonitoredTypeAsync (bool forceEval, bool showError)
 		{
 			//
 			// Gobble up all we can about the types in the active document
@@ -106,6 +106,11 @@ namespace Continuous.Client
 				td.SetTypeCode ();
 			}
 
+			await VisualizeMonitoredTypeAsync (forceEval, showError);
+		}
+
+		public async Task VisualizeMonitoredTypeAsync (bool forceEval, bool showError)
+		{
 			//
 			// Refresh the monitored type
 			//
@@ -116,11 +121,11 @@ namespace Continuous.Client
 
 			var code = await Task.Run (() => monitorTC.GetLinkedCode ());
 
+			LinkedMonitoredCode (code);
+
 			if (!forceEval && lastLinkedCode != null && lastLinkedCode.CacheKey == code.CacheKey) {
 				return;
 			}
-
-			LinkedMonitoredCode (code);
 
 			//
 			// Send the code to the device
@@ -292,7 +297,7 @@ namespace Continuous.Client
 		{
 			var doc = IdeApp.Workbench.ActiveDocument;
 			Log ("DOC PARSED {0}", doc.Name);
-			await RevisualizeAsync (forceEval: false, showError: false);
+			await SetTypesAndVisualizeMonitoredTypeAsync (forceEval: false, showError: false);
 		}
 
 		public async Task VisualizeSelectionAsync ()
