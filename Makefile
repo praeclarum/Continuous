@@ -9,8 +9,7 @@ nuget:
 
 mpack:
 	xbuild /p:Configuration=Release Continuous.Client.MonoDevelop/Continuous.Client.MonoDevelop.csproj
-	cp Continuous.Client.MonoDevelop/bin/Release/Continuous.Client.MonoDevelop.dll Continuous.Client.MonoDevelop/AddinRepo/
-	cp Continuous.Client.MonoDevelop/Properties/addin.info Continuous.Client.MonoDevelop/AddinRepo/
-	cd Continuous.Client.MonoDevelop/AddinRepo/ && zip Continuous.Client.MonoDevelop.mpack addin.info Continuous.Client.MonoDevelop.dll && rm addin.info Continuous.Client.MonoDevelop.dll
+	/Applications/Xamarin\ Studio.app/Contents/MacOS/mdtool setup pack Continuous.Client.MonoDevelop/bin/Release/Continuous.Client.MonoDevelop.dll
+	mv Continuous.Client.MonoDevelop.Continuous.Client.MonoDevelop_*.mpack Continuous.Client.MonoDevelop/AddinRepo/Continuous.Client.MonoDevelop.mpack
 	/Applications/Xamarin\ Studio.app/Contents/MacOS/mdtool setup rep-build Continuous.Client.MonoDevelop/AddinRepo
 
