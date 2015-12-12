@@ -120,7 +120,7 @@ namespace Continuous.Server
 				return;
 			}
 			try {
-				Console.WriteLine ("Continuous.Visualize: {0}", res.Result);
+				Log ("Continuous.Visualize: {0}", res.Result);
 			// Analysis disable once EmptyGeneralCatchClause
 			} catch (Exception) {				
 			}
