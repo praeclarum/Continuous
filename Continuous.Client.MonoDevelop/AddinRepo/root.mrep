@@ -6,7 +6,7 @@
       <Id>Continuous.Client.MonoDevelop</Id>
       <Namespace>Continuous.Client.MonoDevelop</Namespace>
       <Name>Continuous Coding</Name>
-      <Version>1.5.2</Version>
+      <Version>1.5.3</Version>
       <BaseVersion />
       <Author>Frank A. Krueger</Author>
       <Copyright />
@@ -16,20 +16,20 @@
       <Dependencies>
         <AddinDependency>
           <AddinId>::MonoDevelop.Core</AddinId>
-          <Version>5.10</Version>
+          <Version>5.10.1</Version>
         </AddinDependency>
         <AddinDependency>
           <AddinId>::MonoDevelop.Ide</AddinId>
-          <Version>5.10</Version>
+          <Version>5.10.1</Version>
         </AddinDependency>
         <AddinDependency>
           <AddinId>::MonoDevelop.Refactoring</AddinId>
-          <Version>5.10</Version>
+          <Version>5.10.1</Version>
         </AddinDependency>
       </Dependencies>
       <OptionalDependencies />
       <Properties>
-        <Property name="DownloadSize">15861</Property>
+        <Property name="DownloadSize">15898</Property>
       </Properties>
     </Addin>
   </Addin>
