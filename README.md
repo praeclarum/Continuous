@@ -10,7 +10,7 @@ It currently works only in Xamarin Studio and only for C#.
 
 **Install the Live Code Xamarin Studio Add-in** by adding a New Gallery Repository pointing at the URL:
 
-	https://raw.githubusercontent.com/praeclarum/Continuous/master/Continuous.Client.MonoDevelop/AddinRepo
+	https://github.com/praeclarum/Continuous/tree/master/Continuous.Client.MonoDevelop/AddinRepo
 
 You will then be able to select the **Continuous Coding** Add-in from the **IDE extensions** category.
 
