@@ -6,7 +6,7 @@ namespace Continuous.Client
 {
 	public class WatchVariable
 	{
-		public Guid Id;
+		public string Id;
 		public string Expression;
 		public string FilePath;
 		public int FileLine;

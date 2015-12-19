@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace Continuous
 {
@@ -37,6 +38,7 @@ namespace Continuous
 	public class EvalResponse
 	{
 		public EvalMessage[] Messages;
+		public Dictionary<string, List<string>> WatchValues;
 		public TimeSpan Duration;
 
 		public bool HasErrors {

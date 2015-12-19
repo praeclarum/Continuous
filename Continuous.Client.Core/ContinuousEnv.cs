@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using System.Linq;
+using System.Diagnostics;
 
 #if MONODEVELOP
 using MonoDevelop.Ide;
@@ -227,17 +228,22 @@ namespace Continuous.Client
 			var ext = doc.FileName.Extension;
 
 			if (ext == ".cs") {
-				var resolver = await doc.GetSharedResolver ();
-				var typeDecls =
-					resolver.RootNode.Descendants.
-					OfType<TypeDeclaration> ().
-					Where (x => !(x.Parent is TypeDeclaration)).
-					Select (x => new CSharpTypeDecl {
-						Document = new DocumentRef (doc.FileName.FullPath),
-						Declaration = x,
-						Resolver = resolver,
-					});
-				return typeDecls.ToArray ();
+				try {					
+					var resolver = await doc.GetSharedResolver ();
+					var typeDecls =
+						resolver.RootNode.Descendants.
+						OfType<TypeDeclaration> ().
+						Where (x => !(x.Parent is TypeDeclaration)).
+						Select (x => new CSharpTypeDecl {
+							Document = new DocumentRef (doc.FileName.FullPath),
+							Declaration = x,
+							Resolver = resolver,
+						});
+					return typeDecls.ToArray ();
+				} catch (Exception ex) {
+					Log (ex);
+					return new TypeDecl[0];
+				}
 			}
 
 			if (ext == ".xaml") {
@@ -332,6 +338,13 @@ namespace Continuous.Client
 		{
 			#if DEBUG
 			Console.WriteLine (msg);
+			#endif
+		}
+
+		protected void Log (Exception ex)
+		{
+			#if DEBUG
+			Console.WriteLine (ex.ToString ());
 			#endif
 		}
 	}

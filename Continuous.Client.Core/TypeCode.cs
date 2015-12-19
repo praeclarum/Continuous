@@ -82,8 +82,26 @@ namespace Continuous.Client
 			return ci;
 		}
 
-		public static TypeCode Set (DocumentRef doc, TypeDeclaration typedecl, CSharpAstResolver resolver)
+		static Statement GetWatchInstrument (string id, Expression expr)
 		{
+			var r = new MemberReferenceExpression (
+				new MemberReferenceExpression (
+					new MemberReferenceExpression (
+						new IdentifierExpression ("Continuous"), "Server"), "WatchStore"), "Record");
+			var i = new ExpressionStatement (new InvocationExpression (r, new PrimitiveExpression (id), expr));
+			var t = new TryCatchStatement ();
+			t.TryBlock = new BlockStatement ();
+			t.TryBlock.Statements.Add (i);
+			var c = new CatchClause ();
+			c.Body = new BlockStatement ();
+			t.CatchClauses.Add (c);
+			return t;
+		}
+
+		public static TypeCode Set (DocumentRef doc, TypeDeclaration rtypedecl, CSharpAstResolver resolver)
+		{
+			var typedecl = (TypeDeclaration)rtypedecl.Clone ();
+
 			var ns = typedecl.Parent as NamespaceDeclaration;
 			var nsName = ns == null ? "" : ns.FullName;
 			var name = typedecl.Name;
@@ -103,19 +121,22 @@ namespace Continuous.Client
 			}
 
 			//
-			// Find watches
+			// Find watches and instrument
 			//
 			var watches = new List<WatchVariable> ();
 			foreach (var d in typedecl.Descendants.OfType<VariableInitializer> ()) {
 				var endLoc = d.EndLocation;
 				var p = d.Parent;
-				if (p == null)
+				if (p == null || p.Parent == null)
 					continue;
 				var nc = p.GetNextSibling (x => x is Comment && x.StartLocation.Line == endLoc.Line);
 				if (nc == null || !nc.ToString ().StartsWith ("//="))
 					continue;
+				var id = Guid.NewGuid ().ToString ();
+				var instrument = GetWatchInstrument (id, new IdentifierExpression (d.Name));
+				p.Parent.InsertChildBefore (nc, instrument, BlockStatement.StatementRole);
 				watches.Add (new WatchVariable {
-					Id = Guid.NewGuid (),
+					Id = id,
 					Expression = d.Name,
 					FilePath = doc.FullPath,
 					FileLine = nc.StartLocation.Line,
@@ -125,13 +146,16 @@ namespace Continuous.Client
 			foreach (var d in typedecl.Descendants.OfType<AssignmentExpression> ()) {
 				var endLoc = d.EndLocation;
 				var p = d.Parent;
-				if (p == null)
+				if (p == null || p.Parent == null)
 					continue;
 				var nc = p.GetNextSibling (x => x is Comment && x.StartLocation.Line == endLoc.Line);
 				if (nc == null || !nc.ToString ().StartsWith ("//="))
 					continue;
+				var id = Guid.NewGuid ().ToString ();
+				var instrument = GetWatchInstrument (id, (Expression)d.Left.Clone ());
+				p.Parent.InsertChildBefore (nc, instrument, BlockStatement.StatementRole);
 				watches.Add (new WatchVariable {
-					Id = Guid.NewGuid (),
+					Id = id,
 					Expression = d.Left.ToString (),
 					FilePath = doc.FullPath,
 					FileLine = nc.StartLocation.Line,

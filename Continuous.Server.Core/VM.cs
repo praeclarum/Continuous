@@ -29,6 +29,7 @@ namespace Continuous.Server
 				Log ("EVAL ON THREAD {0}", System.Threading.Thread.CurrentThread.ManagedThreadId);
 
 				printer.Messages.Clear ();
+				WatchStore.Clear ();
 
 				sw.Start ();
 

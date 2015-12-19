@@ -91,7 +91,8 @@ namespace Continuous.Server
 						}
 						var response = new EvalResponse {
 							Messages = r.Messages,
-							Duration = r.Duration
+							WatchValues = WatchStore.Values,
+							Duration = r.Duration,
 						};
 						return Tuple.Create (r, JsonConvert.SerializeObject (response));
 					}, CancellationToken.None, TaskCreationOptions.None, mainScheduler);

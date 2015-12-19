@@ -13,5 +13,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)VM.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Visualizer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ObjectInspectorData.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)WatchStore.cs" />
   </ItemGroup>
 </Project>
