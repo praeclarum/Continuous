@@ -12,5 +12,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)HttpClient.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TypeCode.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ContinuousEnv.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)WatchVariable.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DocumentRef.cs" />
   </ItemGroup>
 </Project>

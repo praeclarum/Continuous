@@ -4,6 +4,7 @@ using System.Linq;
 
 #if MONODEVELOP
 using MonoDevelop.Ide;
+using MonoDevelop.Ide.Gui;
 using MonoDevelop.Refactoring;
 using Gtk;
 using ICSharpCode.NRefactory;
@@ -158,6 +159,7 @@ namespace Continuous.Client
 
 		abstract class TypeDecl
 		{
+			public DocumentRef Document { get; set; }
 			public abstract string Name { get; }
 			public abstract TextLocation StartLocation { get; }
 			public abstract TextLocation EndLocation { get; }
@@ -185,7 +187,7 @@ namespace Continuous.Client
 			}
 			public override void SetTypeCode ()
 			{
-				TypeCode.Set (Declaration, Resolver);
+				TypeCode.Set (Document, Declaration, Resolver);
 			}
 		}
 
@@ -231,6 +233,7 @@ namespace Continuous.Client
 					OfType<TypeDeclaration> ().
 					Where (x => !(x.Parent is TypeDeclaration)).
 					Select (x => new CSharpTypeDecl {
+						Document = new DocumentRef (doc.FileName.FullPath),
 						Declaration = x,
 						Resolver = resolver,
 					});
@@ -241,6 +244,7 @@ namespace Continuous.Client
 				var xaml = doc.Editor.Text;
 				return new TypeDecl[] {
 					new XamlTypeDecl {
+						Document = new DocumentRef (doc.FileName.FullPath),
 						XamlText = xaml,
 					},
 				};

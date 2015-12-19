@@ -35,6 +35,7 @@ namespace Continuous.Client
 		public bool CodeChanged = false;
 		public DateTime CodeChangedTime = DateTime.MinValue;
 		public string FullNamespace = "";
+		public WatchVariable[] Watches = new WatchVariable[0];
 
 		public string Key {
 			get { return Name; }
@@ -81,7 +82,7 @@ namespace Continuous.Client
 			return ci;
 		}
 
-		public static TypeCode Set (TypeDeclaration typedecl, CSharpAstResolver resolver)
+		public static TypeCode Set (DocumentRef doc, TypeDeclaration typedecl, CSharpAstResolver resolver)
 		{
 			var ns = typedecl.Parent as NamespaceDeclaration;
 			var nsName = ns == null ? "" : ns.FullName;
@@ -93,22 +94,63 @@ namespace Continuous.Client
 				Select (x => x.ToString ().Trim ()).
 				ToList ();
 
-			var code = typedecl.ToString ();
-
+			//
+			// Find dependencies
+			//
 			var deps = new List<String> ();
 			foreach (var d in typedecl.Descendants.OfType<SimpleType> ()) {
 				deps.Add (d.Identifier);
 			}
 
-			return Set (name, usings, code, deps, nsName);
+			//
+			// Find watches
+			//
+			var watches = new List<WatchVariable> ();
+			foreach (var d in typedecl.Descendants.OfType<VariableInitializer> ()) {
+				var endLoc = d.EndLocation;
+				var p = d.Parent;
+				if (p == null)
+					continue;
+				var nc = p.GetNextSibling (x => x is Comment && x.StartLocation.Line == endLoc.Line);
+				if (nc == null || !nc.ToString ().StartsWith ("//="))
+					continue;
+				watches.Add (new WatchVariable {
+					Id = Guid.NewGuid (),
+					Expression = d.Name,
+					FilePath = doc.FullPath,
+					FileLine = nc.StartLocation.Line,
+					FileColumn = nc.StartLocation.Column,
+				});
+			}
+			foreach (var d in typedecl.Descendants.OfType<AssignmentExpression> ()) {
+				var endLoc = d.EndLocation;
+				var p = d.Parent;
+				if (p == null)
+					continue;
+				var nc = p.GetNextSibling (x => x is Comment && x.StartLocation.Line == endLoc.Line);
+				if (nc == null || !nc.ToString ().StartsWith ("//="))
+					continue;
+				watches.Add (new WatchVariable {
+					Id = Guid.NewGuid (),
+					Expression = d.Left.ToString (),
+					FilePath = doc.FullPath,
+					FileLine = nc.StartLocation.Line,
+					FileColumn = nc.StartLocation.Column,
+				});
+			}
+
+			var code = typedecl.ToString ();
+
+			return Set (name, usings, code, deps, nsName, watches);
 		}
-		public static TypeCode Set (string name, IEnumerable<string> usings, string code, IEnumerable<string> deps, string fullNamespace = "")
+		public static TypeCode Set (string name, IEnumerable<string> usings, string code, IEnumerable<string> deps, string fullNamespace = "", IEnumerable<WatchVariable> watches = null)
 		{
 			var tc = Get (name);
 
 			tc.Usings = usings.ToArray ();
 			tc.Dependencies = deps.Distinct ().Select (Get).ToArray ();
 			tc.FullNamespace = fullNamespace;
+			tc.Watches = watches != null ? watches.ToArray () : new WatchVariable[0];
 
 			var safeCode = code ?? "";
 
