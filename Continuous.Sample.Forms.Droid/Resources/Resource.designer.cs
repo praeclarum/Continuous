@@ -4022,35 +4022,35 @@ namespace Continuous.Sample.Forms.Droid
 		public partial class Style
 		{
 			
-			// aapt resource value: 0x7f07008e
-			public const int AlertDialog_AppCompat = 2131165326;
-			
-			// aapt resource value: 0x7f07008f
-			public const int AlertDialog_AppCompat_Light = 2131165327;
-			
 			// aapt resource value: 0x7f070090
-			public const int Animation_AppCompat_Dialog = 2131165328;
+			public const int AlertDialog_AppCompat = 2131165328;
 			
 			// aapt resource value: 0x7f070091
-			public const int Animation_AppCompat_DropDownUp = 2131165329;
+			public const int AlertDialog_AppCompat_Light = 2131165329;
 			
 			// aapt resource value: 0x7f070092
-			public const int Base_AlertDialog_AppCompat = 2131165330;
+			public const int Animation_AppCompat_Dialog = 2131165330;
 			
 			// aapt resource value: 0x7f070093
-			public const int Base_AlertDialog_AppCompat_Light = 2131165331;
+			public const int Animation_AppCompat_DropDownUp = 2131165331;
 			
 			// aapt resource value: 0x7f070094
-			public const int Base_Animation_AppCompat_Dialog = 2131165332;
+			public const int Base_AlertDialog_AppCompat = 2131165332;
 			
 			// aapt resource value: 0x7f070095
-			public const int Base_Animation_AppCompat_DropDownUp = 2131165333;
+			public const int Base_AlertDialog_AppCompat_Light = 2131165333;
 			
 			// aapt resource value: 0x7f070096
-			public const int Base_DialogWindowTitle_AppCompat = 2131165334;
+			public const int Base_Animation_AppCompat_Dialog = 2131165334;
 			
 			// aapt resource value: 0x7f070097
-			public const int Base_DialogWindowTitleBackground_AppCompat = 2131165335;
+			public const int Base_Animation_AppCompat_DropDownUp = 2131165335;
+			
+			// aapt resource value: 0x7f070098
+			public const int Base_DialogWindowTitle_AppCompat = 2131165336;
+			
+			// aapt resource value: 0x7f070099
+			public const int Base_DialogWindowTitleBackground_AppCompat = 2131165337;
 			
 			// aapt resource value: 0x7f070043
 			public const int Base_TextAppearance_AppCompat = 2131165251;
@@ -4106,8 +4106,8 @@ namespace Continuous.Sample.Forms.Droid
 			// aapt resource value: 0x7f070050
 			public const int Base_TextAppearance_AppCompat_Menu = 2131165264;
 			
-			// aapt resource value: 0x7f070098
-			public const int Base_TextAppearance_AppCompat_SearchResult = 2131165336;
+			// aapt resource value: 0x7f07009a
+			public const int Base_TextAppearance_AppCompat_SearchResult = 2131165338;
 			
 			// aapt resource value: 0x7f070051
 			public const int Base_TextAppearance_AppCompat_SearchResult_Subtitle = 2131165265;
@@ -4157,11 +4157,11 @@ namespace Continuous.Sample.Forms.Droid
 			// aapt resource value: 0x7f07005d
 			public const int Base_TextAppearance_AppCompat_Widget_Button = 2131165277;
 			
-			// aapt resource value: 0x7f070099
-			public const int Base_TextAppearance_AppCompat_Widget_Button_Inverse = 2131165337;
+			// aapt resource value: 0x7f07008c
+			public const int Base_TextAppearance_AppCompat_Widget_Button_Inverse = 2131165324;
 			
-			// aapt resource value: 0x7f07009a
-			public const int Base_TextAppearance_AppCompat_Widget_DropDownItem = 2131165338;
+			// aapt resource value: 0x7f07009b
+			public const int Base_TextAppearance_AppCompat_Widget_DropDownItem = 2131165339;
 			
 			// aapt resource value: 0x7f07005e
 			public const int Base_TextAppearance_AppCompat_Widget_PopupMenu_Large = 2131165278;
@@ -4175,8 +4175,8 @@ namespace Continuous.Sample.Forms.Droid
 			// aapt resource value: 0x7f070061
 			public const int Base_TextAppearance_AppCompat_Widget_TextView_SpinnerItem = 2131165281;
 			
-			// aapt resource value: 0x7f07009b
-			public const int Base_TextAppearance_Widget_AppCompat_ExpandedMenu_Item = 2131165339;
+			// aapt resource value: 0x7f07009c
+			public const int Base_TextAppearance_Widget_AppCompat_ExpandedMenu_Item = 2131165340;
 			
 			// aapt resource value: 0x7f070062
 			public const int Base_TextAppearance_Widget_AppCompat_Toolbar_Subtitle = 2131165282;
@@ -4187,20 +4187,20 @@ namespace Continuous.Sample.Forms.Droid
 			// aapt resource value: 0x7f070064
 			public const int Base_Theme_AppCompat = 2131165284;
 			
-			// aapt resource value: 0x7f07009c
-			public const int Base_Theme_AppCompat_CompactMenu = 2131165340;
+			// aapt resource value: 0x7f07009d
+			public const int Base_Theme_AppCompat_CompactMenu = 2131165341;
 			
 			// aapt resource value: 0x7f07001f
 			public const int Base_Theme_AppCompat_Dialog = 2131165215;
 			
-			// aapt resource value: 0x7f07009d
-			public const int Base_Theme_AppCompat_Dialog_Alert = 2131165341;
-			
 			// aapt resource value: 0x7f07009e
-			public const int Base_Theme_AppCompat_Dialog_FixedSize = 2131165342;
+			public const int Base_Theme_AppCompat_Dialog_Alert = 2131165342;
 			
 			// aapt resource value: 0x7f07009f
-			public const int Base_Theme_AppCompat_Dialog_MinWidth = 2131165343;
+			public const int Base_Theme_AppCompat_Dialog_FixedSize = 2131165343;
+			
+			// aapt resource value: 0x7f0700a0
+			public const int Base_Theme_AppCompat_Dialog_MinWidth = 2131165344;
 			
 			// aapt resource value: 0x7f070017
 			public const int Base_Theme_AppCompat_DialogWhenLarge = 2131165207;
@@ -4208,38 +4208,38 @@ namespace Continuous.Sample.Forms.Droid
 			// aapt resource value: 0x7f070065
 			public const int Base_Theme_AppCompat_Light = 2131165285;
 			
-			// aapt resource value: 0x7f0700a0
-			public const int Base_Theme_AppCompat_Light_DarkActionBar = 2131165344;
+			// aapt resource value: 0x7f0700a1
+			public const int Base_Theme_AppCompat_Light_DarkActionBar = 2131165345;
 			
 			// aapt resource value: 0x7f070020
 			public const int Base_Theme_AppCompat_Light_Dialog = 2131165216;
 			
-			// aapt resource value: 0x7f0700a1
-			public const int Base_Theme_AppCompat_Light_Dialog_Alert = 2131165345;
-			
 			// aapt resource value: 0x7f0700a2
-			public const int Base_Theme_AppCompat_Light_Dialog_FixedSize = 2131165346;
+			public const int Base_Theme_AppCompat_Light_Dialog_Alert = 2131165346;
 			
 			// aapt resource value: 0x7f0700a3
-			public const int Base_Theme_AppCompat_Light_Dialog_MinWidth = 2131165347;
+			public const int Base_Theme_AppCompat_Light_Dialog_FixedSize = 2131165347;
+			
+			// aapt resource value: 0x7f0700a4
+			public const int Base_Theme_AppCompat_Light_Dialog_MinWidth = 2131165348;
 			
 			// aapt resource value: 0x7f070018
 			public const int Base_Theme_AppCompat_Light_DialogWhenLarge = 2131165208;
 			
-			// aapt resource value: 0x7f0700a4
-			public const int Base_ThemeOverlay_AppCompat = 2131165348;
-			
 			// aapt resource value: 0x7f0700a5
-			public const int Base_ThemeOverlay_AppCompat_ActionBar = 2131165349;
+			public const int Base_ThemeOverlay_AppCompat = 2131165349;
 			
 			// aapt resource value: 0x7f0700a6
-			public const int Base_ThemeOverlay_AppCompat_Dark = 2131165350;
+			public const int Base_ThemeOverlay_AppCompat_ActionBar = 2131165350;
 			
 			// aapt resource value: 0x7f0700a7
-			public const int Base_ThemeOverlay_AppCompat_Dark_ActionBar = 2131165351;
+			public const int Base_ThemeOverlay_AppCompat_Dark = 2131165351;
 			
 			// aapt resource value: 0x7f0700a8
-			public const int Base_ThemeOverlay_AppCompat_Light = 2131165352;
+			public const int Base_ThemeOverlay_AppCompat_Dark_ActionBar = 2131165352;
+			
+			// aapt resource value: 0x7f0700a9
+			public const int Base_ThemeOverlay_AppCompat_Light = 2131165353;
 			
 			// aapt resource value: 0x7f070021
 			public const int Base_V11_Theme_AppCompat_Dialog = 2131165217;
@@ -4271,38 +4271,38 @@ namespace Continuous.Sample.Forms.Droid
 			// aapt resource value: 0x7f07008b
 			public const int Base_V22_Theme_AppCompat_Light = 2131165323;
 			
-			// aapt resource value: 0x7f07008c
-			public const int Base_V23_Theme_AppCompat = 2131165324;
-			
 			// aapt resource value: 0x7f07008d
-			public const int Base_V23_Theme_AppCompat_Light = 2131165325;
+			public const int Base_V23_Theme_AppCompat = 2131165325;
 			
-			// aapt resource value: 0x7f0700a9
-			public const int Base_V7_Theme_AppCompat = 2131165353;
+			// aapt resource value: 0x7f07008e
+			public const int Base_V23_Theme_AppCompat_Light = 2131165326;
 			
 			// aapt resource value: 0x7f0700aa
-			public const int Base_V7_Theme_AppCompat_Dialog = 2131165354;
+			public const int Base_V7_Theme_AppCompat = 2131165354;
 			
 			// aapt resource value: 0x7f0700ab
-			public const int Base_V7_Theme_AppCompat_Light = 2131165355;
+			public const int Base_V7_Theme_AppCompat_Dialog = 2131165355;
 			
 			// aapt resource value: 0x7f0700ac
-			public const int Base_V7_Theme_AppCompat_Light_Dialog = 2131165356;
+			public const int Base_V7_Theme_AppCompat_Light = 2131165356;
 			
 			// aapt resource value: 0x7f0700ad
-			public const int Base_V7_Widget_AppCompat_AutoCompleteTextView = 2131165357;
+			public const int Base_V7_Theme_AppCompat_Light_Dialog = 2131165357;
 			
 			// aapt resource value: 0x7f0700ae
-			public const int Base_V7_Widget_AppCompat_EditText = 2131165358;
+			public const int Base_V7_Widget_AppCompat_AutoCompleteTextView = 2131165358;
 			
 			// aapt resource value: 0x7f0700af
-			public const int Base_Widget_AppCompat_ActionBar = 2131165359;
+			public const int Base_V7_Widget_AppCompat_EditText = 2131165359;
 			
 			// aapt resource value: 0x7f0700b0
-			public const int Base_Widget_AppCompat_ActionBar_Solid = 2131165360;
+			public const int Base_Widget_AppCompat_ActionBar = 2131165360;
 			
 			// aapt resource value: 0x7f0700b1
-			public const int Base_Widget_AppCompat_ActionBar_TabBar = 2131165361;
+			public const int Base_Widget_AppCompat_ActionBar_Solid = 2131165361;
+			
+			// aapt resource value: 0x7f0700b2
+			public const int Base_Widget_AppCompat_ActionBar_TabBar = 2131165362;
 			
 			// aapt resource value: 0x7f07006a
 			public const int Base_Widget_AppCompat_ActionBar_TabText = 2131165290;
@@ -4319,11 +4319,11 @@ namespace Continuous.Sample.Forms.Droid
 			// aapt resource value: 0x7f07006e
 			public const int Base_Widget_AppCompat_ActionButton_Overflow = 2131165294;
 			
-			// aapt resource value: 0x7f0700b2
-			public const int Base_Widget_AppCompat_ActionMode = 2131165362;
-			
 			// aapt resource value: 0x7f0700b3
-			public const int Base_Widget_AppCompat_ActivityChooserView = 2131165363;
+			public const int Base_Widget_AppCompat_ActionMode = 2131165363;
+			
+			// aapt resource value: 0x7f0700b4
+			public const int Base_Widget_AppCompat_ActivityChooserView = 2131165364;
 			
 			// aapt resource value: 0x7f07002c
 			public const int Base_Widget_AppCompat_AutoCompleteTextView = 2131165228;
@@ -4337,11 +4337,11 @@ namespace Continuous.Sample.Forms.Droid
 			// aapt resource value: 0x7f070071
 			public const int Base_Widget_AppCompat_Button_Borderless_Colored = 2131165297;
 			
-			// aapt resource value: 0x7f0700b4
-			public const int Base_Widget_AppCompat_Button_ButtonBar_AlertDialog = 2131165364;
-			
 			// aapt resource value: 0x7f0700b5
-			public const int Base_Widget_AppCompat_Button_Colored = 2131165365;
+			public const int Base_Widget_AppCompat_Button_ButtonBar_AlertDialog = 2131165365;
+			
+			// aapt resource value: 0x7f07008f
+			public const int Base_Widget_AppCompat_Button_Colored = 2131165327;
 			
 			// aapt resource value: 0x7f070072
 			public const int Base_Widget_AppCompat_Button_Small = 2131165298;
