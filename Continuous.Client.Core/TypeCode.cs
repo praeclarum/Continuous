@@ -32,6 +32,7 @@ namespace Continuous.Client
 		public TypeCode[] Dependencies = new TypeCode[0];
 		public string[] Usings = new string[0];
 		public string Code = "";
+		public string RawCode = "";
 		public bool CodeChanged = false;
 		public DateTime CodeChangedTime = DateTime.MinValue;
 		public string FullNamespace = "";
@@ -98,8 +99,24 @@ namespace Continuous.Client
 			return t;
 		}
 
+		static string GetCommentlessCode (TypeDeclaration rtypedecl)
+		{
+			var t = (TypeDeclaration)rtypedecl.Clone ();
+			var cs = t.Descendants.OfType<Comment> ().ToList ();
+			foreach (var c in cs) {
+				if (c.Content.StartsWith ("=")) {
+					c.Content = "=";
+				} else {
+					c.Remove ();
+				}
+			}
+			return t.ToString ();
+		}
+
 		public static TypeCode Set (DocumentRef doc, TypeDeclaration rtypedecl, CSharpAstResolver resolver)
 		{
+			var rawCode = GetCommentlessCode (rtypedecl);
+
 			var typedecl = (TypeDeclaration)rtypedecl.Clone ();
 
 			var ns = typedecl.Parent as NamespaceDeclaration;
@@ -163,11 +180,18 @@ namespace Continuous.Client
 				});
 			}
 
-			var code = typedecl.ToString ();
+			//
+			// All done
+			//
+			var instrumentedCode = typedecl.ToString ();
 
-			return Set (name, usings, code, deps, nsName, watches);
+			return Set (name, usings, rawCode, instrumentedCode, deps, nsName, watches);
 		}
 		public static TypeCode Set (string name, IEnumerable<string> usings, string code, IEnumerable<string> deps, string fullNamespace = "", IEnumerable<WatchVariable> watches = null)
+		{
+			return Set (name, usings, code, code, deps, fullNamespace, watches);
+		}
+		public static TypeCode Set (string name, IEnumerable<string> usings, string rawCode, string instrumentedCode, IEnumerable<string> deps, string fullNamespace = "", IEnumerable<WatchVariable> watches = null)
 		{
 			var tc = Get (name);
 
@@ -176,15 +200,18 @@ namespace Continuous.Client
 			tc.FullNamespace = fullNamespace;
 			tc.Watches = watches != null ? watches.ToArray () : new WatchVariable[0];
 
-			var safeCode = code ?? "";
+			var safeICode = instrumentedCode ?? "";
+			var safeRCode = rawCode ?? "";
 
-			if (!string.IsNullOrEmpty (safeCode)) {
+			if (!string.IsNullOrEmpty (safeICode)) {
 				if (string.IsNullOrWhiteSpace (tc.Code)) {
-					tc.Code = safeCode;
+					tc.Code = safeICode;
 					tc.CodeChanged = false;
+					tc.RawCode = safeRCode;
 				} else {
-					if (tc.Code != safeCode) {
-						tc.Code = safeCode;
+					if (tc.RawCode != safeRCode) {
+						tc.Code = safeICode;
+						tc.RawCode = safeRCode;
 						tc.CodeChanged = true;
 						tc.CodeChangedTime = DateTime.UtcNow;
 					}

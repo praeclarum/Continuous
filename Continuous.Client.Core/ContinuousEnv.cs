@@ -2,10 +2,12 @@
 using System.Threading.Tasks;
 using System.Linq;
 using System.Diagnostics;
+using System.Collections.Generic;
 
 #if MONODEVELOP
 using MonoDevelop.Ide;
 using MonoDevelop.Ide.Gui;
+using MonoDevelop.Projects;
 using MonoDevelop.Refactoring;
 using Gtk;
 using ICSharpCode.NRefactory;
@@ -45,6 +47,13 @@ namespace Continuous.Client
 
 		async Task<bool> EvalAsync (string code, bool showError)
 		{
+			var r = await EvalForResponseAsync (code, showError);
+			var err = r.HasErrors;
+			return !err;
+		}
+
+		async Task<EvalResponse> EvalForResponseAsync (string code, bool showError)
+		{
 			Connect ();
 			var r = await conn.VisualizeAsync (code);
 			var err = r.HasErrors;
@@ -54,7 +63,7 @@ namespace Continuous.Client
 					Alert ("{0}", message);
 				}
 			}
-			return !err;
+			return r;
 		}
 
 		public async Task StopVisualizingAsync ()
@@ -143,7 +152,9 @@ namespace Continuous.Client
 				// Show it
 				//
 				Log (code.ValueExpression);
-				if (!await EvalAsync (code.ValueExpression, showError)) return;
+				var resp = await EvalForResponseAsync (code.ValueExpression, showError);
+				if (resp.HasErrors)
+					return;
 
 				//
 				// If we made it this far, remember so we don't re-send the same
@@ -151,11 +162,63 @@ namespace Continuous.Client
 				//
 				lastLinkedCode = code;
 
+				//
+				// Update the editor
+				//
+				await UpdateEditorAsync (code, resp);
+
 			} catch (Exception ex) {
 				if (showError) {
 					Alert ("Could not communicate with the app.\n\n{0}: {1}", ex.GetType (), ex.Message);
 				}
 			}
+		}
+
+		async Task UpdateEditorAsync (LinkedCode code, EvalResponse resp)
+		{
+			await UpdateEditorWatchesAsync (code, resp);
+		}
+
+		async Task UpdateEditorWatchesAsync (LinkedCode code, EvalResponse resp)
+		{
+//			var items = new Dictionary<string, SolutionEntityItem> ();
+			var watches = code.Types.SelectMany (x => x.Watches).ToList ();
+			foreach (var w in watches) {
+				List<string> vals;
+				if (!resp.WatchValues.TryGetValue (w.Id, out vals))
+					continue;
+				if (vals.Count == 0)
+					continue;
+				Console.WriteLine ("VAL {0} {1} = {2}", w.Id, w.Expression, vals.First ());
+				var wd = IdeApp.Workbench.GetDocument (w.FilePath);
+				if (wd == null)
+					continue;
+				SetWatchText (w, vals, wd);
+			}
+		}
+
+		void SetWatchText (WatchVariable w, List<string> vals, Document doc)
+		{
+			var ed = doc.Editor;
+			if (ed == null || !ed.CanEdit (w.FileLine))
+				return;
+			var line = ed.GetLine (w.FileLine);
+			if (line == null)
+				return;
+			var text = ed.GetLineText (w.FileLine);
+			var index = text.IndexOf ("//=");
+			var col = index + 1;
+			if (col != w.FileColumn)
+				return;
+			var newText = "//=" + string.Join (", ", vals);
+			newText = newText.Replace ("\r\n", " ").Replace ("\n", " ").Replace ("\t", " ");
+			if (newText.Length > 140) {
+				newText = newText.Substring (0, 137) + "...";
+			}
+			var offset = line.Offset + index;
+			var remLen = line.Length - index;
+			ed.Remove (offset, remLen);
+			ed.Insert (offset, newText);
 		}
 
 		abstract class TypeDecl

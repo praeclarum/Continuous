@@ -12,11 +12,13 @@ namespace Continuous.Sample.iOS
 
 		void Foo ()
 		{
-			var x = 12; //=
-			x = 42;
-			var y = 120;
-			y = 420; //=
-			Console.WriteLine (x);
+			for (var i = 3; i < 5; i++) {
+				var x = 155 + i; //=158, 159
+				x = 420;
+				var y = x * 3; //=1260, 1260
+				y += 420; //=1680, 1680
+				Console.WriteLine (x);
+			}
 		}
 	}
 }
