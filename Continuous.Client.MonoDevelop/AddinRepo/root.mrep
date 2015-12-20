@@ -6,7 +6,7 @@
       <Id>Continuous.Client.MonoDevelop</Id>
       <Namespace>Continuous.Client.MonoDevelop</Namespace>
       <Name>Continuous Coding</Name>
-      <Version>1.5.3</Version>
+      <Version>1.6.0</Version>
       <BaseVersion />
       <Author>Frank A. Krueger</Author>
       <Copyright />
@@ -29,7 +29,7 @@
       </Dependencies>
       <OptionalDependencies />
       <Properties>
-        <Property name="DownloadSize">15898</Property>
+        <Property name="DownloadSize">19165</Property>
       </Properties>
     </Addin>
   </Addin>
