@@ -206,11 +206,11 @@ namespace Continuous.Client
 			if (line == null)
 				return;
 			var text = ed.GetLineText (w.FileLine);
-			var index = text.IndexOf ("//=");
+			var index = text.IndexOf ("//");
 			var col = index + 1;
 			if (col != w.FileColumn)
 				return;
-			var newText = "//=" + string.Join (", ", vals);
+			var newText = "//" + w.ExplicitExpression + "=" + string.Join (", ", vals);
 			newText = newText.Replace ("\r\n", " ").Replace ("\n", " ").Replace ("\t", " ");
 			if (newText.Length > 140) {
 				newText = newText.Substring (0, 137) + "...";

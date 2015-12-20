@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
+using ICSharpCode.NRefactory;
 using ICSharpCode.NRefactory.CSharp;
 using ICSharpCode.NRefactory.CSharp.Resolver;
 
@@ -104,8 +105,9 @@ namespace Continuous.Client
 			var t = (TypeDeclaration)rtypedecl.Clone ();
 			var cs = t.Descendants.OfType<Comment> ().ToList ();
 			foreach (var c in cs) {
-				if (c.Content.StartsWith ("=")) {
-					c.Content = "=";
+				var m = WatchVariable.CommentContentRe.Match (c.Content);
+				if (m.Success) {
+					c.Content = m.Groups[1].Value + m.Groups[2].Value;
 				} else {
 					c.Remove ();
 				}
@@ -156,6 +158,7 @@ namespace Continuous.Client
 				watches.Add (new WatchVariable {
 					Id = id,
 					Expression = d.Name,
+					ExplicitExpression = "",
 					FilePath = doc.FullPath,
 					FileLine = nc.StartLocation.Line,
 					FileColumn = nc.StartLocation.Column,
@@ -175,9 +178,42 @@ namespace Continuous.Client
 				watches.Add (new WatchVariable {
 					Id = id,
 					Expression = d.Left.ToString (),
+					ExplicitExpression = "",
 					FilePath = doc.FullPath,
 					FileLine = nc.StartLocation.Line,
 					FileColumn = nc.StartLocation.Column,
+				});
+			}
+			foreach (var d in typedecl.Descendants.OfType<Comment> ().Where (x => x.CommentType == CommentType.SingleLine)) {
+				var m = WatchVariable.CommentContentRe.Match (d.Content);
+				if (!m.Success || string.IsNullOrWhiteSpace (m.Groups [1].Value))
+					continue;
+
+				var p = d.Parent as BlockStatement;
+				if (p == null)
+					continue;
+				
+				var exprText = m.Groups [1].Value.Trim ();
+				var parser = new CSharpParser();
+				var syntaxTree = parser.Parse("class C { void F() { var __r = " + exprText + "; } }");
+
+				if (syntaxTree.Errors.Count > 0)
+					continue;
+				var t = syntaxTree.Members.OfType<TypeDeclaration> ().First ();
+				var expr = t.Descendants.OfType<VariableInitializer> ().First ().Initializer;
+				Console.WriteLine (expr);
+
+					
+				var id = Guid.NewGuid ().ToString ();
+				var instrument = GetWatchInstrument (id, expr.Clone ());
+				p.InsertChildBefore (d, instrument, BlockStatement.StatementRole);
+				watches.Add (new WatchVariable {
+					Id = id,
+					Expression = exprText,
+					ExplicitExpression = m.Groups[1].Value,
+					FilePath = doc.FullPath,
+					FileLine = d.StartLocation.Line,
+					FileColumn = d.StartLocation.Column,
 				});
 			}
 
