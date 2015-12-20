@@ -5,7 +5,7 @@ namespace Continuous.Server
 {
 	public static class WatchStore
 	{		
-		const int MaxValuesPerVariable = 100;
+		const int MaxValuesPerVariable = 32;
 		static readonly Dictionary<string, List<string>> watchValues = new Dictionary<string, List<string>> ();
 
 		public static event EventHandler Recorded = delegate{};
@@ -33,8 +33,9 @@ namespace Continuous.Server
 					watchValues.Add (id, vals);
 				}
 
-				if (vals.Count < MaxValuesPerVariable) {
-					vals.Add (GetString (value));
+				vals.Add (GetString (value));
+				if (vals.Count > 2*MaxValuesPerVariable) {
+					vals.RemoveRange (0, MaxValuesPerVariable);
 				}
 
 				version = DateTime.UtcNow.Ticks;

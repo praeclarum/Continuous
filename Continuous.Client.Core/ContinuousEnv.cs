@@ -225,6 +225,17 @@ namespace Continuous.Client
 			lastWatches = ws;
 		}
 
+		string GetValsText (List<string> vals)
+		{
+			var maxLength = 72;
+			var newText = string.Join (", ", vals);
+			newText = newText.Replace ("\r\n", " ").Replace ("\n", " ").Replace ("\t", " ");
+			if (newText.Length > maxLength) {
+				newText = "..." + newText.Substring (newText.Length - maxLength);
+			}
+			return newText;
+		}
+
 		void SetWatchText (WatchVariable w, List<string> vals, Document doc)
 		{
 			var ed = doc.Editor;
@@ -233,11 +244,7 @@ namespace Continuous.Client
 			var line = ed.GetLine (w.FileLine);
 			if (line == null)
 				return;
-			var newText = "//" + w.ExplicitExpression + "=" + string.Join (", ", vals);
-			newText = newText.Replace ("\r\n", " ").Replace ("\n", " ").Replace ("\t", " ");
-			if (newText.Length > 72) {
-				newText = newText.Substring (0, 69) + "...";
-			}
+			var newText = "//" + w.ExplicitExpression + "= " + GetValsText (vals);
 			var lineText = ed.GetLineText (w.FileLine);
 			var commentIndex = lineText.IndexOf ("//");
 			if (commentIndex < 0)
