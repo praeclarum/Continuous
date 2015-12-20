@@ -201,8 +201,6 @@ namespace Continuous.Client
 					continue;
 				var t = syntaxTree.Members.OfType<TypeDeclaration> ().First ();
 				var expr = t.Descendants.OfType<VariableInitializer> ().First ().Initializer;
-				Console.WriteLine (expr);
-
 					
 				var id = Guid.NewGuid ().ToString ();
 				var instrument = GetWatchInstrument (id, expr.Clone ());
