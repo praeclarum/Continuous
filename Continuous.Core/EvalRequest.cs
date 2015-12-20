@@ -45,5 +45,16 @@ namespace Continuous
 			get { return Messages != null && Messages.Any (m => m.MessageType == "error"); }
 		}
 	}
+
+	public class WatchChangesRequest
+	{
+		public long Version;
+	}
+
+	public class WatchValuesResponse
+	{
+		public Dictionary<string, List<string>> WatchValues;
+		public long Version;
+	}
 }
 

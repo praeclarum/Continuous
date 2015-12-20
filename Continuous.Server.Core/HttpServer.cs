@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using System.Collections.Generic;
 
 namespace Continuous.Server
 {
@@ -58,7 +59,15 @@ namespace Continuous.Server
 
 				Log ("REQ ON THREAD {0} {1}", Thread.CurrentThread.ManagedThreadId, path);
 
-				if (path == "/stopVisualizing") {
+				if (path == "/watchChanges") {
+					try {
+						var reqStr = await new StreamReader (c.Request.InputStream, Encoding.UTF8).ReadToEndAsync ().ConfigureAwait (false);
+						var req = JsonConvert.DeserializeObject<WatchChangesRequest> (reqStr);
+						resString = JsonConvert.SerializeObject (await GetWatchChangesAsync (req));
+					} catch (Exception ex) {
+						Log (ex, "/watchChanges");
+					}
+				} else if (path == "/stopVisualizing") {
 					try {
 						resString = await Task.Factory.StartNew (() => {
 							visualizer.StopVisualizing ();
@@ -114,6 +123,30 @@ namespace Continuous.Server
 			} finally {
 				c.Response.Close ();
 			}
+		}
+
+		Task<WatchValuesResponse> GetWatchChangesAsync (WatchChangesRequest req)
+		{
+			var tcs = new TaskCompletionSource<WatchValuesResponse> ();
+			Action setResult = () => {
+				tcs.SetResult (new WatchValuesResponse {
+					WatchValues = new Dictionary<string, List<string>> (WatchStore.Values),
+					Version = WatchStore.Version,
+				});
+			};
+			if (WatchStore.Version > req.Version) {
+				setResult ();
+			} else {
+				EventHandler handle = null;
+				handle = (s, e) => {
+					if (WatchStore.Version > req.Version) {
+						WatchStore.Recorded -= handle;
+						setResult ();
+					}
+				};
+				WatchStore.Recorded += handle;
+			}
+			return tcs.Task;
 		}
 
 		void Visualize (EvalResult res)

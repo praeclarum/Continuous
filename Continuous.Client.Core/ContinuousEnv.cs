@@ -27,8 +27,13 @@ namespace Continuous.Client
 		void Connect ()
 		{
 			if (conn == null) {
-				conn = new HttpClient (new Uri ("http://127.0.0.1:" + Http.DefaultPort));
+				conn = CreateConnection ();
 			}
+		}
+
+		static HttpClient CreateConnection ()
+		{
+			return new HttpClient (new Uri ("http://127.0.0.1:" + Http.DefaultPort));
 		}
 
 		public void Alert (string format, params object[] args)
@@ -81,6 +86,23 @@ namespace Continuous.Client
 		public event Action<LinkedCode> LinkedMonitoredCode = delegate {};
 
 		#if MONODEVELOP
+		async Task MonitorWatchChanges ()
+		{
+			var version = 0L;
+			var conn = CreateConnection ();
+			for (;;) {
+				try {
+//					Console.WriteLine ("MON WATCH " + DateTime.Now);
+					var res = await conn.WatchChangesAsync (version);
+					version = res.Version;
+					await UpdateEditorWatchesAsync (res);
+				} catch (Exception ex) {
+					Console.WriteLine (ex);
+					await Task.Delay (3000);
+				}
+			}
+		}
+
 		public async Task VisualizeAsync ()
 		{
 			var doc = IdeApp.Workbench.ActiveDocument;
@@ -176,25 +198,31 @@ namespace Continuous.Client
 
 		async Task UpdateEditorAsync (LinkedCode code, EvalResponse resp)
 		{
-			await UpdateEditorWatchesAsync (code, resp);
+			await UpdateEditorWatchesAsync (code.Types.SelectMany (x => x.Watches), resp.WatchValues);
 		}
 
-		async Task UpdateEditorWatchesAsync (LinkedCode code, EvalResponse resp)
+		List<WatchVariable> lastWatches = new List<WatchVariable> ();
+
+		async Task UpdateEditorWatchesAsync (WatchValuesResponse watchValues)
 		{
-//			var items = new Dictionary<string, SolutionEntityItem> ();
-			var watches = code.Types.SelectMany (x => x.Watches).ToList ();
-			foreach (var w in watches) {
-				List<string> vals;
-				if (!resp.WatchValues.TryGetValue (w.Id, out vals))
-					continue;
-				if (vals.Count == 0)
-					continue;
-				Console.WriteLine ("VAL {0} {1} = {2}", w.Id, w.Expression, vals.First ());
+			await UpdateEditorWatchesAsync (lastWatches, watchValues.WatchValues);
+		}
+
+		async Task UpdateEditorWatchesAsync (IEnumerable<WatchVariable> watches, Dictionary<string, List<string>> watchValues)
+		{
+			var ws = watches.ToList ();
+			foreach (var w in ws) {
 				var wd = IdeApp.Workbench.GetDocument (w.FilePath);
 				if (wd == null)
 					continue;
+				List<string> vals;
+				if (!watchValues.TryGetValue (w.Id, out vals)) {
+					vals = new List<string> ();
+				}
+//				Console.WriteLine ("VAL {0} {1} = {2}", w.Id, w.Expression, vals);
 				SetWatchText (w, vals, wd);
 			}
+			lastWatches = ws;
 		}
 
 		void SetWatchText (WatchVariable w, List<string> vals, Document doc)
@@ -205,20 +233,27 @@ namespace Continuous.Client
 			var line = ed.GetLine (w.FileLine);
 			if (line == null)
 				return;
-			var text = ed.GetLineText (w.FileLine);
-			var index = text.IndexOf ("//");
-			var col = index + 1;
-			if (col != w.FileColumn)
-				return;
 			var newText = "//" + w.ExplicitExpression + "=" + string.Join (", ", vals);
 			newText = newText.Replace ("\r\n", " ").Replace ("\n", " ").Replace ("\t", " ");
-			if (newText.Length > 140) {
-				newText = newText.Substring (0, 137) + "...";
+			if (newText.Length > 72) {
+				newText = newText.Substring (0, 69) + "...";
 			}
-			var offset = line.Offset + index;
-			var remLen = line.Length - index;
-			ed.Remove (offset, remLen);
-			ed.Insert (offset, newText);
+			var lineText = ed.GetLineText (w.FileLine);
+			var commentIndex = lineText.IndexOf ("//");
+			if (commentIndex < 0)
+				return;
+			var commentCol = commentIndex + 1;
+			if (commentCol != w.FileColumn)
+				return;
+
+			var existingText = lineText.Substring (commentIndex);
+
+			if (existingText != newText) {
+				var offset = line.Offset + commentIndex;
+				var remLen = line.Length - commentIndex;
+				ed.Remove (offset, remLen);
+				ed.Insert (offset, newText);
+			}
 		}
 
 		abstract class TypeDecl
@@ -345,6 +380,8 @@ namespace Continuous.Client
 
 			IdeApp.Workbench.ActiveDocumentChanged += BindActiveDoc;
 			BindActiveDoc (this, EventArgs.Empty);
+
+			MonitorWatchChanges ();
 
 			monitoring = true;
 		}
