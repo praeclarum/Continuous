@@ -119,8 +119,9 @@ namespace Continuous.Client
 
 			var typedecl = (TypeDeclaration)rtypedecl.Clone ();
 
-			var ns = typedecl.Parent as NamespaceDeclaration;
+			var ns = rtypedecl.Parent as NamespaceDeclaration;
 			var nsName = ns == null ? "" : ns.FullName;
+
 			var name = typedecl.Name;
 
 			var usings =
