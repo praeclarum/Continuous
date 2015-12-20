@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>Continuous</id>
-    <version>1.6.0</version>
+    <version>1.6.1</version>
     <title>Continuous Coding</title>
     <authors>Frank A. Krueger</authors>
     <owners>Frank A. Krueger</owners>
@@ -11,7 +11,7 @@
     <iconUrl>https://raw.githubusercontent.com/praeclarum/Continuous/master/Documentation/Icon32.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Continuous Coding environment for .NET visualizes objects as quickly as you can code them. Get the Xamarin Studio add-in with the same name in order to use this library.</description>
-    <releaseNotes>Add Xamarin Studio GUI Pad.</releaseNotes>
+    <releaseNotes>Adds variable tracing.</releaseNotes>
     <copyright>Copyright 2015 Frank A. Krueger</copyright>
     <tags>continuous code</tags>
     <dependencies>
