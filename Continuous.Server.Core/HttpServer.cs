@@ -76,6 +76,7 @@ namespace Continuous.Server
 					var req = JsonConvert.DeserializeObject<EvalRequest> (reqStr);
 
 					var resp = await Task.Factory.StartNew (() => {
+						WatchStore.Clear ();
 						var r = new EvalResult ();
 						try {
 							r = vm.Eval (req.Code);
