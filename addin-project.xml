@@ -1,7 +1,7 @@
-<AddinProject appVersion="4.0">
+<AddinProject appVersion="5.10">
 	<Project platforms="Mac Linux Win32">
 		<AddinFile>Continuous.Client.MonoDevelop/bin/Debug/Continuous.Client.MonoDevelop.dll</AddinFile>
-		<BuildFile>Continuous.sln</BuildFile>
+		<BuildFile>Continuous.Client.MonoDevelop.sln</BuildFile>
 		<BuildConfiguration>Debug</BuildConfiguration>
 	</Project>
 </AddinProject>

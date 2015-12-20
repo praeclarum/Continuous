@@ -1,0 +1,43 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Continuous.Client.MonoDevelop", "Continuous.Client.MonoDevelop\Continuous.Client.MonoDevelop.csproj", "{4C795766-9EBF-4969-9FCA-791F530A6E46}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Continuous.Client.Core", "Continuous.Client.Core\Continuous.Client.Core.shproj", "{53F8E04C-682B-4D3C-A2F5-C17FF440DD63}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Continuous.Core", "Continuous.Core\Continuous.Core.shproj", "{B268CB01-B12B-4712-A19D-055D5343F7AA}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{3881B4EC-35A1-4255-91F1-48C858EDA45E}"
+	ProjectSection(SolutionItems) = preProject
+		Continuous.nuspec = Continuous.nuspec
+		Makefile = Makefile
+		README.md = README.md
+		addin-project.xml = addin-project.xml
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+		Debug|iPhoneSimulator = Debug|iPhoneSimulator
+		Release|iPhone = Release|iPhone
+		Release|iPhoneSimulator = Release|iPhoneSimulator
+		Debug|iPhone = Debug|iPhone
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4C795766-9EBF-4969-9FCA-791F530A6E46}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4C795766-9EBF-4969-9FCA-791F530A6E46}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4C795766-9EBF-4969-9FCA-791F530A6E46}.Debug|iPhone.ActiveCfg = Debug|Any CPU
+		{4C795766-9EBF-4969-9FCA-791F530A6E46}.Debug|iPhone.Build.0 = Debug|Any CPU
+		{4C795766-9EBF-4969-9FCA-791F530A6E46}.Debug|iPhoneSimulator.ActiveCfg = Debug|Any CPU
+		{4C795766-9EBF-4969-9FCA-791F530A6E46}.Debug|iPhoneSimulator.Build.0 = Debug|Any CPU
+		{4C795766-9EBF-4969-9FCA-791F530A6E46}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4C795766-9EBF-4969-9FCA-791F530A6E46}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4C795766-9EBF-4969-9FCA-791F530A6E46}.Release|iPhone.ActiveCfg = Release|Any CPU
+		{4C795766-9EBF-4969-9FCA-791F530A6E46}.Release|iPhone.Build.0 = Release|Any CPU
+		{4C795766-9EBF-4969-9FCA-791F530A6E46}.Release|iPhoneSimulator.ActiveCfg = Release|Any CPU
+		{4C795766-9EBF-4969-9FCA-791F530A6E46}.Release|iPhoneSimulator.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+	EndGlobalSection
+EndGlobal
