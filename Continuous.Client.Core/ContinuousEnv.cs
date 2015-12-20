@@ -94,8 +94,13 @@ namespace Continuous.Client
 				try {
 //					Console.WriteLine ("MON WATCH " + DateTime.Now);
 					var res = await conn.WatchChangesAsync (version);
-					version = res.Version;
-					await UpdateEditorWatchesAsync (res);
+					if (res != null) {
+						version = res.Version;
+						await UpdateEditorWatchesAsync (res);
+					}
+					else {
+						await Task.Delay (1000);
+					}
 				} catch (Exception ex) {
 					Console.WriteLine (ex);
 					await Task.Delay (3000);

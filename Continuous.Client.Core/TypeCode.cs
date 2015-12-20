@@ -124,7 +124,7 @@ namespace Continuous.Client
 			var ns = rtypedecl.Parent as NamespaceDeclaration;
 			var nsName = ns == null ? "" : ns.FullName;
 
-			var name = typedecl.Name;
+			var name = rtypedecl.Name;
 
 			var usings =
 				resolver.RootNode.Descendants.
@@ -136,7 +136,7 @@ namespace Continuous.Client
 			// Find dependencies
 			//
 			var deps = new List<String> ();
-			foreach (var d in typedecl.Descendants.OfType<SimpleType> ()) {
+			foreach (var d in rtypedecl.Descendants.OfType<SimpleType> ()) {
 				deps.Add (d.Identifier);
 			}
 

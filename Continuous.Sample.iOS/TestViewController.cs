@@ -8,7 +8,14 @@ namespace Continuous.Sample.iOS
 	{
 		public TestViewController ()
 		{
+			View = new TestView ();
 			Foo ();
+		}
+
+		public override void ViewWillAppear (bool animated)
+		{
+			base.ViewWillAppear (animated);
+			NavigationController.NavigationBarHidden = true;
 		}
 
 		async void Foo ()
@@ -23,13 +30,42 @@ namespace Continuous.Sample.iOS
 				//x / 1000.0 = ....378, 0.38, 0.382, 0.384, 0.386, 0.388, 0.39, 0.392, 0.394, 0.396, 0.398
 				//i= ..., 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99
 
-
-				//true = ..., True, True, True, True, True, True, True, True, True, True, True, True
 				Console.WriteLine (x);
 
 //				await Task.Delay (1000);
 			}
+		 }
+	}
+
+
+
+	public class TestView : UIView
+	{
+		public override void Draw (CoreGraphics.CGRect rect)
+		{
+			var b = Bounds; //= {X=0,Y=0,Width=375,Height=667}
+			var n = 50;
+			var dw = b.Width / (n - 1); //= 7.653061
+			for (var i = 0; i < n; i++) {
+				var x = i * dw; //= ...321.4286, 329.0816, 336.7347, 344.3878, 352.0408, 359.6939, 367.347, 375
+			}
 		}
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
