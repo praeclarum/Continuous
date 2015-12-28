@@ -1,10 +1,4 @@
-﻿//------------------------------------------------------------------------------
-// <copyright file="ContinuousWindowPackage.cs" company="Company">
-//     Copyright (c) Company.  All rights reserved.
-// </copyright>
-//------------------------------------------------------------------------------
-
-using System;
+﻿using System;
 using System.ComponentModel.Design;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
@@ -38,20 +32,17 @@ namespace Continuous.Client.VisualStudio
     [PackageRegistration(UseManagedResourcesOnly = true)]
     [InstalledProductRegistration("#110", "#112", "1.0", IconResourceID = 400)] // Info on this package for Help/About
     [ProvideMenuResource("Menus.ctmenu", 1)]
-    [ProvideToolWindow(typeof(ContinuousWindow))]
-    [Guid(ContinuousWindowPackage.PackageGuidString)]
+    [ProvideToolWindow(typeof(MainPad))]
+    [Guid(ContinuousPackage.PackageGuidString)]
     [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "pkgdef, VS and vsixmanifest are valid VS terms")]
-    public sealed class ContinuousWindowPackage : Package
+    public sealed class ContinuousPackage : Package
     {
-        /// <summary>
-        /// ContinuousWindowPackage GUID string.
-        /// </summary>
         public const string PackageGuidString = "e0ec91a1-5c4d-4053-a6e0-ac8e489213c7";
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ContinuousWindow"/> class.
+        /// Initializes a new instance of the <see cref="MainPad"/> class.
         /// </summary>
-        public ContinuousWindowPackage()
+        public ContinuousPackage()
         {
             // Inside this method you can place any initialization code that does not require
             // any Visual Studio service because at this point the package object is created but
@@ -67,7 +58,7 @@ namespace Continuous.Client.VisualStudio
         /// </summary>
         protected override void Initialize()
         {
-            ContinuousWindowCommand.Initialize(this);
+            MainPadCommand.Initialize(this);
             base.Initialize();
         }
 

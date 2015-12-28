@@ -1,10 +1,4 @@
-﻿//------------------------------------------------------------------------------
-// <copyright file="ContinuousWindow.cs" company="Company">
-//     Copyright (c) Company.  All rights reserved.
-// </copyright>
-//------------------------------------------------------------------------------
-
-namespace Continuous.Client.VisualStudio
+﻿namespace Continuous.Client.VisualStudio
 {
     using System;
     using System.Runtime.InteropServices;
@@ -22,19 +16,19 @@ namespace Continuous.Client.VisualStudio
     /// </para>
     /// </remarks>
     [Guid("63be7816-887a-4f41-8848-433031c1bfa3")]
-    public class ContinuousWindow : ToolWindowPane
+    public class MainPad : ToolWindowPane
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="ContinuousWindow"/> class.
+        /// Initializes a new instance of the <see cref="MainPad"/> class.
         /// </summary>
-        public ContinuousWindow() : base(null)
+        public MainPad() : base(null)
         {
-            this.Caption = "ContinuousWindow";
+            this.Caption = "Continuous Coding";
 
             // This is the user control hosted by the tool window; Note that, even if this class implements IDisposable,
             // we are not calling Dispose on this object. This is because ToolWindowPane calls Dispose on
             // the object returned by the Content property.
-            this.Content = new ContinuousWindowControl();
+            this.Content = new MainPadControl();
         }
     }
 }

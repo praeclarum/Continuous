@@ -22,7 +22,7 @@
 
   <!--The Commands section is where commands, menus, and menu groups are defined.
       This section uses a Guid to identify the package that provides the command defined inside it. -->
-  <Commands package="guidContinuousWindowPackage">
+  <Commands package="guidContinuousPackage">
     <!-- Inside this section we have different sub-sections: one for the menus, another
     for the menu groups, one for the buttons (the actual commands), one for the combos
     and the last one for the bitmaps used. Each element is identified by a command id that
@@ -42,11 +42,11 @@
               <CommandFlag>DefaultInvisible</CommandFlag>
               <CommandFlag>DynamicVisibility</CommandFlag>
           If you do not want an image next to your command, remove the Icon node /> -->
-      <Button guid="guidContinuousWindowPackageCmdSet" id="ContinuousWindowCommandId" priority="0x0100" type="Button">
+      <Button guid="guidContinuousPackageCmdSet" id="MainPadCommandId" priority="0x0100" type="Button">
         <Parent guid="guidSHLMainMenu" id="IDG_VS_WNDO_OTRWNDWS1"/>
         <Icon guid="guidImages" id="bmpPic1" />
         <Strings>
-          <ButtonText>ContinuousWindow</ButtonText>
+          <ButtonText>Continuous Coding</ButtonText>
         </Strings>
       </Button>
     </Buttons>
@@ -64,11 +64,11 @@
 
   <Symbols>
     <!-- This is the package guid. -->
-    <GuidSymbol name="guidContinuousWindowPackage" value="{e0ec91a1-5c4d-4053-a6e0-ac8e489213c7}" />
+    <GuidSymbol name="guidContinuousPackage" value="{e0ec91a1-5c4d-4053-a6e0-ac8e489213c7}" />
 
     <!-- This is the guid used to group the menu commands together -->
-    <GuidSymbol name="guidContinuousWindowPackageCmdSet" value="{91e2ab20-4d71-4573-8c49-c5460bc6d8b1}">
-      <IDSymbol name="ContinuousWindowCommandId" value="0x0100" />
+    <GuidSymbol name="guidContinuousPackageCmdSet" value="{91e2ab20-4d71-4573-8c49-c5460bc6d8b1}">
+      <IDSymbol name="MainPadCommandId" value="0x0100" />
     </GuidSymbol>
 
     <GuidSymbol name="guidImages" value="{02f5fdf1-4056-4366-acff-548fb6a39e2e}" >

@@ -51,12 +51,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="ContinuousWindow.cs" />
-    <Compile Include="ContinuousWindowCommand.cs" />
-    <Compile Include="ContinuousWindowControl.xaml.cs">
-      <DependentUpon>ContinuousWindowControl.xaml</DependentUpon>
+    <Compile Include="MainPad.cs" />
+    <Compile Include="MainPadCommand.cs" />
+    <Compile Include="MainPadControl.xaml.cs">
+      <DependentUpon>MainPadControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ContinuousWindowPackage.cs" />
+    <Compile Include="ContinuousPackage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -67,7 +67,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <VSCTCompile Include="ContinuousWindowPackage.vsct">
+    <VSCTCompile Include="ContinuousPackage.vsct">
       <ResourceName>Menus.ctmenu</ResourceName>
     </VSCTCompile>
     <Content Include="index.html" />
@@ -76,7 +76,7 @@
     <Content Include="stylesheet.css" />
   </ItemGroup>
   <ItemGroup>
-    <Page Include="ContinuousWindowControl.xaml">
+    <Page Include="MainPadControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -192,6 +192,7 @@
     <EmbeddedResource Include="VSPackage.resx">
       <MergeWithCTO>true</MergeWithCTO>
       <ManifestResourceName>VSPackage</ManifestResourceName>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

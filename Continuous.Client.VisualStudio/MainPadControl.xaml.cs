@@ -13,12 +13,12 @@ namespace Continuous.Client.VisualStudio
     /// <summary>
     /// Interaction logic for ContinuousWindowControl.
     /// </summary>
-    public partial class ContinuousWindowControl : UserControl
+    public partial class MainPadControl : UserControl
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="ContinuousWindowControl"/> class.
+        /// Initializes a new instance of the <see cref="MainPadControl"/> class.
         /// </summary>
-        public ContinuousWindowControl()
+        public MainPadControl()
         {
             this.InitializeComponent();
         }
@@ -34,7 +34,7 @@ namespace Continuous.Client.VisualStudio
         {
             MessageBox.Show(
                 string.Format(System.Globalization.CultureInfo.CurrentUICulture, "Invoked '{0}'", this.ToString()),
-                "ContinuousWindow");
+                "Continuous Coding");
         }
     }
 }

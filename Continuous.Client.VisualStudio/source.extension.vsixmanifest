@@ -3,7 +3,7 @@
   <Metadata>
     <Identity Id="Continuous.Client.VisualStudio.b7729361-a21b-4994-89b6-112919a4a60a" Version="1.0" Language="en-US" Publisher="Frank A. Krueger" />
     <DisplayName>Continuous Coding</DisplayName>
-    <Description>Empty VSIX Project.</Description>
+    <Description xml:space="preserve">I've seen things you people wouldn't believe. Attack ships on fire off the shoulder of Orion. I watched C-beams glitter in the dark near the Tannhäuser Gate. All those moments will be lost in time, like tears...in...rain.I've seen things you people wouldn't believe. Attack ships on fire off the shoulder of Orion. I watched C-beams glitter in the dark near the Tannhäuser Gate. All those moments will be lost in time, like tears...in...rain.</Description>
   </Metadata>
   <Installation>
     <InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[14.0]" />
