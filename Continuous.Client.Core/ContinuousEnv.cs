@@ -32,10 +32,10 @@ namespace Continuous.Client
 			return new HttpClient (new Uri ("http://127.0.0.1:" + Http.DefaultPort));
 		}
 
-        public void Alert(string format, params object[] args)
+        public void Alert (string format, params object[] args)
         {
-            Log(format, args);
-            AlertImpl(format, args);
+            Log (format, args);
+            AlertImpl (format, args);
         }
 
         protected abstract void AlertImpl (string format, params object[] args);
@@ -107,7 +107,21 @@ namespace Continuous.Client
         protected abstract void MonitorEditorChanges ();
 
         protected abstract Task<TypeDecl[]> GetTopLevelTypeDeclsAsync ();
-        protected abstract Task<TypeDecl> FindTypeAtCursorAsync ();
+
+        async Task<TypeDecl> FindTypeAtCursorAsync ()
+        {
+            var editLoc = await GetCursorLocationAsync ();
+            if (!editLoc.HasValue)
+                return null;
+            var editTLoc = editLoc.Value;
+
+            var selTypeDecl =
+                (await GetTopLevelTypeDeclsAsync ()).
+                FirstOrDefault (x => x.StartLocation <= editTLoc && editTLoc <= x.EndLocation);
+            return selTypeDecl;
+        }
+
+        protected abstract Task<TextLoc?> GetCursorLocationAsync ();
 
         LinkedCode lastLinkedCode = null;
 

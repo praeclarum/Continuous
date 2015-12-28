@@ -168,7 +168,7 @@ namespace Continuous.Client
 			return new TypeDecl[0];
 		}
 
-		protected override async Task<TypeDecl> FindTypeAtCursorAsync ()
+		protected override async Task<TextLoc?> GetCursorLocationAsync ()
 		{
 			var doc = IdeApp.Workbench.ActiveDocument;
 			if (doc == null) {
@@ -176,12 +176,7 @@ namespace Continuous.Client
 			}
 
 			var editLoc = doc.Editor.Caret.Location;
-			var editTLoc = new TextLoc (editLoc.Line, editLoc.Column);
-
-			var selTypeDecl =
-				(await GetTopLevelTypeDeclsAsync ()).
-				FirstOrDefault (x => x.StartLocation <= editTLoc && editTLoc <= x.EndLocation);
-			return selTypeDecl;
+			return new TextLoc (editLoc.Line, editLoc.Column);
 		}
 
 		protected override void MonitorEditorChanges ()

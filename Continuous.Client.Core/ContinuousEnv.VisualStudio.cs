@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows;
+using System.Linq;
 
 #if VISUALSTUDIO
 using EnvDTE;
+using System.Windows;
 
 namespace Continuous.Client
 {
@@ -21,19 +22,37 @@ namespace Continuous.Client
     {        
         protected override void AlertImpl(string format, params object[] args)
         {
-            MessageBox.Show(
-                string.Format(System.Globalization.CultureInfo.CurrentUICulture, "Invoked '{0}'", this.ToString()),
-                "Continuous Coding");
+            MessageBox.Show (string.Format (System.Globalization.CultureInfo.CurrentUICulture, format, args));
         }
 
-        protected override Task<TypeDecl> FindTypeAtCursorAsync ()
+        protected override async Task<TextLoc?> GetCursorLocationAsync ()
         {
-            throw new NotImplementedException ();
+            var dte = VisualStudio.ContinuousPackage.TheDTE;
+            if (dte == null)
+                return null;
+            var doc = dte.ActiveDocument;
+            if (doc == null)
+                return null;
+            var sel = doc.Selection as TextSelection;
+            if (sel == null)
+                return null;
+
+            return new TextLoc (sel.CurrentLine, sel.CurrentColumn);
         }
 
-        protected override Task<string> GetSelectedTextAsync ()
+        protected override async Task<string> GetSelectedTextAsync ()
         {
-            throw new NotImplementedException ();
+            var dte = VisualStudio.ContinuousPackage.TheDTE;
+            if (dte == null)
+                return null;
+            var doc = dte.ActiveDocument;
+            if (doc == null)
+                return null;
+            var sel = doc.Selection as TextSelection;
+            if (sel == null)
+                return null;
+
+            return sel.Text;
         }
 
         protected override Task<TypeDecl[]> GetTopLevelTypeDeclsAsync ()
@@ -43,10 +62,12 @@ namespace Continuous.Client
 
         protected override void MonitorEditorChanges ()
         {
+            // throw new NotImplementedException ();
         }
 
         protected override async Task SetWatchTextAsync (WatchVariable w, List<string> vals)
         {
+            // throw new NotImplementedException ();
         }
     }
 }
