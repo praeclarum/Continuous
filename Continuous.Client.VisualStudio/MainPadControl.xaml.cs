@@ -1,4 +1,5 @@
-﻿using System;
+﻿using EnvDTE;
+using System;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -11,11 +12,18 @@ namespace Continuous.Client.VisualStudio
             this.InitializeComponent();
         }
 
-        void HandleSetType (object sender, RoutedEventArgs e)
+        protected ContinuousEnv Env { get { return ContinuousEnv.Shared; } }
+
+        async void HandleSetType (object sender, RoutedEventArgs e)
         {
-            MessageBox.Show(
-                string.Format(System.Globalization.CultureInfo.CurrentUICulture, "Invoked '{0}'", this.ToString()),
-                "Continuous Coding");
+            try
+            {
+                await Env.VisualizeAsync();
+            }
+            catch (Exception ex)
+            {
+                Log(ex);
+            }
         }
         void HandleRefresh(object sender, RoutedEventArgs e)
         {
@@ -34,6 +42,11 @@ namespace Continuous.Client.VisualStudio
             MessageBox.Show(
                 string.Format(System.Globalization.CultureInfo.CurrentUICulture, "Invoked '{0}'", this.ToString()),
                 "Continuous Coding");
+        }
+
+        void Log(Exception ex)
+        {
+            MessageBox.Show(ex.ToString (), "Continuous Coding Error");
         }
     }
 }

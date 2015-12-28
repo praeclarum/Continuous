@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
@@ -9,6 +9,8 @@
     <Import_RootNamespace>Continuous.Client</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)ContinuousEnv.MonoDevelop.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ContinuousEnv.VisualStudio.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)HttpClient.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TypeCode.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ContinuousEnv.cs" />

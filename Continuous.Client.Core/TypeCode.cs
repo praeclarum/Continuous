@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 
+#if MONODEVELOP
 using ICSharpCode.NRefactory;
 using ICSharpCode.NRefactory.CSharp;
 using ICSharpCode.NRefactory.CSharp.Resolver;
+#endif
 
 namespace Continuous.Client
 {
@@ -84,7 +86,9 @@ namespace Continuous.Client
 			return ci;
 		}
 
-		static Statement GetWatchInstrument (string id, Expression expr)
+#if MONODEVELOP
+
+        static Statement GetWatchInstrument (string id, Expression expr)
 		{
 			var r = new MemberReferenceExpression (
 				new MemberReferenceExpression (
@@ -222,6 +226,8 @@ namespace Continuous.Client
 
 			return Set (name, usings, rawCode, instrumentedCode, deps, nsName, watches);
 		}
+#endif
+
 		public static TypeCode Set (string name, IEnumerable<string> usings, string code, IEnumerable<string> deps, string fullNamespace = "", IEnumerable<WatchVariable> watches = null)
 		{
 			return Set (name, usings, code, code, deps, fullNamespace, watches);
