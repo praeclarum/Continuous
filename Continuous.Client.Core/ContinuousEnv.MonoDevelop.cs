@@ -38,163 +38,11 @@ namespace Continuous.Client
 			dialog.Destroy ();
         }
 
-		async Task MonitorWatchChanges ()
+		protected override async Task SetWatchTextAsync (WatchVariable w, List<string> vals)
 		{
-			var version = 0L;
-			var conn = CreateConnection ();
-			for (;;) {
-				try {
-//					Console.WriteLine ("MON WATCH " + DateTime.Now);
-					var res = await conn.WatchChangesAsync (version);
-					if (res != null) {
-						version = res.Version;
-						await UpdateEditorWatchesAsync (res);
-					}
-					else {
-						await Task.Delay (1000);
-					}
-				} catch (Exception ex) {
-					Console.WriteLine (ex);
-					await Task.Delay (3000);
-				}
-			}
-		}
-
-		public override async Task VisualizeAsync ()
-		{
-			var doc = IdeApp.Workbench.ActiveDocument;
-
-			if (doc == null)
-				return;
-
-			var typedecl = await FindTypeAtCursor ();
-
-			if (typedecl == null) {				
-				Alert ("Could not find a type at the cursor.");
-				return;
-			}
-
-			StartMonitoring ();
-
-			var typeName = typedecl.Name;
-
-			MonitorTypeName = typeName;
-			//			monitorNamespace = nsName;
-
-			await SetTypesAndVisualizeMonitoredTypeAsync (forceEval: true, showError: true);
-		}
-
-		LinkedCode lastLinkedCode = null;
-
-		async Task SetTypesAndVisualizeMonitoredTypeAsync (bool forceEval, bool showError)
-		{
-			//
-			// Gobble up all we can about the types in the active document
-			//
-			var typeDecls = await GetTopLevelTypeDeclsAsync ();
-			foreach (var td in typeDecls) {
-				td.SetTypeCode ();
-			}
-
-			await VisualizeMonitoredTypeAsync (forceEval, showError);
-		}
-
-		public override async Task VisualizeMonitoredTypeAsync (bool forceEval, bool showError)
-		{
-			//
-			// Refresh the monitored type
-			//
-			if (string.IsNullOrWhiteSpace (MonitorTypeName))
-				return;
-
-			var monitorTC = TypeCode.Get (MonitorTypeName);
-
-			var code = await Task.Run (() => monitorTC.GetLinkedCode ());
-
-			OnLinkedMonitoredCode (code);
-
-			if (!forceEval && lastLinkedCode != null && lastLinkedCode.CacheKey == code.CacheKey) {
-				return;
-			}
-
-			//
-			// Send the code to the device
-			//
-			try {
-				//
-				// Declare it
-				//
-				Log (code.Declarations);
-				if (!await EvalAsync (code.Declarations, showError)) return;
-
-				//
-				// Show it
-				//
-				Log (code.ValueExpression);
-				var resp = await EvalForResponseAsync (code.ValueExpression, showError);
-				if (resp.HasErrors)
-					return;
-
-				//
-				// If we made it this far, remember so we don't re-send the same
-				// thing immediately
-				//
-				lastLinkedCode = code;
-
-				//
-				// Update the editor
-				//
-				await UpdateEditorAsync (code, resp);
-
-			} catch (Exception ex) {
-				if (showError) {
-					Alert ("Could not communicate with the app.\n\n{0}: {1}", ex.GetType (), ex.Message);
-				}
-			}
-		}
-
-		async Task UpdateEditorAsync (LinkedCode code, EvalResponse resp)
-		{
-			await UpdateEditorWatchesAsync (code.Types.SelectMany (x => x.Watches), resp.WatchValues);
-		}
-
-		List<WatchVariable> lastWatches = new List<WatchVariable> ();
-
-		async Task UpdateEditorWatchesAsync (WatchValuesResponse watchValues)
-		{
-			await UpdateEditorWatchesAsync (lastWatches, watchValues.WatchValues);
-		}
-
-		async Task UpdateEditorWatchesAsync (IEnumerable<WatchVariable> watches, Dictionary<string, List<string>> watchValues)
-		{
-			var ws = watches.ToList ();
-			foreach (var w in ws) {
-				var wd = IdeApp.Workbench.GetDocument (w.FilePath);
-				if (wd == null)
-					continue;
-				List<string> vals;
-				if (!watchValues.TryGetValue (w.Id, out vals)) {
-					vals = new List<string> ();
-				}
-//				Console.WriteLine ("VAL {0} {1} = {2}", w.Id, w.Expression, vals);
-				SetWatchText (w, vals, wd);
-			}
-			lastWatches = ws;
-		}
-
-		string GetValsText (List<string> vals)
-		{
-			var maxLength = 72;
-			var newText = string.Join (", ", vals);
-			newText = newText.Replace ("\r\n", " ").Replace ("\n", " ").Replace ("\t", " ");
-			if (newText.Length > maxLength) {
-				newText = "..." + newText.Substring (newText.Length - maxLength);
-			}
-			return newText;
-		}
-
-		void SetWatchText (WatchVariable w, List<string> vals, Document doc)
-		{
+            var doc = IdeApp.Workbench.GetDocument (w.FilePath);
+            if (doc == null)
+                return;
 			var ed = doc.Editor;
 			if (ed == null || !ed.CanEdit (w.FileLine))
 				return;
@@ -220,15 +68,6 @@ namespace Continuous.Client
 			}
 		}
 
-		abstract class TypeDecl
-		{
-			public DocumentRef Document { get; set; }
-			public abstract string Name { get; }
-			public abstract TextLocation StartLocation { get; }
-			public abstract TextLocation EndLocation { get; }
-			public abstract void SetTypeCode ();
-		}
-
 		class CSharpTypeDecl : TypeDecl
 		{
 			public TypeDeclaration Declaration;
@@ -238,14 +77,22 @@ namespace Continuous.Client
 					return Declaration.Name;
 				}
 			}
-			public override TextLocation StartLocation {
+			public override TextLoc StartLocation {
 				get {
-					return Declaration.StartLocation;
+					var l = Declaration.StartLocation;
+					return new TextLoc {
+						Line = l.Line,
+						Column = l.Column,
+					};
 				}
 			}
-			public override TextLocation EndLocation {
+			public override TextLoc EndLocation {
 				get {
-					return Declaration.EndLocation;
+					var l = Declaration.EndLocation;
+					return new TextLoc {
+						Line = l.Line,
+						Column = l.Column,
+					};
 				}
 			}
 			public override void SetTypeCode ()
@@ -263,14 +110,14 @@ namespace Continuous.Client
 					return "??";
 				}
 			}
-			public override TextLocation StartLocation {
+			public override TextLoc StartLocation {
 				get {
-					return new TextLocation (TextLocation.MinLine, TextLocation.MinColumn);
+					return new TextLoc (TextLoc.MinLine, TextLoc.MinColumn);
 				}
 			}
-			public override TextLocation EndLocation {
+			public override TextLoc EndLocation {
 				get {
-					return new TextLocation (1000000, TextLocation.MinColumn);
+					return new TextLoc (1000000, TextLoc.MinColumn);
 				}
 			}
 			public override void SetTypeCode ()
@@ -279,7 +126,7 @@ namespace Continuous.Client
 			}
 		}
 
-		async Task<TypeDecl[]> GetTopLevelTypeDeclsAsync ()
+		protected override async Task<TypeDecl[]> GetTopLevelTypeDeclsAsync ()
 		{
 			var doc = IdeApp.Workbench.ActiveDocument;
 			Log ("Doc = {0}", doc);
@@ -321,7 +168,7 @@ namespace Continuous.Client
 			return new TypeDecl[0];
 		}
 
-		async Task<TypeDecl> FindTypeAtCursor ()
+		protected override async Task<TypeDecl> FindTypeAtCursorAsync ()
 		{
 			var doc = IdeApp.Workbench.ActiveDocument;
 			if (doc == null) {
@@ -329,7 +176,7 @@ namespace Continuous.Client
 			}
 
 			var editLoc = doc.Editor.Caret.Location;
-			var editTLoc = new TextLocation (editLoc.Line, editLoc.Column);
+			var editTLoc = new TextLoc (editLoc.Line, editLoc.Column);
 
 			var selTypeDecl =
 				(await GetTopLevelTypeDeclsAsync ()).
@@ -337,17 +184,10 @@ namespace Continuous.Client
 			return selTypeDecl;
 		}
 
-		bool monitoring = false;
-		void StartMonitoring ()
+		protected override void MonitorEditorChanges ()
 		{
-			if (monitoring) return;
-
 			IdeApp.Workbench.ActiveDocumentChanged += BindActiveDoc;
 			BindActiveDoc (this, EventArgs.Empty);
-
-			MonitorWatchChanges ();
-
-			monitoring = true;
 		}
 
 		MonoDevelop.Ide.Gui.Document boundDoc = null;
@@ -374,21 +214,16 @@ namespace Continuous.Client
 			await SetTypesAndVisualizeMonitoredTypeAsync (forceEval: false, showError: false);
 		}
 
-		public override async Task VisualizeSelectionAsync ()
+		protected override async Task<string> GetSelectedTextAsync ()
 		{
 			var doc = IdeApp.Workbench.ActiveDocument;
 
 			if (doc != null) {
-				var code = doc.Editor.SelectedText;
-
-				try {
-					await EvalAsync (code, showError: true);
-				} catch (Exception ex) {
-					Alert ("Could not communicate with the app.\n\n{0}: {1}", ex.GetType (), ex.Message);
-				}
+				return doc.Editor.SelectedText;
 			}
-		}
 
+			return "";
+		}
     }
 }
 #endif

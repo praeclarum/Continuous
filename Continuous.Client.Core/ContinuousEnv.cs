@@ -8,7 +8,6 @@ namespace Continuous.Client
 {
 	public abstract partial class ContinuousEnv
 	{
-        // o_O partial f-ing methods
 		public static ContinuousEnv Shared;
 
         static ContinuousEnv()
@@ -62,13 +61,112 @@ namespace Continuous.Client
 			return r;
 		}
 
-        public abstract Task VisualizeSelectionAsync ();
+        public async Task VisualizeAsync ()
+        {
+            var typedecl = await FindTypeAtCursorAsync ();
 
-        public abstract Task VisualizeAsync ();
+            if (typedecl == null) {
+                Alert ("Could not find a type at the cursor.");
+                return;
+            }
 
-		public abstract Task VisualizeMonitoredTypeAsync (bool forceEval, bool showError);
+            EnsureMonitoring ();
 
-		public async Task StopVisualizingAsync ()
+            var typeName = typedecl.Name;
+
+            MonitorTypeName = typeName;
+            //			monitorNamespace = nsName;
+
+            await SetTypesAndVisualizeMonitoredTypeAsync (forceEval: true, showError: true);
+        }
+
+        protected async Task SetTypesAndVisualizeMonitoredTypeAsync (bool forceEval, bool showError)
+        {
+            //
+            // Gobble up all we can about the types in the active document
+            //
+            var typeDecls = await GetTopLevelTypeDeclsAsync ();
+            foreach (var td in typeDecls) {
+                td.SetTypeCode ();
+            }
+
+            await VisualizeMonitoredTypeAsync (forceEval, showError);
+        }
+
+        bool monitoring = false;
+        void EnsureMonitoring ()
+        {
+            if (monitoring) return;
+
+            MonitorEditorChanges ();
+            MonitorWatchChanges ();
+
+            monitoring = true;
+        }
+
+        protected abstract void MonitorEditorChanges ();
+
+        protected abstract Task<TypeDecl[]> GetTopLevelTypeDeclsAsync ();
+        protected abstract Task<TypeDecl> FindTypeAtCursorAsync ();
+
+        LinkedCode lastLinkedCode = null;
+
+        public async Task VisualizeMonitoredTypeAsync (bool forceEval, bool showError)
+        {
+            //
+            // Refresh the monitored type
+            //
+            if (string.IsNullOrWhiteSpace (MonitorTypeName))
+                return;
+
+            var monitorTC = TypeCode.Get (MonitorTypeName);
+
+            var code = await Task.Run (() => monitorTC.GetLinkedCode ());
+
+            OnLinkedMonitoredCode (code);
+
+            if (!forceEval && lastLinkedCode != null && lastLinkedCode.CacheKey == code.CacheKey) {
+                return;
+            }
+
+            //
+            // Send the code to the device
+            //
+            try {
+                //
+                // Declare it
+                //
+                Log (code.Declarations);
+                if (!await EvalAsync (code.Declarations, showError)) return;
+
+                //
+                // Show it
+                //
+                Log (code.ValueExpression);
+                var resp = await EvalForResponseAsync (code.ValueExpression, showError);
+                if (resp.HasErrors)
+                    return;
+
+                //
+                // If we made it this far, remember so we don't re-send the same
+                // thing immediately
+                //
+                lastLinkedCode = code;
+
+                //
+                // Update the editor
+                //
+                await UpdateEditorAsync (code, resp);
+
+            }
+            catch (Exception ex) {
+                if (showError) {
+                    Alert ("Could not communicate with the app.\n\n{0}: {1}", ex.GetType (), ex.Message);
+                }
+            }
+        }
+
+        public async Task StopVisualizingAsync ()
 		{
 			MonitorTypeName = "";
 			TypeCode.Clear ();
@@ -80,14 +178,94 @@ namespace Continuous.Client
 			}
 		}
 
-		public event Action<LinkedCode> LinkedMonitoredCode = delegate {};
+        async Task UpdateEditorAsync (LinkedCode code, EvalResponse resp)
+        {
+            await UpdateEditorWatchesAsync (code.Types.SelectMany (x => x.Watches), resp.WatchValues);
+        }
+
+        List<WatchVariable> lastWatches = new List<WatchVariable> ();
+
+        async Task UpdateEditorWatchesAsync (WatchValuesResponse watchValues)
+        {
+            await UpdateEditorWatchesAsync (lastWatches, watchValues.WatchValues);
+        }
+
+        async Task UpdateEditorWatchesAsync (IEnumerable<WatchVariable> watches, Dictionary<string, List<string>> watchValues)
+        {
+            var ws = watches.ToList ();
+            foreach (var w in ws) {
+                List<string> vals;
+                if (!watchValues.TryGetValue (w.Id, out vals)) {
+                    vals = new List<string> ();
+                }
+                //				Console.WriteLine ("VAL {0} {1} = {2}", w.Id, w.Expression, vals);
+                await SetWatchTextAsync (w, vals);
+            }
+            lastWatches = ws;
+        }
+
+        protected abstract Task SetWatchTextAsync (WatchVariable w, List<string> vals);
+
+        protected string GetValsText (List<string> vals)
+        {
+            var maxLength = 72;
+            var newText = string.Join (", ", vals);
+            newText = newText.Replace ("\r\n", " ").Replace ("\n", " ").Replace ("\t", " ");
+            if (newText.Length > maxLength) {
+                newText = "..." + newText.Substring (newText.Length - maxLength);
+            }
+            return newText;
+        }
+
+        async void MonitorWatchChanges ()
+        {
+            var version = 0L;
+            var conn = CreateConnection ();
+            for (;;) {
+                try {
+                    //					Console.WriteLine ("MON WATCH " + DateTime.Now);
+                    var res = await conn.WatchChangesAsync (version);
+                    if (res != null) {
+                        version = res.Version;
+                        await UpdateEditorWatchesAsync (res);
+                    }
+                    else {
+                        await Task.Delay (1000);
+                    }
+                }
+                catch (Exception ex) {
+                    Console.WriteLine (ex);
+                    await Task.Delay (3000);
+                }
+            }
+        }
+
+
+
+        public event Action<LinkedCode> LinkedMonitoredCode = delegate {};
 
 		protected void OnLinkedMonitoredCode (LinkedCode code)
 		{
 			LinkedMonitoredCode (code);
 		}
 
-		protected void Log (string format, params object[] args)
+        public async Task VisualizeSelectionAsync ()
+        {
+            var code = await GetSelectedTextAsync ();
+            if (string.IsNullOrWhiteSpace (code))
+                return;
+
+            try {
+                await EvalAsync (code, showError: true);
+            }
+            catch (Exception ex) {
+                Alert ("Could not communicate with the app.\n\n{0}: {1}", ex.GetType (), ex.Message);
+            }
+        }
+
+        protected abstract Task<string> GetSelectedTextAsync ();
+
+        protected void Log (string format, params object[] args)
 		{
 #if DEBUG
 			Log (string.Format (format, args));
@@ -108,5 +286,6 @@ namespace Continuous.Client
 #endif
 		}
 	}
+
 }
 

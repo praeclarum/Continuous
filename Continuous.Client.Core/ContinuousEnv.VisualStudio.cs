@@ -18,27 +18,35 @@ namespace Continuous.Client
     }
 
     public class VisualStudioContinuousEnv : ContinuousEnv
-    {
-        public override Task VisualizeAsync ()
-        {
-            throw new NotImplementedException ();
-        }
-
-        public override Task VisualizeMonitoredTypeAsync (bool forceEval, bool showError)
-        {
-            throw new NotImplementedException ();
-        }
-
-        public override Task VisualizeSelectionAsync ()
-        {
-            throw new NotImplementedException ();
-        }
-
+    {        
         protected override void AlertImpl(string format, params object[] args)
         {
             MessageBox.Show(
                 string.Format(System.Globalization.CultureInfo.CurrentUICulture, "Invoked '{0}'", this.ToString()),
                 "Continuous Coding");
+        }
+
+        protected override Task<TypeDecl> FindTypeAtCursorAsync ()
+        {
+            throw new NotImplementedException ();
+        }
+
+        protected override Task<string> GetSelectedTextAsync ()
+        {
+            throw new NotImplementedException ();
+        }
+
+        protected override Task<TypeDecl[]> GetTopLevelTypeDeclsAsync ()
+        {
+            throw new NotImplementedException ();
+        }
+
+        protected override void MonitorEditorChanges ()
+        {
+        }
+
+        protected override async Task SetWatchTextAsync (WatchVariable w, List<string> vals)
+        {
         }
     }
 }
