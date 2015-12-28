@@ -10,8 +10,16 @@
              Name="MyToolWindow">
     <Grid>
         <StackPanel Orientation="Vertical">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <Button Content="Set Type" Click="HandleSetType" Name="setTypeButton" Margin="8 4" Padding="8 4"/>
+                <Button Content="Refresh" Click="HandleRefresh" Name="refreshButton" Margin="8 4" Padding="8 4"/>
+                <Button Content="Clear Edits" Click="HandleClearEdits" Name="clearButton" Margin="8 4" Padding="8 4"/>
+                <Button Content="Stop" Click="HandleStop" Name="stopButton" Margin="8 4" Padding="8 4"/>
+            </StackPanel>
             <TextBlock Margin="10" HorizontalAlignment="Center">I'm gonna blow your mind.</TextBlock>
-            <Button Content="Click me!" Click="button1_Click" Width="120" Height="80" Name="button1"/>
+            <ListView Name="dependenciesView" BorderBrush="Transparent">
+                
+            </ListView>
         </StackPanel>
     </Grid>
 </UserControl>
