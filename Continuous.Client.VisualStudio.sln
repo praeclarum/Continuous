@@ -5,7 +5,17 @@ VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Continuous.Client.VisualStudio", "Continuous.Client.VisualStudio\Continuous.Client.VisualStudio.csproj", "{563F747C-0874-421B-8905-06F513B7856A}"
 EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Continuous.Core", "Continuous.Core\Continuous.Core.shproj", "{B268CB01-B12B-4712-A19D-055D5343F7AA}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Continuous.Client.Core", "Continuous.Client.Core\Continuous.Client.Core.shproj", "{53F8E04C-682B-4D3C-A2F5-C17FF440DD63}"
+EndProject
 Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		Continuous.Client.Core\Continuous.Client.Core.projitems*{53f8e04c-682b-4d3c-a2f5-c17ff440dd63}*SharedItemsImports = 13
+		Continuous.Core\Continuous.Core.projitems*{b268cb01-b12b-4712-a19d-055d5343f7aa}*SharedItemsImports = 13
+		Continuous.Client.Core\Continuous.Client.Core.projitems*{563f747c-0874-421b-8905-06f513b7856a}*SharedItemsImports = 4
+		Continuous.Core\Continuous.Core.projitems*{563f747c-0874-421b-8905-06f513b7856a}*SharedItemsImports = 4
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
