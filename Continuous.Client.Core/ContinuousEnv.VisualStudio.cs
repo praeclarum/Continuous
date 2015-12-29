@@ -55,19 +55,89 @@ namespace Continuous.Client
             return sel.Text;
         }
 
-        protected override Task<TypeDecl[]> GetTopLevelTypeDeclsAsync ()
+        void GetTopLevelTypeDecls (CodeElement elm, List<TypeDecl> decls)
         {
-            throw new NotImplementedException ();
+            var k = elm.Kind;
+            switch (k) {
+                case vsCMElement.vsCMElementNamespace: {
+                        foreach (CodeElement e in elm.Children) {
+                            GetTopLevelTypeDecls (e, decls);
+                        }
+                    }
+                    break;
+                case vsCMElement.vsCMElementClass:
+                    decls.Add (new CodeTypeDecl (elm));
+                    break;
+            }
+        }
+
+        protected override async Task<TypeDecl[]> GetTopLevelTypeDeclsAsync ()
+        {
+            var dte = VisualStudio.ContinuousPackage.TheDTE;
+            if (dte == null)
+                throw new InvalidOperationException ("OMG Continuous Package has not inited yet");
+
+            var model = dte.ActiveDocument.ProjectItem.FileCodeModel;
+
+            var decls = new List<TypeDecl> ();
+
+            foreach (CodeElement e in model.CodeElements) {
+                GetTopLevelTypeDecls (e, decls);
+            }
+
+            return decls.ToArray ();
         }
 
         protected override void MonitorEditorChanges ()
         {
+            var dte = VisualStudio.ContinuousPackage.TheDTE;
+            if (dte == null)
+                throw new InvalidOperationException ("OMG Continuous Package has not inited yet");
+
             // throw new NotImplementedException ();
         }
 
         protected override async Task SetWatchTextAsync (WatchVariable w, List<string> vals)
         {
             // throw new NotImplementedException ();
+        }
+
+        class CodeTypeDecl : TypeDecl
+        {
+            public readonly CodeElement Element;
+            readonly TextLoc startLoc, endLoc;
+            public CodeTypeDecl (CodeElement elm)
+            {
+                Element = elm;
+                startLoc = TextLocFromPoint (elm.StartPoint);
+                endLoc = TextLocFromPoint (elm.EndPoint);
+            }
+            TextLoc TextLocFromPoint (TextPoint l)
+            {
+                return new TextLoc {
+                    Line = l.Line,
+                    Column = l.DisplayColumn,
+                };
+            }
+            public override string Name {
+                get {
+                    return Element.Name;
+                }
+            }
+            public override TextLoc StartLocation {
+                get {
+                    return startLoc;
+                }
+            }
+            public override TextLoc EndLocation {
+                get {
+                    return endLoc;
+                }
+            }
+            public override void SetTypeCode ()
+            {
+                throw new NotImplementedException ();
+            }
         }
     }
 }
