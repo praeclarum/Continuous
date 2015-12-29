@@ -7,7 +7,7 @@ namespace Continuous.Client
 {
 	public class HttpClient
 	{
-//		readonly Uri baseUrl;
+		readonly Uri baseUrl;
 		readonly Uri visualizeUrl;
 		readonly Uri stopVisualizingUrl;
 		readonly Uri watchChangesUrl;
@@ -15,12 +15,14 @@ namespace Continuous.Client
 
 		public HttpClient (Uri baseUrl)
 		{
-//			this.baseUrl = baseUrl;
+			this.baseUrl = baseUrl;
 			visualizeUrl = new Uri (baseUrl, "visualize");
 			stopVisualizingUrl = new Uri (baseUrl, "stopVisualizing");
 			watchChangesUrl = new Uri (baseUrl, "watchChanges");
 			client = new WebClient ();
 		}
+
+		public Uri BaseUrl {  get { return baseUrl; } }
 
 		public async Task<EvalResponse> VisualizeAsync (string code)
 		{

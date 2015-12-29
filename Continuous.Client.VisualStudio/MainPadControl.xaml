@@ -8,7 +8,7 @@
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300"
              Name="MyToolWindow">
-    <Grid>
+    <Grid Name="main">
         <StackPanel Orientation="Vertical">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                 <Button Content="Set Type" Click="HandleSetType" Name="setTypeButton" Margin="8 4" Padding="8 4"/>
@@ -16,6 +16,10 @@
                 <Button Content="Clear Edits" Click="HandleClearEdits" Name="clearButton" Margin="8 4" Padding="8 4"/>
                 <Button Content="Stop" Click="HandleStop" Name="stopButton" Margin="8 4" Padding="8 4"/>
             </StackPanel>
+            <DockPanel HorizontalAlignment="Stretch">
+                <TextBlock Text="IP" Padding="8 0 4 0"/>
+                <TextBox Name="ipText" Text="{Binding Path=IP}"  HorizontalContentAlignment="Stretch" Margin="0 0 8 0"/>
+            </DockPanel>
             <TextBlock Margin="10" HorizontalAlignment="Center">I'm gonna blow your mind.</TextBlock>
             <ListView Name="dependenciesView" BorderBrush="Transparent">
                 

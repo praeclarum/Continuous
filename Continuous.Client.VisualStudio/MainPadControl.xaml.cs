@@ -20,6 +20,8 @@ namespace Continuous.Client.VisualStudio
         private void MainPadControl_Loaded (object sender, RoutedEventArgs e)
         {
             Env.LinkedMonitoredCode += Env_LinkedMonitoredCode;
+
+			main.DataContext = Env;
         }
 
         private void Env_LinkedMonitoredCode (LinkedCode obj)

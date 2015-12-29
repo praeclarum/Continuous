@@ -15,6 +15,12 @@ namespace Continuous.Client
             SetSharedPlatformEnvImpl ();
         }
 
+		public ContinuousEnv ()
+		{
+			IP = "127.0.0.1";
+			Port = Http.DefaultPort;
+		}
+
         static partial void SetSharedPlatformEnvImpl ();
 
         public string MonitorTypeName = "";
@@ -22,14 +28,23 @@ namespace Continuous.Client
 		HttpClient conn = null;
 		void Connect ()
 		{
-			if (conn == null) {
+			if (conn == null || conn.BaseUrl != ServerUrl) {
 				conn = CreateConnection ();
+			}
+		}
+
+		public string IP { get; set; }
+		public int Port { get; set; }
+
+		Uri ServerUrl {
+			get {
+				return new Uri ("http://" + IP.Trim () + ":" + Port);
 			}
 		}
 
 		protected HttpClient CreateConnection ()
 		{
-			return new HttpClient (new Uri ("http://127.0.0.1:" + Http.DefaultPort));
+			return new HttpClient (ServerUrl);
 		}
 
         public void Alert (string format, params object[] args)

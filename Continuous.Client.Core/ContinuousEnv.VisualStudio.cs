@@ -62,7 +62,7 @@ namespace Continuous.Client
             switch (k) {
                 case vsCMElement.vsCMElementImportStmt: {
                         var cs = ((CodeImport)elm).Namespace;
-                        usings.Add (cs);
+                        usings.Add ("using " + cs + ";");
                     }
                     break;
                 case vsCMElement.vsCMElementNamespace:
