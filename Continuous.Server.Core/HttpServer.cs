@@ -9,7 +9,7 @@ using System.Collections.Generic;
 
 namespace Continuous.Server
 {
-	public class HttpServer
+	public partial class HttpServer
 	{
 		readonly int port;
 		readonly Visualizer visualizer;
@@ -30,12 +30,34 @@ namespace Continuous.Server
 			mainScheduler = TaskScheduler.FromCurrentSynchronizationContext ();
 
 			Task.Run (() => {
-				listener = new HttpListener ();
-				listener.Prefixes.Add ("http://127.0.0.1:" + port + "/");
-				listener.Start ();
+                var url = "http://+:" + port + "/";
+
+                var remTries = 2;
+
+                while (remTries > 0) {
+                    remTries--;
+
+                    listener = new HttpListener ();
+                    listener.Prefixes.Add (url);
+
+                    try {
+                        listener.Start ();
+                    }
+                    catch (HttpListenerException ex) {
+                        if (remTries == 1 && ex.ErrorCode == 5) { // Access Denied
+                            GrantServerPermission (url);
+                        }
+                        else {
+                            throw;
+                        }
+                    }
+                }
+
 				Loop ();
 			});
 		}
+
+        partial void GrantServerPermission (string url);
 
 		// Analysis disable once FunctionNeverReturns
 		async void Loop ()
