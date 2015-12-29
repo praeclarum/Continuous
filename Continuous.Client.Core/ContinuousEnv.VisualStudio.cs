@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using System.Linq;
+using EnvDTE80;
 
 #if VISUALSTUDIO
 using EnvDTE;
@@ -55,18 +56,22 @@ namespace Continuous.Client
             return sel.Text;
         }
 
-        void GetTopLevelTypeDecls (CodeElement elm, List<TypeDecl> decls)
+        void GetTopLevelTypeDecls (CodeElement elm, string nsName, Document doc, List<string> usings, List<TypeDecl> decls)
         {
             var k = elm.Kind;
             switch (k) {
-                case vsCMElement.vsCMElementNamespace: {
-                        foreach (CodeElement e in elm.Children) {
-                            GetTopLevelTypeDecls (e, decls);
-                        }
+                case vsCMElement.vsCMElementImportStmt: {
+                        var cs = ((CodeImport)elm).Namespace;
+                        usings.Add (cs);
+                    }
+                    break;
+                case vsCMElement.vsCMElementNamespace:
+                    foreach (CodeElement e in elm.Children) {
+                        GetTopLevelTypeDecls (e, elm.Name, doc, usings, decls);
                     }
                     break;
                 case vsCMElement.vsCMElementClass:
-                    decls.Add (new CodeTypeDecl (elm));
+                    decls.Add (new CodeTypeDecl (elm, nsName, doc, usings.ToArray ()));
                     break;
             }
         }
@@ -77,16 +82,20 @@ namespace Continuous.Client
             if (dte == null)
                 throw new InvalidOperationException ("OMG Continuous Package has not inited yet");
 
-            var model = dte.ActiveDocument.ProjectItem.FileCodeModel;
+            var doc = dte.ActiveDocument;
+            var model = doc.ProjectItem.FileCodeModel;
 
             var decls = new List<TypeDecl> ();
+            var usings = new List<string> ();
 
             foreach (CodeElement e in model.CodeElements) {
-                GetTopLevelTypeDecls (e, decls);
+                GetTopLevelTypeDecls (e, "", doc, usings, decls);
             }
 
             return decls.ToArray ();
         }
+
+        TextEditorEvents textEditorEvents = null;
 
         protected override void MonitorEditorChanges ()
         {
@@ -94,7 +103,13 @@ namespace Continuous.Client
             if (dte == null)
                 throw new InvalidOperationException ("OMG Continuous Package has not inited yet");
 
-            // throw new NotImplementedException ();
+            textEditorEvents = dte.Events.TextEditorEvents; // Stupid COM binding requires explicit GC roots
+            textEditorEvents.LineChanged += TextEditorEvents_LineChanged;
+        }
+
+        private async void TextEditorEvents_LineChanged (TextPoint StartPoint, TextPoint EndPoint, int Hint)
+        {
+            await SetTypesAndVisualizeMonitoredTypeAsync (forceEval: false, showError: false);
         }
 
         protected override async Task SetWatchTextAsync (WatchVariable w, List<string> vals)
@@ -106,11 +121,19 @@ namespace Continuous.Client
         {
             public readonly CodeElement Element;
             readonly TextLoc startLoc, endLoc;
-            public CodeTypeDecl (CodeElement elm)
+            readonly string name, nsName;
+            readonly string rawCode;
+            readonly string[] usings;
+            public CodeTypeDecl (CodeElement elm, string nsName, Document doc, string[] usings)
             {
                 Element = elm;
+                name = Element.Name;
+                this.nsName = nsName;
+                var point = elm.StartPoint.CreateEditPoint ();
+                rawCode = point.GetText (elm.EndPoint);
                 startLoc = TextLocFromPoint (elm.StartPoint);
                 endLoc = TextLocFromPoint (elm.EndPoint);
+                this.usings = usings;
             }
             TextLoc TextLocFromPoint (TextPoint l)
             {
@@ -121,7 +144,7 @@ namespace Continuous.Client
             }
             public override string Name {
                 get {
-                    return Element.Name;
+                    return name;
                 }
             }
             public override TextLoc StartLocation {
@@ -136,7 +159,16 @@ namespace Continuous.Client
             }
             public override void SetTypeCode ()
             {
-                throw new NotImplementedException ();
+                var name = Name;
+
+                var watches = new List<WatchVariable> ();
+
+                var deps = new List<string> ();
+
+                var commentlessCode = rawCode;
+                var instrumentedCode = commentlessCode;
+
+                TypeCode.Set (name, usings, rawCode, instrumentedCode, deps, nsName, watches);
             }
         }
     }

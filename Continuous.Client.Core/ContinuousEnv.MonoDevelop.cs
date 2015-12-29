@@ -97,7 +97,146 @@ namespace Continuous.Client
 			}
 			public override void SetTypeCode ()
 			{
-				TypeCode.Set (Document, Declaration, Resolver);
+				Set (Document, Declaration, Resolver);
+			}
+
+	        static Statement GetWatchInstrument (string id, Expression expr)
+			{
+				var r = new MemberReferenceExpression (
+					new MemberReferenceExpression (
+						new MemberReferenceExpression (
+							new IdentifierExpression ("Continuous"), "Server"), "WatchStore"), "Record");
+				var i = new ExpressionStatement (new InvocationExpression (r, new PrimitiveExpression (id), expr));
+				var t = new TryCatchStatement ();
+				t.TryBlock = new BlockStatement ();
+				t.TryBlock.Statements.Add (i);
+				var c = new CatchClause ();
+				c.Body = new BlockStatement ();
+				t.CatchClauses.Add (c);
+				return t;
+			}
+
+			static string GetCommentlessCode (TypeDeclaration rtypedecl)
+			{
+				var t = (TypeDeclaration)rtypedecl.Clone ();
+				var cs = t.Descendants.OfType<Comment> ().ToList ();
+				foreach (var c in cs) {
+					var m = WatchVariable.CommentContentRe.Match (c.Content);
+					if (m.Success) {
+						c.Content = m.Groups[1].Value + m.Groups[2].Value;
+					} else {
+						c.Remove ();
+					}
+				}
+				return t.ToString ();
+			}
+
+			static TypeCode Set (DocumentRef doc, TypeDeclaration rtypedecl, CSharpAstResolver resolver)
+			{
+				var rawCode = GetCommentlessCode (rtypedecl);
+
+				var typedecl = (TypeDeclaration)rtypedecl.Clone ();
+
+				var ns = rtypedecl.Parent as NamespaceDeclaration;
+				var nsName = ns == null ? "" : ns.FullName;
+
+				var name = rtypedecl.Name;
+
+				var usings =
+					resolver.RootNode.Descendants.
+					OfType<UsingDeclaration> ().
+					Select (x => x.ToString ().Trim ()).
+					ToList ();
+
+				//
+				// Find dependencies
+				//
+				var deps = new List<String> ();
+				foreach (var d in rtypedecl.Descendants.OfType<SimpleType> ()) {
+					deps.Add (d.Identifier);
+				}
+
+				//
+				// Find watches and instrument
+				//
+				var watches = new List<WatchVariable> ();
+				foreach (var d in typedecl.Descendants.OfType<VariableInitializer> ()) {
+					var endLoc = d.EndLocation;
+					var p = d.Parent;
+					if (p == null || p.Parent == null)
+						continue;
+					var nc = p.GetNextSibling (x => x is Comment && x.StartLocation.Line == endLoc.Line);
+					if (nc == null || !nc.ToString ().StartsWith ("//="))
+						continue;
+					var id = Guid.NewGuid ().ToString ();
+					var instrument = GetWatchInstrument (id, new IdentifierExpression (d.Name));
+					p.Parent.InsertChildBefore (nc, instrument, BlockStatement.StatementRole);
+					watches.Add (new WatchVariable {
+						Id = id,
+						Expression = d.Name,
+						ExplicitExpression = "",
+						FilePath = doc.FullPath,
+						FileLine = nc.StartLocation.Line,
+						FileColumn = nc.StartLocation.Column,
+					});
+				}
+				foreach (var d in typedecl.Descendants.OfType<AssignmentExpression> ()) {
+					var endLoc = d.EndLocation;
+					var p = d.Parent;
+					if (p == null || p.Parent == null)
+						continue;
+					var nc = p.GetNextSibling (x => x is Comment && x.StartLocation.Line == endLoc.Line);
+					if (nc == null || !nc.ToString ().StartsWith ("//="))
+						continue;
+					var id = Guid.NewGuid ().ToString ();
+					var instrument = GetWatchInstrument (id, (Expression)d.Left.Clone ());
+					p.Parent.InsertChildBefore (nc, instrument, BlockStatement.StatementRole);
+					watches.Add (new WatchVariable {
+						Id = id,
+						Expression = d.Left.ToString (),
+						ExplicitExpression = "",
+						FilePath = doc.FullPath,
+						FileLine = nc.StartLocation.Line,
+						FileColumn = nc.StartLocation.Column,
+					});
+				}
+				foreach (var d in typedecl.Descendants.OfType<Comment> ().Where (x => x.CommentType == CommentType.SingleLine)) {
+					var m = WatchVariable.CommentContentRe.Match (d.Content);
+					if (!m.Success || string.IsNullOrWhiteSpace (m.Groups [1].Value))
+						continue;
+
+					var p = d.Parent as BlockStatement;
+					if (p == null)
+						continue;
+					
+					var exprText = m.Groups [1].Value.Trim ();
+					var parser = new CSharpParser();
+					var syntaxTree = parser.Parse("class C { void F() { var __r = " + exprText + "; } }");
+
+					if (syntaxTree.Errors.Count > 0)
+						continue;
+					var t = syntaxTree.Members.OfType<TypeDeclaration> ().First ();
+					var expr = t.Descendants.OfType<VariableInitializer> ().First ().Initializer;
+						
+					var id = Guid.NewGuid ().ToString ();
+					var instrument = GetWatchInstrument (id, expr.Clone ());
+					p.InsertChildBefore (d, instrument, BlockStatement.StatementRole);
+					watches.Add (new WatchVariable {
+						Id = id,
+						Expression = exprText,
+						ExplicitExpression = m.Groups[1].Value,
+						FilePath = doc.FullPath,
+						FileLine = d.StartLocation.Line,
+						FileColumn = d.StartLocation.Column,
+					});
+				}
+
+				//
+				// All done
+				//
+				var instrumentedCode = typedecl.ToString ();
+
+				return TypeCode.Set (name, usings, rawCode, instrumentedCode, deps, nsName, watches);
 			}
 		}
 
