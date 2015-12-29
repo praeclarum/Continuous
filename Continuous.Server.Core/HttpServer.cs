@@ -30,28 +30,27 @@ namespace Continuous.Server
 			mainScheduler = TaskScheduler.FromCurrentSynchronizationContext ();
 
 			Task.Run (() => {
-                var url = "http://+:" + port + "/";
+				var url = "http://+:" + port + "/";
 
-                var remTries = 2;
+				var remTries = 2;
 
-                while (remTries > 0) {
-                    remTries--;
+				while (remTries > 0) {
+					remTries--;
 
-                    listener = new HttpListener ();
-                    listener.Prefixes.Add (url);
+					listener = new HttpListener ();
+					listener.Prefixes.Add (url);
 
-                    try {
-                        listener.Start ();
-                    }
-                    catch (HttpListenerException ex) {
-                        if (remTries == 1 && ex.ErrorCode == 5) { // Access Denied
-                            GrantServerPermission (url);
-                        }
-                        else {
-                            throw;
-                        }
-                    }
-                }
+					try {
+						listener.Start ();
+						remTries = 0;
+					} catch (HttpListenerException ex) {
+						if (remTries == 1 && ex.ErrorCode == 5) { // Access Denied
+							GrantServerPermission (url);
+						} else {
+							throw;
+						}
+					}
+				}
 
 				Loop ();
 			});
