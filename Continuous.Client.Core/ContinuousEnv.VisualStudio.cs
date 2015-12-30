@@ -4,6 +4,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Linq;
 using EnvDTE80;
+using System.Threading;
 
 #if VISUALSTUDIO
 using EnvDTE;
@@ -107,10 +108,29 @@ namespace Continuous.Client
             textEditorEvents.LineChanged += TextEditorEvents_LineChanged;
         }
 
+		DateTime lastChangedTime = DateTime.UtcNow;
+		Timer changedThrottleTimer = null;
+
         private async void TextEditorEvents_LineChanged (TextPoint StartPoint, TextPoint EndPoint, int Hint)
         {
-            await SetTypesAndVisualizeMonitoredTypeAsync (forceEval: false, showError: false);
+			var now = DateTime.UtcNow;
+			lastChangedTime = now;
+			if (changedThrottleTimer == null) {
+				changedThrottleTimer = new Timer (LineChangedThrottleTick, null, 0, 200);
+			}
         }
+
+		async void LineChangedThrottleTick (object state)
+		{
+			var now = DateTime.UtcNow;
+			if ((now - lastChangedTime) > TimeSpan.FromMilliseconds (500)) {
+				if (changedThrottleTimer != null) {
+					changedThrottleTimer.Dispose ();
+					changedThrottleTimer = null;
+				}
+				await SetTypesAndVisualizeMonitoredTypeAsync (forceEval: false, showError: false);
+			}
+		}
 
         protected override async Task SetWatchTextAsync (WatchVariable w, List<string> vals)
         {
