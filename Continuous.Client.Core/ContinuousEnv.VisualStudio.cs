@@ -84,7 +84,9 @@ namespace Continuous.Client
                 throw new InvalidOperationException ("OMG Continuous Package has not inited yet");
 
             var doc = dte.ActiveDocument;
-            var model = doc.ProjectItem.FileCodeModel;
+            var model = doc?.ProjectItem?.FileCodeModel;
+			if (model == null)
+				return new TypeDecl[0];
 
             var decls = new List<TypeDecl> ();
             var usings = new List<string> ();
