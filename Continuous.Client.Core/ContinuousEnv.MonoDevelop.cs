@@ -6,13 +6,9 @@ using System.Threading.Tasks;
 
 #if MONODEVELOP
 using MonoDevelop.Ide;
-using MonoDevelop.Ide.Gui;
-using MonoDevelop.Projects;
-using MonoDevelop.Refactoring;
 using Gtk;
-using ICSharpCode.NRefactory;
-using ICSharpCode.NRefactory.CSharp;
-using ICSharpCode.NRefactory.CSharp.Resolver;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 
 namespace Continuous.Client
@@ -44,7 +40,7 @@ namespace Continuous.Client
             if (doc == null)
                 return;
 			var ed = doc.Editor;
-			if (ed == null || !ed.CanEdit (w.FileLine))
+			if (ed == null || ed.IsReadOnly)
 				return;
 			var line = ed.GetLine (w.FileLine);
 			if (line == null)
@@ -63,180 +59,79 @@ namespace Continuous.Client
 			if (existingText != newText) {
 				var offset = line.Offset + commentIndex;
 				var remLen = line.Length - commentIndex;
-				ed.Remove (offset, remLen);
-				ed.Insert (offset, newText);
+				ed.RemoveText (offset, remLen);
+				ed.InsertText (offset, newText);
 			}
 		}
 
 		class CSharpTypeDecl : TypeDecl
 		{
-			public TypeDeclaration Declaration;
-			public CSharpAstResolver Resolver;
+			public ClassDeclarationSyntax Declaration { get; set; }
+			public SyntaxNode Root { get; set; }
+			public SemanticModel Model { get; set; }
+
 			public override string Name {
 				get {
-					return Declaration.Name;
+					return Declaration.Identifier.Text;
 				}
 			}
+
 			public override TextLoc StartLocation {
 				get {
-					var l = Declaration.StartLocation;
+					var l = Declaration.GetLocation ().GetLineSpan ().StartLinePosition;
 					return new TextLoc {
 						Line = l.Line,
-						Column = l.Column,
+						Column = l.Character
 					};
 				}
 			}
+
 			public override TextLoc EndLocation {
 				get {
-					var l = Declaration.EndLocation;
+					var l = Declaration.GetLocation ().GetLineSpan ().EndLinePosition;
 					return new TextLoc {
 						Line = l.Line,
-						Column = l.Column,
+						Column = l.Character
 					};
 				}
 			}
+
 			public override void SetTypeCode ()
 			{
-				Set (Document, Declaration, Resolver);
-			}
+				var name = Name;
 
-	        static Statement GetWatchInstrument (string id, Expression expr)
-			{
-				var r = new MemberReferenceExpression (
-					new MemberReferenceExpression (
-						new MemberReferenceExpression (
-							new IdentifierExpression ("Continuous"), "Server"), "WatchStore"), "Record");
-				var i = new ExpressionStatement (new InvocationExpression (r, new PrimitiveExpression (id), expr));
-				var t = new TryCatchStatement ();
-				t.TryBlock = new BlockStatement ();
-				t.TryBlock.Statements.Add (i);
-				var c = new CatchClause ();
-				c.Body = new BlockStatement ();
-				t.CatchClauses.Add (c);
-				return t;
-			}
-
-			static string GetCommentlessCode (TypeDeclaration rtypedecl)
-			{
-				var t = (TypeDeclaration)rtypedecl.Clone ();
-				var cs = t.Descendants.OfType<Comment> ().ToList ();
-				foreach (var c in cs) {
-					var m = WatchVariable.CommentContentRe.Match (c.Content);
-					if (m.Success) {
-						c.Content = m.Groups[1].Value + m.Groups[2].Value;
-					} else {
-						c.Remove ();
-					}
-				}
-				return t.ToString ();
-			}
-
-			static TypeCode Set (DocumentRef doc, TypeDeclaration rtypedecl, CSharpAstResolver resolver)
-			{
-				var rawCode = GetCommentlessCode (rtypedecl);
-
-				var typedecl = (TypeDeclaration)rtypedecl.Clone ();
-
-				var ns = rtypedecl.Parent as NamespaceDeclaration;
-				var nsName = ns == null ? "" : ns.FullName;
-
-				var name = rtypedecl.Name;
+				// TODO: handle watch expressions
+				var commentlessCode = String.Join (Environment.NewLine, Declaration.GetText ().Lines.Select (l => l.ToString ()));
+				var instrumentedCode = commentlessCode;
 
 				var usings =
-					resolver.RootNode.Descendants.
-					OfType<UsingDeclaration> ().
-					Select (x => x.ToString ().Trim ()).
-					ToList ();
+					Root.DescendantNodes ()
+						.OfType<UsingDirectiveSyntax> ()
+						.Select (u => u.GetText ().ToString ())
+						.ToList ();
 
-				//
-				// Find dependencies
-				//
-				var deps = new List<String> ();
-				foreach (var d in rtypedecl.Descendants.OfType<SimpleType> ()) {
-					deps.Add (d.Identifier);
+				var deps = new List<string> ();
+				if (Declaration.BaseList != null && Declaration.BaseList.Types.Any ()) {
+					var ds =
+						Declaration.BaseList
+								   .Types
+								   .OfType<IdentifierNameSyntax> ()
+								   .Select (t => t.Identifier.Text);
+
+					deps.AddRange (ds);
 				}
 
-				//
-				// Find watches and instrument
-				//
+				var ns =
+					Declaration.Ancestors ()
+							   .OfType<NamespaceDeclarationSyntax> ()
+							   .Where (n => n.Name is IdentifierNameSyntax)
+							   .Select (n => ((IdentifierNameSyntax)n.Name).Identifier.Text)
+							   .FirstOrDefault () ?? "";
+
+				// TODO: handle watch expressions
 				var watches = new List<WatchVariable> ();
-				foreach (var d in typedecl.Descendants.OfType<VariableInitializer> ()) {
-					var endLoc = d.EndLocation;
-					var p = d.Parent;
-					if (p == null || p.Parent == null)
-						continue;
-					var nc = p.GetNextSibling (x => x is Comment && x.StartLocation.Line == endLoc.Line);
-					if (nc == null || !nc.ToString ().StartsWith ("//="))
-						continue;
-					var id = Guid.NewGuid ().ToString ();
-					var instrument = GetWatchInstrument (id, new IdentifierExpression (d.Name));
-					p.Parent.InsertChildBefore (nc, instrument, BlockStatement.StatementRole);
-					watches.Add (new WatchVariable {
-						Id = id,
-						Expression = d.Name,
-						ExplicitExpression = "",
-						FilePath = doc.FullPath,
-						FileLine = nc.StartLocation.Line,
-						FileColumn = nc.StartLocation.Column,
-					});
-				}
-				foreach (var d in typedecl.Descendants.OfType<AssignmentExpression> ()) {
-					var endLoc = d.EndLocation;
-					var p = d.Parent;
-					if (p == null || p.Parent == null)
-						continue;
-					var nc = p.GetNextSibling (x => x is Comment && x.StartLocation.Line == endLoc.Line);
-					if (nc == null || !nc.ToString ().StartsWith ("//="))
-						continue;
-					var id = Guid.NewGuid ().ToString ();
-					var instrument = GetWatchInstrument (id, (Expression)d.Left.Clone ());
-					p.Parent.InsertChildBefore (nc, instrument, BlockStatement.StatementRole);
-					watches.Add (new WatchVariable {
-						Id = id,
-						Expression = d.Left.ToString (),
-						ExplicitExpression = "",
-						FilePath = doc.FullPath,
-						FileLine = nc.StartLocation.Line,
-						FileColumn = nc.StartLocation.Column,
-					});
-				}
-				foreach (var d in typedecl.Descendants.OfType<Comment> ().Where (x => x.CommentType == CommentType.SingleLine)) {
-					var m = WatchVariable.CommentContentRe.Match (d.Content);
-					if (!m.Success || string.IsNullOrWhiteSpace (m.Groups [1].Value))
-						continue;
 
-					var p = d.Parent as BlockStatement;
-					if (p == null)
-						continue;
-					
-					var exprText = m.Groups [1].Value.Trim ();
-					var parser = new CSharpParser();
-					var syntaxTree = parser.Parse("class C { void F() { var __r = " + exprText + "; } }");
-
-					if (syntaxTree.Errors.Count > 0)
-						continue;
-					var t = syntaxTree.Members.OfType<TypeDeclaration> ().First ();
-					var expr = t.Descendants.OfType<VariableInitializer> ().First ().Initializer;
-						
-					var id = Guid.NewGuid ().ToString ();
-					var instrument = GetWatchInstrument (id, expr.Clone ());
-					p.InsertChildBefore (d, instrument, BlockStatement.StatementRole);
-					watches.Add (new WatchVariable {
-						Id = id,
-						Expression = exprText,
-						ExplicitExpression = m.Groups[1].Value,
-						FilePath = doc.FullPath,
-						FileLine = d.StartLocation.Line,
-						FileColumn = d.StartLocation.Column,
-					});
-				}
-
-				//
-				// All done
-				//
-				var instrumentedCode = typedecl.ToString ();
-
-				return TypeCode.Set (name, usings, rawCode, instrumentedCode, deps, nsName, watches);
+				TypeCode.Set (name, usings, commentlessCode, instrumentedCode, deps, ns, watches);
 			}
 		}
 
@@ -276,18 +171,21 @@ namespace Continuous.Client
 			var ext = doc.FileName.Extension;
 
 			if (ext == ".cs") {
-				try {					
-					var resolver = await doc.GetSharedResolver ();
+				try {
+
+					var root = await doc.AnalysisDocument.GetSyntaxRootAsync ();
+					var model = await doc.AnalysisDocument.GetSemanticModelAsync ();
 					var typeDecls =
-						resolver.RootNode.Descendants.
-						OfType<TypeDeclaration> ().
-						Where (x => !(x.Parent is TypeDeclaration)).
-						Select (x => new CSharpTypeDecl {
-							Document = new DocumentRef (doc.FileName.FullPath),
-							Declaration = x,
-							Resolver = resolver,
-						});
+						root.DescendantNodes ((arg) => true)
+							.OfType<ClassDeclarationSyntax> ()
+							.Select (t => new CSharpTypeDecl {
+								Document = new DocumentRef (doc.FileName.FullPath),
+								Declaration = t,
+								Root = root,
+								Model = model,
+							});
 					return typeDecls.ToArray ();
+
 				} catch (Exception ex) {
 					Log (ex);
 					return new TypeDecl[0];
@@ -314,7 +212,7 @@ namespace Continuous.Client
 				return null;
 			}
 
-			var editLoc = doc.Editor.Caret.Location;
+			var editLoc = doc.Editor.CaretLocation;
 			return new TextLoc (editLoc.Line, editLoc.Column);
 		}
 
