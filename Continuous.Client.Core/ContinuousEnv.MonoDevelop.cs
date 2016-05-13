@@ -9,6 +9,7 @@ using MonoDevelop.Ide;
 using Gtk;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.CSharp;
 
 
 namespace Continuous.Client
@@ -100,9 +101,7 @@ namespace Continuous.Client
 			{
 				var name = Name;
 
-				// TODO: handle watch expressions
 				var commentlessCode = String.Join (Environment.NewLine, Declaration.GetText ().Lines.Select (l => l.ToString ()));
-				var instrumentedCode = commentlessCode;
 
 				var usings =
 					Root.DescendantNodes ()
@@ -128,8 +127,13 @@ namespace Continuous.Client
 							   .Select (n => ((IdentifierNameSyntax)n.Name).Identifier.Text)
 							   .FirstOrDefault () ?? "";
 
-				// TODO: handle watch expressions
-				var watches = new List<WatchVariable> ();
+				// create an 'instrumented' instance of the document with watch calls
+				var rewriter = new WatchExpressionRewriter(Document.FullPath);
+				var instrumented = rewriter.Visit(Declaration);
+				var instrumentedCode = instrumented.ToString();
+
+				// the rewriter collects the WatchVariable definitions as it walks the tree
+				var watches = rewriter.WatchVariables;
 
 				TypeCode.Set (name, usings, commentlessCode, instrumentedCode, deps, ns, watches);
 			}
@@ -257,5 +261,81 @@ namespace Continuous.Client
 			return "";
 		}
     }
+
+	public class WatchExpressionRewriter : CSharpSyntaxRewriter
+	{
+		private string path;
+
+		public WatchExpressionRewriter(string p)
+		{
+			path = p;
+		}
+
+		public List<WatchVariable> WatchVariables = new List<WatchVariable>();
+
+		public override SyntaxNode VisitExpressionStatement(ExpressionStatementSyntax node)
+		{
+			// don't handle nodes that aren't assignment or don't have the //= comment
+			if (!(node.Expression is AssignmentExpressionSyntax && HasWatchComment(node)))
+				return node;
+
+			var expr = (node.Expression as AssignmentExpressionSyntax).Left;
+			return AddWatchNode(node, expr);
+		}
+
+		public override SyntaxNode VisitLocalDeclarationStatement(LocalDeclarationStatementSyntax node)
+		{
+			// don't handle nodes that don't have the //= comment
+			if (!HasWatchComment(node))
+				return node;
+
+			var vn = node.Declaration.Variables.First().Identifier.Text;
+			var expr = SyntaxFactory.IdentifierName(vn);
+
+			return AddWatchNode(node, expr);
+		}
+
+		bool HasWatchComment(SyntaxNode node)
+		{
+			// expect that only valid node types are passed here
+			return
+				node
+					.GetTrailingTrivia()
+					.Any(t => t.Kind() == SyntaxKind.SingleLineCommentTrivia && t.ToString().StartsWith("//="));
+		}
+
+		SyntaxNode AddWatchNode(StatementSyntax node, ExpressionSyntax expr)
+		{
+			var id = Guid.NewGuid().ToString();
+			var c = node.GetTrailingTrivia().First(t => t.Kind() == SyntaxKind.SingleLineCommentTrivia && t.ToString().StartsWith("//="));
+			var p = c.GetLocation().GetLineSpan().StartLinePosition;
+
+			var wv = new WatchVariable {
+				Id = id,
+				Expression = expr.ToString(),
+				ExplicitExpression = "",
+				FilePath = path,
+				FileLine = p.Line + 1,  // 0-based index
+				FileColumn = p.Character + 1, // 0-based index
+			};
+			WatchVariables.Add(wv);
+
+			var wi = GetWatchInstrument(id, expr);
+
+			// creating a block and removing the open/close braces is a bit of a hack but
+			// lets us replace one node with two... 
+			return
+				SyntaxFactory
+					.Block(node, wi)
+					.WithOpenBraceToken(SyntaxFactory.MissingToken(SyntaxKind.OpenBraceToken))
+					.WithCloseBraceToken(SyntaxFactory.MissingToken(SyntaxKind.CloseBraceToken))
+					.WithTrailingTrivia(SyntaxFactory.EndOfLine("\r\n"));
+		}
+
+		StatementSyntax GetWatchInstrument(string id, ExpressionSyntax expr)
+		{
+			return SyntaxFactory.ParseStatement($"try {{ Continuous.Server.WatchStore.Record(\"{id}\", {expr}); }} catch {{ }}");
+		}
+	}	
 }
 #endif
