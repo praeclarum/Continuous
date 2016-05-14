@@ -109,23 +109,15 @@ namespace Continuous.Client
 						.Select (u => u.GetText ().ToString ())
 						.ToList ();
 
-				var deps = new List<string> ();
-				if (Declaration.BaseList != null && Declaration.BaseList.Types.Any ()) {
-					var ds =
-						Declaration.BaseList
-								   .Types
-								   .OfType<IdentifierNameSyntax> ()
-								   .Select (t => t.Identifier.Text);
+				var deps = 					Root 						.DescendantNodes() 						.OfType<IdentifierNameSyntax>()
+						.Select(n => Model.GetSymbolInfo(n))
+						.Where(s => s.Symbol.Kind == SymbolKind.NamedType)
+						.Select(n => n.Symbol.Name)
+						.Distinct() 						.ToList();
 
-					deps.AddRange (ds);
-				}
-
-				var ns =
-					Declaration.Ancestors ()
-							   .OfType<NamespaceDeclarationSyntax> ()
-							   .Where (n => n.Name is IdentifierNameSyntax)
-							   .Select (n => ((IdentifierNameSyntax)n.Name).Identifier.Text)
-							   .FirstOrDefault () ?? "";
+				var ns = 					Declaration.Ancestors() 							   .OfType<NamespaceDeclarationSyntax>()
+							   .Select(n => n.Name.GetText().ToString().Trim())
+							   .FirstOrDefault() ?? "";
 
 				// create an 'instrumented' instance of the document with watch calls
 				var rewriter = new WatchExpressionRewriter(Document.FullPath);
