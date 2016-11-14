@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using System.Linq;
-using EnvDTE80;
 using System.Threading;
 
 #if VISUALSTUDIO
+using EnvDTE80;
 using EnvDTE;
 using System.Windows;
 

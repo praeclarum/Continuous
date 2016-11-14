@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Gtk;
+using MonoDevelop.Components;
 using MonoDevelop.Ide.Gui;
 
 namespace Continuous.Client.XamarinStudio
@@ -10,26 +11,26 @@ namespace Continuous.Client.XamarinStudio
 		Main,
 	}
 
-	public class MainPad : IPadContent
+	public class MainPad : PadContent
 	{
 		readonly MainPadControl control = new MainPadControl ();
 
 		#region IPadContent implementation
-		public void Initialize (IPadWindow window)
+		protected override void Initialize (IPadWindow window)
 		{
 			control.ShowAll ();
 		}
 		public void RedrawContent ()
 		{
 		}
-		public Widget Control {
+		public override Control Control {
 			get {
 				return control;
 			}
 		}
 		#endregion
 		#region IDisposable implementation
-		public void Dispose ()
+		public override void Dispose ()
 		{
 			control.Dispose ();
 		}
