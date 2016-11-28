@@ -6,30 +6,17 @@
       <Id>Continuous.Client.MonoDevelop</Id>
       <Namespace>Continuous.Client.MonoDevelop</Namespace>
       <Name>Continuous Coding</Name>
-      <Version>1.6.3</Version>
+      <Version>2.0.0</Version>
       <BaseVersion />
       <Author>Frank A. Krueger</Author>
       <Copyright />
       <Url />
       <Description>Continuous coding environment visualizes objects as you type them.</Description>
       <Category>IDE extensions</Category>
-      <Dependencies>
-        <AddinDependency>
-          <AddinId>::MonoDevelop.Core</AddinId>
-          <Version>6.1.2</Version>
-        </AddinDependency>
-        <AddinDependency>
-          <AddinId>::MonoDevelop.Ide</AddinId>
-          <Version>6.1.2</Version>
-        </AddinDependency>
-        <AddinDependency>
-          <AddinId>::MonoDevelop.Refactoring</AddinId>
-          <Version>6.1.2</Version>
-        </AddinDependency>
-      </Dependencies>
+      <Dependencies />
       <OptionalDependencies />
       <Properties>
-        <Property name="DownloadSize">22873</Property>
+        <Property name="DownloadSize">6333122</Property>
       </Properties>
     </Addin>
   </Addin>
