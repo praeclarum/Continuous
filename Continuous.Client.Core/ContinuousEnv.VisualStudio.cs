@@ -22,8 +22,9 @@ namespace Continuous.Client
 
     public class VisualStudioContinuousEnv : ContinuousEnv
     {        
-        protected override void AlertImpl(string format, params object[] args)
+        protected override void OnAlert(string format, params object[] args)
         {
+			base.OnAlert(format, args);
             MessageBox.Show (string.Format (System.Globalization.CultureInfo.CurrentUICulture, format, args));
         }
 

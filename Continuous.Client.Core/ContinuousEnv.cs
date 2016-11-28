@@ -47,13 +47,24 @@ namespace Continuous.Client
 			return new HttpClient (ServerUrl);
 		}
 
+		public event Action<string> Alerted;
+
         public void Alert (string format, params object[] args)
         {
-            Log (format, args);
-            AlertImpl (format, args);
+			OnAlert (format, args);
         }
 
-        protected abstract void AlertImpl (string format, params object[] args);
+		protected virtual void OnAlert (string format, params object[] args)
+		{
+			Log (format, args);
+
+			var a = Alerted;
+			if (a != null)
+			{
+				var m = string.Format (System.Globalization.CultureInfo.CurrentUICulture, format, args);
+				a (m);
+			}
+		}
 
         protected async Task<bool> EvalAsync (string code, bool showError)
 		{

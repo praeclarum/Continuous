@@ -44,7 +44,8 @@ namespace Continuous.Client.XamarinStudio
 		readonly VBox toolbar = new VBox ();
 		readonly HBox toolbar0 = new HBox();
 		readonly HBox toolbar1 = new HBox();
-		readonly Button runButton = new Button { Label = "Set Type" };
+		readonly HBox toolbar2 = new HBox ();
+		readonly Button runButton = new Button { Label = "Visualize Type" };
 		readonly Button refreshButton = new Button { Label = "Refresh" };
 		readonly Button stopButton = new Button { Label = "Stop" };
 		readonly Button clearButton = new Button { Label = "Clear Edits" };
@@ -54,13 +55,17 @@ namespace Continuous.Client.XamarinStudio
 		//readonly Entry portEntry = new Entry { Text = ContinuousEnv.Shared.Port.ToString () };
 		readonly NodeStore dependenciesStore = new NodeStore (typeof(DependencyTreeNode));
 		readonly NodeView dependenciesView;
-//		readonly Label errorLabel = new Label ("Errors") {
-//			Justify = Justification.Left,
-//		};
+		readonly Label alertLabel = new Label {
+			Justify = Justification.Left,
+			Selectable = true
+		};
 
 		public MainPadControl ()
 		{
+			alertLabel.ModifyFg (StateType.Normal, new Gdk.Color(0xC0, 0x0, 0x0));
+
 			Env.LinkedMonitoredCode += Env_LinkedMonitoredCode;
+			Env.Alerted += Env_Alerted;
 
 			runButton.Clicked += RunButton_Clicked;
 			refreshButton.Clicked += RefreshButton_Clicked;
@@ -79,12 +84,13 @@ namespace Continuous.Client.XamarinStudio
 			toolbar0.PackEnd (clearButton, false, false, 4);
 			toolbar1.PackStart (hostLabel, false, false, 4);
 			toolbar1.PackStart (hostEntry, false, false, 4);
+			toolbar2.PackStart (alertLabel, false, false, 4);
 			//toolbar1.PackStart (portLabel, false, false, 4);
 			//toolbar1.PackStart (portEntry, false, false, 4);
 			toolbar.PackStart (toolbar0, false, false, 0);
 			toolbar.PackStart (toolbar1, false, false, 0);
+			toolbar.PackStart (toolbar2, false, false, 0);
 			PackStart (toolbar, false, false, 0);
-			//PackStart (errorLabel, false, false, 8);
 			PackEnd (dependenciesView, true, true, 0);
 		}
 
@@ -99,22 +105,26 @@ namespace Continuous.Client.XamarinStudio
 
 		async void RunButton_Clicked (object sender, EventArgs e)
 		{
+			ClearAlert ();
 			await Env.VisualizeAsync ();
 		}
 
 		async void RefreshButton_Clicked (object sender, EventArgs e)
 		{
+			ClearAlert ();
 			await Env.VisualizeMonitoredTypeAsync (forceEval: true, showError: true);
 		}
 
 		async void StopButton_Clicked (object sender, EventArgs e)
 		{
+			ClearAlert ();
 			await Env.StopVisualizingAsync ();
 			dependenciesStore.Clear ();
 		}
 
 		async void ClearButton_Clicked (object sender, EventArgs e)
 		{
+			ClearAlert ();
 			TypeCode.ClearEdits ();
 			await Env.VisualizeMonitoredTypeAsync (forceEval: false, showError: false);
 		}
@@ -132,6 +142,16 @@ namespace Continuous.Client.XamarinStudio
 		//	}
 		//	Env.Port = port;
 		//}
+
+		void ClearAlert ()
+		{
+			alertLabel.Text = "";
+		}
+
+		void Env_Alerted (string obj)
+		{
+			alertLabel.Text = obj;
+		}
 	}
 
 	[Gtk.TreeNode (ListOnly=true)]

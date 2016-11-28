@@ -25,17 +25,6 @@ namespace Continuous.Client
 
 	public class MonoDevelopContinuousEnv : ContinuousEnv
 	{
-		protected override void AlertImpl (string format, params object[] args)
-        {
-			var parentWindow = IdeApp.Workbench.RootWindow;
-			var dialog = new MessageDialog(parentWindow, DialogFlags.DestroyWithParent,
-				MessageType.Info, ButtonsType.Ok,
-				false,
-				format, args);
-			dialog.Run ();
-			dialog.Destroy ();
-        }
-
 		protected override async Task SetWatchTextAsync (WatchVariable w, List<string> vals)
 		{
             var doc = IdeApp.Workbench.GetDocument (w.FilePath);
