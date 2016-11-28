@@ -104,9 +104,11 @@ namespace Continuous.Server
 		{
 			//
 			// Avoid duplicates of what comes prereferenced with Mono.CSharp.Evaluator
+			// or ones that cause problems.
 			//
 			var name = a.GetName ().Name;
-			if (name == "mscorlib" || name == "System" || name == "System.Core")
+			if (name == "mscorlib" || name == "System" || name == "System.Core" ||
+			    name == "Xamarin.Interactive" || name == "Xamarin.Interactive.iOS")
 				return;
 
 			//
