@@ -150,7 +150,7 @@ namespace Continuous.Client.XamarinStudio
 
 		void Env_Alerted (string obj)
 		{
-			alertLabel.Text = obj;
+			alertLabel.Text = $"ERROR [{DateTime.Now.ToLongTimeString ()}]: {obj}";
 		}
 	}
 
