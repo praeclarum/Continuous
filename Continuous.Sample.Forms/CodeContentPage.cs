@@ -99,10 +99,12 @@ namespace Continuous.Sample.Forms
 			if (Device.OS == TargetPlatform.WinPhone)
 			{
 				(this.Detail as ContentPage).Content.GestureRecognizers.Add(
-					new TapGestureRecognizer((view) =>
-						{
+					new TapGestureRecognizer
+					{
+						Command = new Command(() => {
 							this.IsPresented = true;
-						}));
+						})
+					});
 			}
 
 			// Define a selected handler for the ListView.
