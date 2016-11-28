@@ -17,12 +17,13 @@ namespace Continuous.Server
 		HttpListener listener;
 		TaskScheduler mainScheduler;
 
-		readonly VM vm = new VM ();
+		readonly IVM vm;
 
-		public HttpServer (object context = null, int port = Http.DefaultPort)
+		public HttpServer (object context = null, int port = Http.DefaultPort, IVM vm = null)
 		{
 			this.port = port;
 			visualizer = new Visualizer (context);
+			this.vm = vm ?? (new VM());
 		}
 
 		public void Run ()

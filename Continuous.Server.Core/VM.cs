@@ -9,7 +9,7 @@ namespace Continuous.Server
 	/// Evaluates expressions using the mono C# REPL.
 	/// This method is thread safe so you can call it from anywhere.
 	/// </summary>
-	public partial class VM
+	public partial class VM : IVM
 	{
 		readonly object mutex = new object ();
 		readonly Printer printer = new Printer ();
