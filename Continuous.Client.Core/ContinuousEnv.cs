@@ -17,7 +17,7 @@ namespace Continuous.Client
 
 		public ContinuousEnv ()
 		{
-			IP = "127.0.0.1";
+			IP = Http.DefaultHost;
 			Port = Http.DefaultPort;
 		}
 

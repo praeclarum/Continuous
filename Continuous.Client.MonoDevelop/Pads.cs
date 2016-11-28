@@ -41,11 +41,17 @@ namespace Continuous.Client.XamarinStudio
 	{
 		protected ContinuousEnv Env { get { return ContinuousEnv.Shared; } }
 
-		readonly HBox toolbar = new HBox ();
+		readonly VBox toolbar = new VBox ();
+		readonly HBox toolbar0 = new HBox();
+		readonly HBox toolbar1 = new HBox();
 		readonly Button runButton = new Button { Label = "Set Type" };
 		readonly Button refreshButton = new Button { Label = "Refresh" };
 		readonly Button stopButton = new Button { Label = "Stop" };
 		readonly Button clearButton = new Button { Label = "Clear Edits" };
+		readonly Label hostLabel = new Label { Text = "Device:" };
+		readonly Entry hostEntry = new Entry { Text = ContinuousEnv.Shared.IP };
+		//readonly Label portLabel = new Label { Text = "Port:" };
+		//readonly Entry portEntry = new Entry { Text = ContinuousEnv.Shared.Port.ToString () };
 		readonly NodeStore dependenciesStore = new NodeStore (typeof(DependencyTreeNode));
 		readonly NodeView dependenciesView;
 //		readonly Label errorLabel = new Label ("Errors") {
@@ -60,17 +66,25 @@ namespace Continuous.Client.XamarinStudio
 			refreshButton.Clicked += RefreshButton_Clicked;
 			stopButton.Clicked += StopButton_Clicked;
 			clearButton.Clicked += ClearButton_Clicked;
+			hostEntry.Changed += HostEntry_Changed;
+			//portEntry.Changed += PortEntry_Changed;
 
 			dependenciesView = new NodeView (dependenciesStore);
 			dependenciesView.AppendColumn ("Dependency", new CellRendererText (), "text", 0);
 			dependenciesView.AppendColumn ("Status", new CellRendererText (), "text", 1);
 
-			toolbar.PackStart (runButton, false, false, 4);
-			toolbar.PackStart (refreshButton, false, false, 4);
-			toolbar.PackStart (stopButton, false, false, 4);
-			toolbar.PackEnd (clearButton, false, false, 4);
+			toolbar0.PackStart (runButton, false, false, 4);
+			toolbar0.PackStart (refreshButton, false, false, 4);
+			toolbar0.PackStart (stopButton, false, false, 4);
+			toolbar0.PackEnd (clearButton, false, false, 4);
+			toolbar1.PackStart (hostLabel, false, false, 4);
+			toolbar1.PackStart (hostEntry, false, false, 4);
+			//toolbar1.PackStart (portLabel, false, false, 4);
+			//toolbar1.PackStart (portEntry, false, false, 4);
+			toolbar.PackStart (toolbar0, false, false, 0);
+			toolbar.PackStart (toolbar1, false, false, 0);
 			PackStart (toolbar, false, false, 0);
-//			PackStart (errorLabel, false, false, 8);
+			//PackStart (errorLabel, false, false, 8);
 			PackEnd (dependenciesView, true, true, 0);
 		}
 
@@ -104,6 +118,20 @@ namespace Continuous.Client.XamarinStudio
 			TypeCode.ClearEdits ();
 			await Env.VisualizeMonitoredTypeAsync (forceEval: false, showError: false);
 		}
+
+		void HostEntry_Changed (object sender, EventArgs e)
+		{
+			Env.IP = hostEntry.Text;
+		}
+		//void PortEntry_Changed (object sender, EventArgs e)
+		//{
+		//	var port = Http.DefaultPort;
+		//	if (!int.TryParse (portEntry.Text, out port))
+		//	{
+		//		port = Http.DefaultPort;
+		//	}
+		//	Env.Port = port;
+		//}
 	}
 
 	[Gtk.TreeNode (ListOnly=true)]
