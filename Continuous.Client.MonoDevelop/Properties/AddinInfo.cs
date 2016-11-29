@@ -5,7 +5,7 @@ using Mono.Addins.Description;
 [assembly:Addin (
 	"Continuous.Client.MonoDevelop", 
 	Namespace = "Continuous.Client.MonoDevelop",
-	Version = "2.0.0"
+	Version = "2.0.1"
 )]
 
 [assembly:AddinName ("Continuous Coding")]
