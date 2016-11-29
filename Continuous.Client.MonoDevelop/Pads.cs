@@ -44,7 +44,7 @@ namespace Continuous.Client.XamarinStudio
 		readonly VBox toolbar = new VBox ();
 		readonly HBox toolbar0 = new HBox();
 		readonly HBox toolbar1 = new HBox();
-		readonly HBox toolbar2 = new HBox ();
+		readonly ScrolledWindow toolbar2 = new ScrolledWindow ();
 		readonly Button runButton = new Button { Label = "Visualize Type" };
 		readonly Button refreshButton = new Button { Label = "Refresh" };
 		readonly Button stopButton = new Button { Label = "Stop" };
@@ -84,7 +84,7 @@ namespace Continuous.Client.XamarinStudio
 			toolbar0.PackEnd (clearButton, false, false, 4);
 			toolbar1.PackStart (hostLabel, false, false, 4);
 			toolbar1.PackStart (hostEntry, false, false, 4);
-			toolbar2.PackStart (alertLabel, false, false, 4);
+			toolbar2.AddWithViewport (alertLabel);
 			//toolbar1.PackStart (portLabel, false, false, 4);
 			//toolbar1.PackStart (portEntry, false, false, 4);
 			toolbar.PackStart (toolbar0, false, false, 0);
