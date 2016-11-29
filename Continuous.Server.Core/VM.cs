@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using Mono.CSharp;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Continuous.Server
 {
@@ -16,7 +18,17 @@ namespace Continuous.Server
 
 		Evaluator eval;
 
-		public EvalResult Eval (EvalRequest code)
+		public EvalResult Eval (EvalRequest code, TaskScheduler mainScheduler, CancellationToken token)
+		{
+			var r = new EvalResult ();
+			Task.Factory.StartNew (() =>
+			{
+				r = EvalOnMainThread (code, token);
+			}, token, TaskCreationOptions.None, mainScheduler).Wait ();
+			return r;
+		}
+
+		EvalResult EvalOnMainThread (EvalRequest code, CancellationToken token)
 		{
 			var sw = new System.Diagnostics.Stopwatch ();
 

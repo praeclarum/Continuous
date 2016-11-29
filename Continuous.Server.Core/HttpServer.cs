@@ -106,17 +106,22 @@ namespace Continuous.Server
 
 					var req = JsonConvert.DeserializeObject<EvalRequest> (reqStr);
 
+					var token = CancellationToken.None;
+
 					var resp = await Task.Factory.StartNew (() => {
 						WatchStore.Clear ();
 						var r = new EvalResult ();
 						try {
-							r = vm.Eval (req);
+							r = vm.Eval (req, mainScheduler, token);
 						}
 						catch (Exception ex) {
 							Log (ex, "vm.Eval");
 						}
 						try {
-							Visualize (r);
+							Task.Factory.StartNew (() =>
+							{
+								Visualize (r);
+							}, token, TaskCreationOptions.None, mainScheduler).Wait ();
 						}
 						catch (Exception ex) {
 							Log (ex, "Visualize");
@@ -127,7 +132,7 @@ namespace Continuous.Server
 							Duration = r.Duration,
 						};
 						return Tuple.Create (r, JsonConvert.SerializeObject (response));
-					}, CancellationToken.None, TaskCreationOptions.None, mainScheduler);
+					}, token);
 
 					Log (resp.Item2);
 
