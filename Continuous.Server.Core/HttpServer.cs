@@ -110,7 +110,7 @@ namespace Continuous.Server
 						WatchStore.Clear ();
 						var r = new EvalResult ();
 						try {
-							r = vm.Eval (req.Code);
+							r = vm.Eval (req);
 						}
 						catch (Exception ex) {
 							Log (ex, "vm.Eval");

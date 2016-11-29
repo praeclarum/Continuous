@@ -24,9 +24,9 @@ namespace Continuous.Client
 
 		public Uri BaseUrl {  get { return baseUrl; } }
 
-		public async Task<EvalResponse> VisualizeAsync (string code)
+		public async Task<EvalResponse> VisualizeAsync (string declarations, string valueExpression)
 		{
-			var req = new EvalRequest { Code = code };
+			var req = new EvalRequest { Declarations = declarations, ValueExpression = valueExpression };
 
 			var reqStr = JsonConvert.SerializeObject (req);
 

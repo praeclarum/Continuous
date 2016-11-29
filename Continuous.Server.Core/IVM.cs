@@ -4,6 +4,6 @@ namespace Continuous.Server
 {
 	public interface IVM
 	{
-		EvalResult Eval(string code);
+		EvalResult Eval(EvalRequest code);
 	}
 }

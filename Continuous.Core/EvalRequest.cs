@@ -12,7 +12,8 @@ namespace Continuous
 
 	public class EvalRequest
 	{
-		public string Code;
+		public string Declarations;
+		public string ValueExpression;
 	}
 
 	public class EvalMessage
@@ -25,7 +26,6 @@ namespace Continuous
 
 	public class EvalResult
 	{
-		public string Code;
 		public EvalMessage[] Messages;
 		public TimeSpan Duration;
 		public object Result;

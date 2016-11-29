@@ -11,12 +11,6 @@
 			class="Continuous.Client.XamarinStudio.MainPad" />
 	</Extension>
 	<Extension path="/MonoDevelop/Ide/Commands">
-        <Command
-	    	id="Continuous.Client.XamarinStudio.Commands.VisualizeSelection"
-            _label="Visualize Selection"
-            shortcut="Ctrl|Shift|Return"
-            macShortcut="Ctrl|Shift|Return"
-            defaultHandler="Continuous.Client.XamarinStudio.VisualizeSelectionHandler" />
 	    <Command
 	    	id="Continuous.Client.XamarinStudio.Commands.VisualizeClass"
             _label="Visualize Class"
@@ -29,9 +23,6 @@
             shortcut="Alt|Ctrl|Shift|C"
             macShortcut="Alt|Ctrl|Shift|C"
             defaultHandler="Continuous.Client.XamarinStudio.StopVisualizingClassHandler" />
-	</Extension>
-	<Extension path="/MonoDevelop/Ide/MainMenu/Tools">
-	    <CommandItem id="Continuous.Client.XamarinStudio.Commands.VisualizeSelection" />
 	</Extension>
 	<Extension path="/MonoDevelop/Ide/MainMenu/Tools">
 	    <CommandItem id="Continuous.Client.XamarinStudio.Commands.VisualizeClass" />

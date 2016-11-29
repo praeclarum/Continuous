@@ -16,24 +16,6 @@ namespace Continuous.Client.XamarinStudio
 		protected ContinuousEnv Env { get { return ContinuousEnv.Shared; } }
 	}
 
-	public class VisualizeSelectionHandler : ContinuousCommandHandler
-	{		
-		protected override async void Run ()
-		{
-			base.Run ();
-			await Env.VisualizeSelectionAsync ();
-		}
-
-		protected override void Update (CommandInfo info)
-		{
-			base.Update (info);
-
-			var doc = IdeApp.Workbench.ActiveDocument;
-
-			info.Enabled = doc != null && doc.Editor != null && !string.IsNullOrWhiteSpace (doc.Editor.SelectedText);
-		}
-	}
-
 	public class VisualizeClassHandler : ContinuousCommandHandler
 	{		
 		protected override async void Run ()

@@ -16,7 +16,7 @@ namespace Continuous.Server
 
 		Evaluator eval;
 
-		public EvalResult Eval (string code)
+		public EvalResult Eval (EvalRequest code)
 		{
 			var sw = new System.Diagnostics.Stopwatch ();
 
@@ -33,9 +33,15 @@ namespace Continuous.Server
 				sw.Start ();
 
 				try {
-//					Log (code);
-					eval.Evaluate (code, out result, out hasResult);					
-				} catch (InternalErrorException ex) {
+					if (!string.IsNullOrEmpty (code.Declarations))
+					{
+						eval.Evaluate (code.Declarations, out result, out hasResult);
+					}
+					if (!string.IsNullOrEmpty (code.ValueExpression))
+					{
+						eval.Evaluate (code.ValueExpression, out result, out hasResult);
+					}
+				} catch (InternalErrorException) {
 					eval = null; // Force re-init
 				} catch (Exception ex) {
 					// Sometimes Mono.CSharp fails when constructing failure messages
@@ -51,7 +57,6 @@ namespace Continuous.Server
 			}
 
 			return new EvalResult {
-				Code = code,
 				Messages = printer.Messages.ToArray (),
 				Duration = sw.Elapsed,
 				Result = result,

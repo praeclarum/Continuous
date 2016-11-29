@@ -66,17 +66,10 @@ namespace Continuous.Client
 			}
 		}
 
-        protected async Task<bool> EvalAsync (string code, bool showError)
-		{
-			var r = await EvalForResponseAsync (code, showError);
-			var err = r.HasErrors;
-			return !err;
-		}
-
-		protected async Task<EvalResponse> EvalForResponseAsync (string code, bool showError)
+		protected async Task<EvalResponse> EvalForResponseAsync (string declarations, string valueExpression, bool showError)
 		{
 			Connect ();
-			var r = await conn.VisualizeAsync (code);
+			var r = await conn.VisualizeAsync (declarations, valueExpression);
 			var err = r.HasErrors;
 			if (err) {
 				var message = string.Join ("\n", r.Messages.Select (m => m.MessageType + ": " + m.Text));
@@ -174,16 +167,10 @@ namespace Continuous.Client
             //
             try {
                 //
-                // Declare it
-                //
-                Log (code.Declarations);
-                if (!await EvalAsync (code.Declarations, showError)) return;
-
-                //
-                // Show it
+                // Declare and Show it
                 //
                 Log (code.ValueExpression);
-                var resp = await EvalForResponseAsync (code.ValueExpression, showError);
+				var resp = await EvalForResponseAsync (code.Declarations, code.ValueExpression, showError);
                 if (resp.HasErrors)
                     return;
 
@@ -288,20 +275,6 @@ namespace Continuous.Client
 		{
 			LinkedMonitoredCode (code);
 		}
-
-        public async Task VisualizeSelectionAsync ()
-        {
-            var code = await GetSelectedTextAsync ();
-            if (string.IsNullOrWhiteSpace (code))
-                return;
-
-            try {
-                await EvalAsync (code, showError: true);
-            }
-            catch (Exception ex) {
-                Alert ("Could not communicate with the app.\n\n{0}: {1}", ex.GetType (), ex.Message);
-            }
-        }
 
         protected abstract Task<string> GetSelectedTextAsync ();
 
