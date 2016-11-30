@@ -97,8 +97,10 @@ namespace Continuous.Server
 				var oldChildren = presentedVC.ChildViewControllers;
 				foreach (var c in oldChildren)
 				{
+					c.ViewWillDisappear(false);
 					c.RemoveFromParentViewController();
 					c.View.RemoveFromSuperview();
+					c.ViewDidDisappear(false);
 				}
 			}
 			else
@@ -109,8 +111,11 @@ namespace Continuous.Server
 
 			pvc.View.Frame = presentedVC.View.Bounds;
 			pvc.View.AutoresizingMask = UIViewAutoresizing.FlexibleDimensions;
+
+			pvc.ViewWillAppear(false);
 			presentedVC.View.AddSubview(pvc.View);
 			presentedVC.AddChildViewController(pvc);
+			pvc.ViewDidAppear(false);
 
 			if (needsPresent) {
 				//
