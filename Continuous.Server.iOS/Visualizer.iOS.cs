@@ -174,27 +174,33 @@ namespace Continuous.Server
 				{ typeof(UIImage).FullName, o => GetView ((UIImage)o) },
 				{ typeof(CGImage).FullName, o => GetView (UIImage.FromImage ((CGImage)o)) },
 				{ typeof(CoreImage.CIImage).FullName, o => GetView (UIImage.FromImage ((CoreImage.CIImage)o)) },
+				{ typeof(string).FullName, o => GetView ((string)o) },
 				{ "Xamarin.Forms.Page", GetFormsPage },
 			};
 		}
 		Dictionary<string, TypeVisualizer> typeVisualizers = new Dictionary<string, TypeVisualizer> ();
 
-		UIView GetView (UIView value)
+		public virtual UIView GetView (UIView value)
 		{
 			return value;
 		}
 
-		UIView GetView (UIColor value)
+		public virtual UIView GetView (UIColor value)
 		{
 			return new UIView { BackgroundColor = value, };
 		}
 
-		UIView GetView (UIImage value)
+		public virtual UIView GetView (UIImage value)
 		{
 			return new UIImageView { Image = value, ContentMode = UIViewContentMode.ScaleAspectFit };
 		}
 
-		UIView GetView (UITableViewCell value)
+		public virtual UIView GetView (string value)
+		{
+			return new UITextView { Text = value };
+		}
+
+		public virtual UIView GetView (UITableViewCell value)
 		{
 			var tableView = new UITableView ();
 			tableView.DataSource = new SingleTableViewCellDataSource (value);
@@ -222,7 +228,7 @@ namespace Continuous.Server
 			}
 		}
 
-		UIView GetView (UICollectionViewCell value)
+		public virtual UIView GetView (UICollectionViewCell value)
 		{
 			var layout = new UICollectionViewFlowLayout ();
 			var bounds = UIScreen.MainScreen.Bounds;
@@ -274,21 +280,25 @@ namespace Continuous.Server
 			}
 		}
 
-		UIViewController GetFormsPage (object pageObj)
+		public virtual System.Reflection.Assembly GetXamarinCoreAsm()
 		{
-			var asms = AppDomain.CurrentDomain.GetAssemblies ();
-			var xamasm = asms.First (x => x.GetName ().Name == "Xamarin.Forms.Core");
-			var platasm = asms.First (x => x.GetName ().Name == "Xamarin.Forms.Platform.iOS");
+			var asms = AppDomain.CurrentDomain.GetAssemblies();
+			return asms.First(x => x.GetName().Name == "Xamarin.Forms.Core");
+		}
 
-			// Wrap it in a NavigationPage cause I think it's needed?
-//			var navpage = xamasm.GetType ("Xamarin.Forms.NavigationPage");
-//			var navPageObj = Activator.CreateInstance (navpage, new object[]{ pageObj });
+		public virtual System.Reflection.Assembly GetXamarinPlatformAsm ()
+		{
+			var asms = AppDomain.CurrentDomain.GetAssemblies();
+			return asms.First(x => x.GetName().Name == "Xamarin.Forms.Platform.iOS");
+		}
+
+		public virtual UIViewController GetFormsPage (object pageObj)
+		{
+			var platasm = GetXamarinPlatformAsm ();
 
 			// Create the VC
 			var pagex = platasm.GetType ("Xamarin.Forms.PageExtensions");
 			var cvc = pagex.GetMethod ("CreateViewController");
-
-//			var nc = (UIViewController)cvc.Invoke (null, new[]{ navPageObj });
 			var vc = (UIViewController)cvc.Invoke (null, new[]{ pageObj });
 
 			return vc;

@@ -19,10 +19,10 @@ namespace Continuous.Server
 
 		readonly IVM vm;
 
-		public HttpServer (object context = null, int port = Http.DefaultPort, IVM vm = null)
+		public HttpServer (object context = null, int port = Http.DefaultPort, IVM vm = null, Visualizer visualizer = null)
 		{
 			this.port = port;
-			visualizer = new Visualizer (context);
+			this.visualizer = visualizer ?? new Visualizer (context);
 			this.vm = vm ?? (new VM());
 		}
 
