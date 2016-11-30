@@ -36,6 +36,7 @@
     <Compile Include="Commands.cs" />
     <Compile Include="Properties\AddinInfo.cs" />
     <Compile Include="Pads.cs" />
+    <Compile Include="ios-repl-swizzle.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Manifest.addin.xml" />
