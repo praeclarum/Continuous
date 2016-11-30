@@ -19,6 +19,7 @@ namespace Continuous.Server
 				return;
 
 			if (rootVC.PresentedViewController != null) {
+				presentedVC = null;
 				rootVC.DismissViewController (false, null);
 			}
 		}
@@ -30,39 +31,44 @@ namespace Continuous.Server
 
 			Log ("{0} value = {1}", ty.FullName, val);
 
-			ShowViewerAsync (GetViewer (res)).ContinueWith (t => {
+			ShowViewerAsync (GetViewer (res.Result, true)).ContinueWith (t => {
 				if (t.IsFaulted) {
 					Log ("ShowViewer ERROR {0}", t.Exception);
 				}
 			});
 		}
 
-		Tuple<UIViewController, bool> GetViewer (EvalResult resp)
+		public UIViewController GetViewer (object value, bool createInspector)
 		{
-			var vc = resp.Result as UIViewController;
+			var vc = value as UIViewController;
 			if (vc != null)
-				return Tuple.Create (vc, true);
+				return vc;
 			
-			var sv = GetSpecialView (resp.Result);
+			var sv = GetSpecialView (value);
 
 			vc = sv as UIViewController;
 			if (vc != null)
-				return Tuple.Create (vc, false);
+				return vc;
 
 			var v = sv as UIView;
 			if (v != null) {
 				vc = new UIViewController ();
 				vc.View = v;
-				return Tuple.Create (vc, false);
+				return vc;
 			}
 
-			vc = new ObjectInspector (resp.Result);
-			return Tuple.Create (vc, true);
+			if (createInspector)
+			{
+				vc = new ObjectInspector(value);
+				return vc;
+			}
+
+			return null;
 		}
 
-		UINavigationController presentedNav = null;
+		UIViewController presentedVC = null;
 
-		async Task ShowViewerAsync (Tuple<UIViewController, bool> vcNC)
+		async Task ShowViewerAsync (UIViewController vc)
 		{
 			var window = UIApplication.SharedApplication.KeyWindow;
 			if (window == null)
@@ -71,42 +77,55 @@ namespace Continuous.Server
 			if (rootVC == null)
 				return;
 
-			var vc = vcNC.Item1;
-			var shouldBeInNav = CanBeInNav (vc) && vcNC.Item2;
-
-			if (shouldBeInNav) {
-				var doneButton = new UIBarButtonItem (
-					                UIBarButtonSystemItem.Done,
-					                (_, __) => rootVC.DismissViewController (true, null));
-				vc.NavigationItem.RightBarButtonItems =
-					new[]{ doneButton }.
-					Concat (vc.NavigationItem.RightBarButtonItems ?? new UIBarButtonItem[0]).
-					ToArray ();
+			var pvc = vc;
+			if (CanBeInNav(vc))
+			{
+				var nc = new UINavigationController(vc);
+				nc.NavigationBarHidden = true;
+				pvc = nc;
 			}
 
 			//
 			// Try to just swap out the root VC if we've already presented
 			//
-			if (shouldBeInNav && presentedNav != null && rootVC.PresentedViewController == presentedNav) {
-				presentedNav.ViewControllers = new[] { vc };
-				return;
+			var needsPresent = false;
+			if (presentedVC != null && rootVC.PresentedViewController == presentedVC)
+			{
+				//
+				// Remove old stuff
+				//
+				var oldChildren = presentedVC.ChildViewControllers;
+				foreach (var c in oldChildren)
+				{
+					c.RemoveFromParentViewController();
+					c.View.RemoveFromSuperview();
+				}
+			}
+			else
+			{
+				presentedVC = new UIViewController();
+				needsPresent = true;
 			}
 
-			//
-			// Else, present a new nav VC
-			//
-			var nc = shouldBeInNav ? new UINavigationController (vc) : null;
+			pvc.View.Frame = presentedVC.View.Bounds;
+			pvc.View.AutoresizingMask = UIViewAutoresizing.FlexibleDimensions;
+			presentedVC.View.AddSubview(pvc.View);
+			presentedVC.AddChildViewController(pvc);
 
-			var animate = true;
+			if (needsPresent) {
+				//
+				// Else, present a new nav VC
+				//
+				var animate = true;
 
-			if (rootVC.PresentedViewController != null) {
-				await rootVC.DismissViewControllerAsync (false);
-				animate = false;
+				if (rootVC.PresentedViewController != null)
+				{
+					await rootVC.DismissViewControllerAsync(false);
+					animate = false;
+				}
+
+				await rootVC.PresentViewControllerAsync(presentedVC, animate);
 			}
-
-			presentedNav = nc;
-
-			await rootVC.PresentViewControllerAsync (nc ?? vc, animate);
 		}
 
 		bool CanBeInNav (UIViewController vc)
