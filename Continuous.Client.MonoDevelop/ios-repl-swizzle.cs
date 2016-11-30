@@ -49,16 +49,21 @@ namespace Continuous.Client.XamarinStudio
 				?? IdeApp.ProjectOperations.CurrentSelectedBuildTarget)
 				as DotNetProject;
 
-			if (project?.TargetFramework?.Name != "Xamarin.iOS")
-				project = null;
+			//
+			// Only Swizzle Xamarin.iOS Simulator builds
+			//
+			if (project?.TargetFramework?.Name != "Xamarin.iOS") return;
 
-			if (project != null)
-				Swizzle (project);
+			var configSelector = IdeApp.Workspace.ActiveConfiguration;
+			var config = configSelector.GetConfiguration (project);
+
+			if (config.Platform != "iPhoneSimulator") return;
+
+			Swizzle (project, configSelector);
 		}
 
-		static void Swizzle (DotNetProject project)
+		static void Swizzle (DotNetProject project, ConfigurationSelector configSelector)
 		{
-			var configSelector = ConfigurationSelector.Default;
 			var appdir = Path.ChangeExtension (
 				project.GetOutputFileName (configSelector),
 				"app");
