@@ -28,57 +28,69 @@ using System.Linq;
 using MonoDevelop.Ide;
 using MonoDevelop.Projects;
 
-class SampleAddin
+namespace Continuous.Client.XamarinStudio
 {
-    static SampleAddin ()
-    {
-        IdeApp.ProjectOperations.EndBuild += HandleEndBuild;
-        // You might need this event if EndBuild doesn't work
-        //IdeApp.ProjectOperations.BeforeStartProject += HandleBeforeStartProject;
-    }
+	class XamariniOSSwizzle
+	{
+		public static bool Enabled = true;
 
-    static void HandleEndBuild (object sender, BuildEventArgs e)
-    {
-        var project = (IdeApp.ProjectOperations.CurrentSelectedSolution?.StartupItem
-            ?? IdeApp.ProjectOperations.CurrentSelectedBuildTarget)
-            as DotNetProject;
-        // Obviously you'll also want to verify that it's a Xamarin.iOS project
-        if (project != null)
-            Swizzle (project);
-    }
+		static XamariniOSSwizzle ()
+		{
+			IdeApp.ProjectOperations.EndBuild += HandleEndBuild;
+			// You might need this event if EndBuild doesn't work
+			//IdeApp.ProjectOperations.BeforeStartProject += HandleBeforeStartProject;
+		}
 
-    static void Swizzle (DotNetProject project)
-    {
-		var configSelector = ConfigurationSelector.Default;
-        var appdir = Path.ChangeExtension (
-			project.GetOutputFileName (configSelector),
-            "app");
-        var appAssemblyDirs = GetAppBundleAssemblyDirectories (appdir).ToArray ();
+		static void HandleEndBuild (object sender, BuildEventArgs e)
+		{
+			if (!Enabled) return;
 
-        var mscorlib = project
-            .AssemblyContext
-            .GetAssemblies (project.TargetFramework)
-            .FirstOrDefault (asm => asm.Name == "mscorlib");
+			var project = (IdeApp.ProjectOperations.CurrentSelectedSolution?.StartupItem
+				?? IdeApp.ProjectOperations.CurrentSelectedBuildTarget)
+				as DotNetProject;
 
-        var targetFrameworkPath = Path.Combine (
-            Path.GetDirectoryName (mscorlib.Location),
-            "repl");
+			if (project?.TargetFramework?.Name != "Xamarin.iOS")
+				project = null;
 
-        foreach (var asm in Directory.EnumerateFiles (targetFrameworkPath, "*.dll")) {
-            foreach (var appAssemblyDir in appAssemblyDirs) {
-                File.Copy (asm, Path.Combine (appAssemblyDir, Path.GetFileName (asm)), true);
-                var mdb = asm + ".mdb";
-                if (File.Exists (mdb))
-                    File.Copy (mdb, Path.Combine (appAssemblyDir, Path.GetFileName (mdb)), true);
-            }
-        }
-    }
+			if (project != null)
+				Swizzle (project);
+		}
 
-    static IEnumerable<string> GetAppBundleAssemblyDirectories (string appdir)
-    {
-        foreach (var appAssemblyDir in new [] {
-            appdir, Path.Combine (appdir, ".monotouch-32"), Path.Combine (appdir, ".monotouch-64") })
-			if (File.Exists (Path.Combine (appAssemblyDir, "mscorlib.dll")))
-                yield return appAssemblyDir;
-    }
+		static void Swizzle (DotNetProject project)
+		{
+			var configSelector = ConfigurationSelector.Default;
+			var appdir = Path.ChangeExtension (
+				project.GetOutputFileName (configSelector),
+				"app");
+			var appAssemblyDirs = GetAppBundleAssemblyDirectories (appdir).ToArray ();
+
+			var mscorlib = project
+				.AssemblyContext
+				.GetAssemblies (project.TargetFramework)
+				.FirstOrDefault (asm => asm.Name == "mscorlib");
+
+			var targetFrameworkPath = Path.Combine (
+				Path.GetDirectoryName (mscorlib.Location),
+				"repl");
+
+			foreach (var asm in Directory.EnumerateFiles (targetFrameworkPath, "*.dll"))
+			{
+				foreach (var appAssemblyDir in appAssemblyDirs)
+				{
+					File.Copy (asm, Path.Combine (appAssemblyDir, Path.GetFileName (asm)), true);
+					var mdb = asm + ".mdb";
+					if (File.Exists (mdb))
+						File.Copy (mdb, Path.Combine (appAssemblyDir, Path.GetFileName (mdb)), true);
+				}
+			}
+		}
+
+		static IEnumerable<string> GetAppBundleAssemblyDirectories (string appdir)
+		{
+			foreach (var appAssemblyDir in new[] {
+			appdir, Path.Combine (appdir, ".monotouch-32"), Path.Combine (appdir, ".monotouch-64") })
+				if (File.Exists (Path.Combine (appAssemblyDir, "mscorlib.dll")))
+					yield return appAssemblyDir;
+		}
+	}
 }

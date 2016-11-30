@@ -39,6 +39,10 @@ namespace Continuous.Client.XamarinStudio
 
 	public class MainPadControl : VBox
 	{
+#pragma warning disable 414
+		// Force the iOS swizzler to load
+		XamariniOSSwizzle swizzle = new XamariniOSSwizzle ();
+
 		protected ContinuousEnv Env { get { return ContinuousEnv.Shared; } }
 
 		readonly VBox toolbar = new VBox ();
