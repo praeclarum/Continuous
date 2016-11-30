@@ -20,6 +20,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+
+using MonoDevelop.Ide;
+using MonoDevelop.Projects;
+
 class SampleAddin
 {
     static SampleAddin ()
@@ -31,7 +39,7 @@ class SampleAddin
 
     static void HandleEndBuild (object sender, BuildEventArgs e)
     {
-        var project = IdeApp.ProjectOperations.CurrentSelectedSolution?.StartupItem
+        var project = (IdeApp.ProjectOperations.CurrentSelectedSolution?.StartupItem
             ?? IdeApp.ProjectOperations.CurrentSelectedBuildTarget)
             as DotNetProject;
         // Obviously you'll also want to verify that it's a Xamarin.iOS project
@@ -39,10 +47,11 @@ class SampleAddin
             Swizzle (project);
     }
 
-    void Swizle (DotNetProject project)
+    static void Swizzle (DotNetProject project)
     {
+		var configSelector = ConfigurationSelector.Default;
         var appdir = Path.ChangeExtension (
-            project.GetOutputFileName (configSelector),
+			project.GetOutputFileName (configSelector),
             "app");
         var appAssemblyDirs = GetAppBundleAssemblyDirectories (appdir).ToArray ();
 
@@ -51,25 +60,25 @@ class SampleAddin
             .GetAssemblies (project.TargetFramework)
             .FirstOrDefault (asm => asm.Name == "mscorlib");
 
-        var targetFrameworkPath = TargetFrameworkPath = Path.Combine (
+        var targetFrameworkPath = Path.Combine (
             Path.GetDirectoryName (mscorlib.Location),
             "repl");
 
         foreach (var asm in Directory.EnumerateFiles (targetFrameworkPath, "*.dll")) {
             foreach (var appAssemblyDir in appAssemblyDirs) {
-                File.Copy (asm, appAssemblyDir.Combine (Path.GetFileName (asm)), true);
+                File.Copy (asm, Path.Combine (appAssemblyDir, Path.GetFileName (asm)), true);
                 var mdb = asm + ".mdb";
                 if (File.Exists (mdb))
-                    File.Copy (mdb, appAssemblyDir.Combine (Path.GetFileName (mdb)), true);
+                    File.Copy (mdb, Path.Combine (appAssemblyDir, Path.GetFileName (mdb)), true);
             }
         }
     }
 
-    static IEnumerable<FilePath> GetAppBundleAssemblyDirectories (FilePath appdir)
+    static IEnumerable<string> GetAppBundleAssemblyDirectories (string appdir)
     {
         foreach (var appAssemblyDir in new [] {
-            appdir, appdir.Combine (".monotouch-32"), appdir.Combine (".monotouch-64") })
-            if (File.Exists (appAssemblyDir.Combine ("mscorlib.dll")))
+            appdir, Path.Combine (appdir, ".monotouch-32"), Path.Combine (appdir, ".monotouch-64") })
+			if (File.Exists (Path.Combine (appAssemblyDir, "mscorlib.dll")))
                 yield return appAssemblyDir;
     }
 }
