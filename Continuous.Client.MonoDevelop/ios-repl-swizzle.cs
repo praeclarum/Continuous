@@ -59,6 +59,12 @@ namespace Continuous.Client.XamarinStudio
 
 			if (config.Platform != "iPhoneSimulator") return;
 
+			var refAsms = project.GetReferencedAssemblies(configSelector).Result;
+			var refsContinuous =
+				refAsms.Any (x => x.FilePath.FileNameWithoutExtension == "Continuous.Server.iOS");
+
+			if (!refsContinuous) return;
+
 			//
 			// Copy REPL assemblies to app directory
 			//
