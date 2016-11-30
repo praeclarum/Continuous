@@ -47,18 +47,18 @@ namespace Continuous.Server
 			var sv = GetSpecialView (value);
 
 			vc = sv as UIViewController;
-			if (vc != null)
+			if (vc != null && vc.ParentViewController == null) {
 				return vc;
+			}
 
 			var v = sv as UIView;
-			if (v != null) {
+			if (v != null && v.Superview == null) {
 				vc = new UIViewController ();
 				vc.View = v;
 				return vc;
 			}
 
-			if (createInspector)
-			{
+			if (createInspector) {
 				vc = new ObjectInspector(value);
 				return vc;
 			}
@@ -171,6 +171,9 @@ namespace Continuous.Server
 				{ typeof(UITableViewCell).FullName, o => GetView ((UITableViewCell)o) },
 				{ typeof(UICollectionViewCell).FullName, o => GetView ((UICollectionViewCell)o) },
 				{ typeof(UIColor).FullName, o => GetView ((UIColor)o) },
+				{ typeof(UIImage).FullName, o => GetView ((UIImage)o) },
+				{ typeof(CGImage).FullName, o => GetView (UIImage.FromImage ((CGImage)o)) },
+				{ typeof(CoreImage.CIImage).FullName, o => GetView (UIImage.FromImage ((CoreImage.CIImage)o)) },
 				{ "Xamarin.Forms.Page", GetFormsPage },
 			};
 		}
@@ -184,6 +187,11 @@ namespace Continuous.Server
 		UIView GetView (UIColor value)
 		{
 			return new UIView { BackgroundColor = value, };
+		}
+
+		UIView GetView (UIImage value)
+		{
+			return new UIImageView { Image = value, ContentMode = UIViewContentMode.ScaleAspectFit };
 		}
 
 		UIView GetView (UITableViewCell value)
