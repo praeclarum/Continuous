@@ -176,6 +176,7 @@ namespace Continuous.Server
 				{ typeof(CoreImage.CIImage).FullName, o => GetView (UIImage.FromImage ((CoreImage.CIImage)o)) },
 				{ typeof(string).FullName, o => GetView ((string)o) },
 				{ "Xamarin.Forms.Page", GetFormsPage },
+				{ "Xamarin.Forms.View", GetFormsView },
 			};
 		}
 		Dictionary<string, TypeVisualizer> typeVisualizers = new Dictionary<string, TypeVisualizer> ();
@@ -302,6 +303,17 @@ namespace Continuous.Server
 			var vc = (UIViewController)cvc.Invoke (null, new[]{ pageObj });
 
 			return vc;
+		}
+
+		public virtual UIViewController GetFormsView (object viewObj)
+		{
+			var xamasm = GetXamarinCoreAsm();
+
+			// Create a ContentPage to hold this view
+			var page = xamasm.GetType("Xamarin.Forms.ContentPage");
+			var pageObj = Activator.CreateInstance(page, viewObj);
+
+			return GetFormsPage (pageObj);
 		}
 	}
 }
