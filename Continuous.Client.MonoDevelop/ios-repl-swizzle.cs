@@ -59,7 +59,17 @@ namespace Continuous.Client.XamarinStudio
 
 			if (config.Platform != "iPhoneSimulator") return;
 
-			Swizzle (project, configSelector);
+			//
+			// Copy REPL assemblies to app directory
+			//
+			try
+			{
+				Swizzle (project, configSelector);
+			}
+			catch
+			{
+				// Eat the error because I don't know how to bubble it up to the user
+			}
 		}
 
 		static void Swizzle (DotNetProject project, ConfigurationSelector configSelector)
