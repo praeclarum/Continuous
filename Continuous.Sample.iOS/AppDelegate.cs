@@ -19,7 +19,7 @@ namespace Continuous.Sample.iOS
 
 		public override bool FinishedLaunching (UIApplication application, NSDictionary launchOptions)
 		{
-			new Continuous.Server.HttpServer (vm: new TestVM()).Run ();
+			new Continuous.Server.HttpServer ().Run ();
 
 			Window = new UIWindow (UIScreen.MainScreen.Bounds);
 			Window.RootViewController = new UIViewController ();
