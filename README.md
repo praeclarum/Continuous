@@ -6,8 +6,6 @@ It currently works only in Xamarin Studio and only for C#.
 
 ## One-time Installation
 
-**Install** the preview version of [Xamarin Inspector](https://developer.xamarin.com/guides/cross-platform/inspector/).
-
 **Install the Live Code Xamarin Studio Add-in** by adding a New Gallery Repository pointing at the URL:
 
 	https://raw.githubusercontent.com/praeclarum/Continuous/master/Continuous.Client.MonoDevelop/AddinRepo
