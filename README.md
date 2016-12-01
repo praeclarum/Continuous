@@ -1,8 +1,8 @@
 # Continuous Coding for .NET
 
-**Continuous** is my attempt to build a live coding environment for .NET. It currently specializes in the development of iOS and Android apps using Xamarin technologies.
+**Continuous Coding** is a live coding environment for .NET. With it, you can visualize your apps instantly as you code them. It currently specializes in the development of iOS and Android apps using Xamarin.
 
-It currently works only in Xamarin Studio and only for C#.
+It currently only works in Xamarin Studio and only for C#.
 
 ## Xamarin Studio One-time Installation
 
