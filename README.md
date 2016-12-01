@@ -4,13 +4,13 @@
 
 It currently works only in Xamarin Studio and only for C#.
 
-## One-time Installation
+## Xamarin Studio One-time Installation
 
-**Install the Live Code Xamarin Studio Add-in** by adding a New Gallery Repository pointing at the URL:
+Install the **Continuous Coding** add-in for Xamarin Studio in the **Add-in Manager** by adding a **New Gallery Repository** pointing at the URL:
 
 	https://raw.githubusercontent.com/praeclarum/Continuous/master/Continuous.Client.MonoDevelop/AddinRepo
 
-You will then be able to select the **Continuous Coding** Add-in from the **IDE extensions** category.
+You will then be able to select the **Continuous Coding** add-in from the **IDE extensions** category.
 
 <img src="https://raw.githubusercontent.com/praeclarum/Continuous/master/Documentation/AddAddinRepo.png" width="420px"/>
 
