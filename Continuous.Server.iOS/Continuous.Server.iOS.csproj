@@ -46,6 +46,7 @@
     <Compile Include="ObjectInspector.cs" />
     <Compile Include="Visualizer.iOS.cs" />
     <Compile Include="VM.iOS.cs" />
+    <Compile Include="FullScreenControlPad.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
