@@ -16,7 +16,7 @@
                 <Button Content="Stop" Click="HandleStop" Name="stopButton" Margin="8 4" Padding="8 4"/>
                 <Button Content="Clear Edits" Click="HandleClearEdits" Name="clearButton" HorizontalAlignment="Right" Margin="8 4" Padding="8 4"/>
             </StackPanel>
-            <Grid HorizontalAlignment="Stretch">
+            <Grid HorizontalAlignment="Stretch" Margin="0,4,0,0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="100"/>
                     <ColumnDefinition/>
@@ -25,19 +25,19 @@
                     <RowDefinition/>
                     <RowDefinition/>
                 </Grid.RowDefinitions>
-                <TextBlock Text="Device" Padding="8 0 4 0">
+                <TextBlock Text="Device" Padding="8 0 4 0" VerticalAlignment="Center">
                     <Grid.Column>0</Grid.Column>
                     <Grid.Row>0</Grid.Row>
                 </TextBlock>
-                <TextBox Name="ipText" Text="{Binding Path=IP}"  HorizontalContentAlignment="Stretch" Margin="0 0 8 0">
+                <ComboBox Name="ipText" Text="{Binding Path=IP}"  HorizontalContentAlignment="Stretch" Margin="2" IsEditable="True">
                     <Grid.Column>1</Grid.Column>
                     <Grid.Row>0</Grid.Row>
-                </TextBox>
-                <TextBlock Text="Type" Padding="8 0 4 0">                    
+                </ComboBox>
+                <TextBlock Text="Type" Padding="8 0 4 0" VerticalAlignment="Center">                    
                     <Grid.Column>0</Grid.Column>
                     <Grid.Row>1</Grid.Row>
                 </TextBlock>
-                <ComboBox Name="typeName" Text="{Binding Path=TypeName}">
+                <ComboBox Name="typeName" Text="{Binding Path=TypeName}" IsEditable="True" Margin="2">
                     <Grid.Column>1</Grid.Column>
                     <Grid.Row>1</Grid.Row>
                 </ComboBox>
