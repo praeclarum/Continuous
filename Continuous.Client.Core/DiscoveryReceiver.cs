@@ -10,7 +10,7 @@ namespace Continuous.Client
 {
 	public class DiscoveryReceiver
 	{
-		readonly UdpClient listener = new UdpClient (Http.DiscoveryBroadcastReceiverPort);
+		readonly UdpClient listener;
 
 		readonly Dictionary<string, DiscoveryBroadcast> devices =
 			new Dictionary<string, DiscoveryBroadcast>();
@@ -22,8 +22,20 @@ namespace Continuous.Client
 
 		public DiscoveryReceiver ()
 		{
-			thread = new Thread (Run);
-			thread.Start ();
+			try
+			{
+				listener = new UdpClient (Http.DiscoveryBroadcastReceiverPort);
+			}
+			catch (Exception ex)
+			{
+				Debug.WriteLine ("Continuous: Failed to listen: " + ex);
+				listener = null;
+			}
+			if (listener != null)
+			{
+				thread = new Thread (Run);
+				thread.Start ();
+			}
 		}
 
 		public string[] Devices
