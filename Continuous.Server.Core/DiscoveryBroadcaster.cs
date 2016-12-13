@@ -40,7 +40,7 @@ namespace Continuous.Server
 				var bytes = System.Text.Encoding.UTF8.GetBytes (json);
 
 				client.Send (bytes, bytes.Length, broadcastEndpoint);
-				Debug.WriteLine ($"BROADCAST {json}");
+				//Debug.WriteLine ($"BROADCAST {json}");
 			}
 			catch (Exception ex)
 			{
