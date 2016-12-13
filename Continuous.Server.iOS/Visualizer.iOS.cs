@@ -59,7 +59,7 @@ namespace Continuous.Server
 			}
 
 			if (createInspector) {
-				vc = new ObjectInspector(value);
+				vc = new UINavigationController (new ObjectInspector(value));
 				return vc;
 			}
 
