@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+
 using Gtk;
 using MonoDevelop.Components;
 using MonoDevelop.Ide.Gui;
@@ -54,7 +57,7 @@ namespace Continuous.Client.XamarinStudio
 		readonly Button stopButton = new Button { Label = "Stop" };
 		readonly Button clearButton = new Button { Label = "Clear Edits" };
 		readonly Label hostLabel = new Label { Text = "Device:" };
-		readonly Entry hostEntry = new Entry { Text = ContinuousEnv.Shared.IP };
+		readonly ComboBoxEntry hostEntry = new ComboBoxEntry ();
 		//readonly Label portLabel = new Label { Text = "Port:" };
 		//readonly Entry portEntry = new Entry { Text = ContinuousEnv.Shared.Port.ToString () };
 		readonly NodeStore dependenciesStore = new NodeStore (typeof(DependencyTreeNode));
@@ -63,13 +66,19 @@ namespace Continuous.Client.XamarinStudio
 			Justify = Justification.Left,
 			Selectable = true
 		};
+		readonly TaskScheduler mainScheduler;
 
 		public MainPadControl ()
 		{
+			mainScheduler = TaskScheduler.Current;
+
 			alertLabel.ModifyFg (StateType.Normal, new Gdk.Color(0xC0, 0x0, 0x0));
+			hostEntry.Entry.Text = ContinuousEnv.Shared.IP;
+			PopulateHostEntry ();
 
 			Env.LinkedMonitoredCode += Env_LinkedMonitoredCode;
 			Env.Alerted += Env_Alerted;
+			Env.Discovery.DevicesChanged += Discovery_DevicesChanged;
 
 			runButton.Clicked += RunButton_Clicked;
 			refreshButton.Clicked += RefreshButton_Clicked;
@@ -135,7 +144,7 @@ namespace Continuous.Client.XamarinStudio
 
 		void HostEntry_Changed (object sender, EventArgs e)
 		{
-			Env.IP = hostEntry.Text;
+			Env.IP = hostEntry.ActiveText;
 		}
 		//void PortEntry_Changed (object sender, EventArgs e)
 		//{
@@ -155,6 +164,36 @@ namespace Continuous.Client.XamarinStudio
 		void Env_Alerted (string obj)
 		{
 			alertLabel.Text = $"ERROR [{DateTime.Now.ToLongTimeString ()}]: {obj}";
+		}
+
+		void PopulateHostEntry ()
+		{
+			var devs = Env.Discovery.Devices;
+			var active = hostEntry.ActiveText;
+
+			hostEntry.Clear ();
+			var cell = new CellRendererText ();
+			hostEntry.PackStart (cell, false);
+			hostEntry.AddAttribute (cell, "text", 0);
+			hostEntry.TextColumn = 0;
+			var store = new ListStore (typeof (string));
+
+			if (!string.IsNullOrWhiteSpace (active) && !devs.Contains (active))
+			{
+				store.AppendValues (active);
+			}
+			store.AppendValues (devs);
+
+			hostEntry.Model = store;
+			Console.WriteLine (devs);
+		}
+
+		void Discovery_DevicesChanged (object sender, EventArgs e)
+		{
+			Task.Factory.StartNew (() =>
+			{
+				PopulateHostEntry ();
+			}, CancellationToken.None, TaskCreationOptions.None, mainScheduler);
 		}
 	}
 
