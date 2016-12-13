@@ -29,11 +29,14 @@ namespace Continuous
 		public override int GetHashCode ()
 		{
 			var s = 1;
-			foreach (var a in Addresses)
+			if (Addresses != null)
 			{
-				s += a.GetHashCode ();
+				foreach (var a in Addresses)
+				{
+					s += a.GetHashCode ();
+				}
 			}
-			s += DeviceName.GetHashCode () + DeviceModel.GetHashCode ();
+			s += (DeviceName?.GetHashCode () + DeviceModel?.GetHashCode ()) ?? 0;
 			return s;
 		}
 
