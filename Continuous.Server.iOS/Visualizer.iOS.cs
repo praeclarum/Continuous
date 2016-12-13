@@ -28,7 +28,6 @@ namespace Continuous.Server
 		{
 			var val = res.Result;
 			var ty = val != null ? val.GetType () : typeof(object);
-
 			Log ("{0} value = {1}", ty.FullName, val);
 
 			ShowViewerAsync (GetViewer (res.Result, true)).ContinueWith (t => {
@@ -160,7 +159,8 @@ namespace Continuous.Server
 			
 			TypeVisualizer v;
 			if (typeVisualizers.TryGetValue (type.FullName, out v)) {
-				return v;
+				if (v != null)
+					return v;
 			}
 
 			if (type == typeof(object))
@@ -172,6 +172,8 @@ namespace Continuous.Server
 		partial void PlatformInitialize ()
 		{
 			typeVisualizers = new Dictionary<string, TypeVisualizer> {
+				{ typeof(UIApplicationDelegate).FullName, o => GetView ((UIApplicationDelegate)o) },
+				{ typeof(UIWindow).FullName, o => GetView ((UIWindow)o) },
 				{ typeof(UIView).FullName, o => GetView ((UIView)o) },
 				{ typeof(UITableViewCell).FullName, o => GetView ((UITableViewCell)o) },
 				{ typeof(UICollectionViewCell).FullName, o => GetView ((UICollectionViewCell)o) },
@@ -185,6 +187,62 @@ namespace Continuous.Server
 			};
 		}
 		Dictionary<string, TypeVisualizer> typeVisualizers = new Dictionary<string, TypeVisualizer> ();
+
+		public virtual object GetView (UIApplicationDelegate value)
+		{
+			//
+			// Is there a window? If so, show that
+			//
+			if (value.Window != null)
+			{
+				return GetView (value.Window);
+			}
+
+			//
+			// What if we fake run the life cycle?
+			//
+			var launchOptions = new Foundation.NSDictionary ();
+			try
+			{
+				value.WillFinishLaunching (UIApplication.SharedApplication, launchOptions);
+			}
+			catch (Exception)
+			{
+			}
+			try
+			{
+				value.FinishedLaunching (UIApplication.SharedApplication, launchOptions);
+			}
+			catch (Exception)
+			{
+			}
+			if (value.Window != null)
+			{
+				return GetView (value.Window);
+			}
+
+			//
+			// Just show the object inspector
+			//
+			return null;
+		}
+
+		public virtual object GetView (UIWindow value)
+		{
+			if (value.IsKeyWindow)
+			{
+				value.ResignKeyWindow ();
+			}
+			var root = value.RootViewController;
+			if (root != null)
+			{
+				// Replace the root so we can display it again
+				var tempvc = new UIViewController ();
+				value.RootViewController = tempvc;
+				return root;
+			}
+			return value;
+		}
 
 		public virtual UIView GetView (UIView value)
 		{
