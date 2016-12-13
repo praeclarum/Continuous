@@ -18,12 +18,14 @@ namespace Continuous.Server
 		TaskScheduler mainScheduler;
 
 		readonly IVM vm;
+		readonly DiscoveryBroadcaster broadcaster;
 
-		public HttpServer (object context = null, int port = Http.DefaultPort, IVM vm = null, Visualizer visualizer = null)
+		public HttpServer (object context = null, int port = Http.DefaultPort, IVM vm = null, Visualizer visualizer = null, bool discoverable = true)
 		{
 			this.port = port;
 			this.visualizer = visualizer ?? new Visualizer (context);
 			this.vm = vm ?? (new VM());
+			this.broadcaster = discoverable ? new DiscoveryBroadcaster () : null;
 		}
 
 		public void Run ()
