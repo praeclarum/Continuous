@@ -49,18 +49,36 @@ namespace Continuous.Client
 			return new HttpClient (ServerUrl);
 		}
 
-		public event Action<string> Alerted;
+		public event Action<string> Failure;
+		public event Action<string> Success;
 
-        public void Alert (string format, params object[] args)
-        {
-			OnAlert (format, args);
-        }
+		public void Succeed (string format, params object[] args)
+		{
+			OnSucceed (format, args);
+		}
 
-		protected virtual void OnAlert (string format, params object[] args)
+		protected virtual void OnSucceed (string format, params object[] args)
 		{
 			Log (format, args);
 
-			var a = Alerted;
+			var a = Success;
+			if (a != null)
+			{
+				var m = string.Format (System.Globalization.CultureInfo.CurrentUICulture, format, args);
+				a (m);
+			}
+		}
+
+		public void Fail (string format, params object[] args)
+        {
+			OnFail (format, args);
+        }
+
+		protected virtual void OnFail (string format, params object[] args)
+		{
+			Log (format, args);
+
+			var a = Failure;
 			if (a != null)
 			{
 				var m = string.Format (System.Globalization.CultureInfo.CurrentUICulture, format, args);
@@ -73,10 +91,23 @@ namespace Continuous.Client
 			Connect ();
 			var r = await conn.VisualizeAsync (declarations, valueExpression);
 			var err = r.HasErrors;
-			if (err) {
+			if (err)
+			{
 				var message = string.Join ("\n", r.Messages.Select (m => m.MessageType + ": " + m.Text));
-				if (showError) {
-					Alert ("{0}", message);
+				if (showError)
+				{
+					Fail ("{0}", message);
+				}
+			}
+			else
+			{
+				if (r.WatchValues.ContainsKey (valueExpression))
+				{
+					Succeed ("{0} = {1}", valueExpression, r.WatchValues[valueExpression]);
+				}
+				else
+				{
+					Succeed ("{0}", valueExpression);
 				}
 			}
 			return r;
@@ -87,7 +118,7 @@ namespace Continuous.Client
             var typedecl = await FindTypeAtCursorAsync ();
 
             if (typedecl == null) {
-                Alert ("Could not find a type at the cursor.");
+                Fail ("Could not find a type at the cursor.");
                 return;
             }
 
@@ -190,7 +221,7 @@ namespace Continuous.Client
             }
             catch (Exception ex) {
                 if (showError) {
-                    Alert ("Could not communicate with the app.\n\n{0}: {1}", ex.GetType (), ex.Message);
+                    Fail ("Could not communicate with the app.\n\n{0}: {1}", ex.GetType (), ex.Message);
                 }
             }
         }

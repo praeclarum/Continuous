@@ -72,12 +72,12 @@ namespace Continuous.Client.XamarinStudio
 		{
 			mainScheduler = TaskScheduler.Current;
 
-			alertLabel.ModifyFg (StateType.Normal, new Gdk.Color(0xC0, 0x0, 0x0));
 			hostEntry.Entry.Text = ContinuousEnv.Shared.IP;
 			PopulateHostEntry ();
 
 			Env.LinkedMonitoredCode += Env_LinkedMonitoredCode;
-			Env.Alerted += Env_Alerted;
+			Env.Failure += Env_Alerted;
+			Env.Success += Env_Success;
 			Env.Discovery.DevicesChanged += Discovery_DevicesChanged;
 
 			runButton.Clicked += RunButton_Clicked;
@@ -163,7 +163,14 @@ namespace Continuous.Client.XamarinStudio
 
 		void Env_Alerted (string obj)
 		{
-			alertLabel.Text = $"ERROR [{DateTime.Now.ToLongTimeString ()}]: {obj}";
+			alertLabel.ModifyFg (StateType.Normal, new Gdk.Color (0xC0, 0x0, 0x0));
+			alertLabel.Text = $"[{DateTime.Now.ToLongTimeString ()}] ERROR: {obj}";
+		}
+
+		void Env_Success (string obj)
+		{
+			alertLabel.ModifyFg (StateType.Normal, new Gdk.Color (0x0, 0x80, 0x0));
+			alertLabel.Text = $"[{DateTime.Now.ToLongTimeString ()}]: {obj}";
 		}
 
 		void PopulateHostEntry ()
