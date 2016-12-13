@@ -99,13 +99,18 @@ namespace Continuous.Client
 						.Select (u => u.GetText ().ToString ())
 						.ToList ();
 
-				var deps = 					Root 						.DescendantNodes() 						.OfType<IdentifierNameSyntax>()
+				var deps =
+					Root.DescendantNodes()
+					    .OfType<IdentifierNameSyntax>()
 						.Select(n => Model.GetSymbolInfo(n))
-						.Where(s => s.Symbol.Kind == SymbolKind.NamedType)
+						.Where(s => s.Symbol != null && s.Symbol.Kind == SymbolKind.NamedType)
 						.Select(n => n.Symbol.Name)
-						.Distinct() 						.ToList();
+						.Distinct()
+					    .ToList();
 
-				var ns = 					Declaration.Ancestors() 							   .OfType<NamespaceDeclarationSyntax>()
+				var ns =
+					Declaration.Ancestors()
+					           .OfType<NamespaceDeclarationSyntax>()
 							   .Select(n => n.Name.GetText().ToString().Trim())
 							   .FirstOrDefault() ?? "";
 
