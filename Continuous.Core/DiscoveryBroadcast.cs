@@ -13,7 +13,31 @@ namespace Continuous
 		public string Id => $"{DeviceName} ({DeviceModel})";
 		public DiscoveryBroadcastAddress[] Addresses { get; set; }
 
-		public static DiscoveryBroadcast CreateForDevice ()
+		public override bool Equals (object obj)
+		{
+			var o = obj as DiscoveryBroadcast;
+			if (o == null) return false;
+			if (DeviceName != o.DeviceName || DeviceModel != o.DeviceModel || Addresses.Length != o.Addresses.Length) return false;
+			for (var i = 0; i < Addresses.Length; i++)
+			{
+				if (!Addresses[i].Equals (o.Addresses[i]))
+					return false;
+			}
+			return true;
+		}
+
+		public override int GetHashCode ()
+		{
+			var s = 1;
+			foreach (var a in Addresses)
+			{
+				s += a.GetHashCode ();
+			}
+			s += DeviceName.GetHashCode () + DeviceModel.GetHashCode ();
+			return s;
+		}
+
+		public static DiscoveryBroadcast CreateForDevice (int port)
 		{
 			var allInterfaces = NetworkInterface.GetAllNetworkInterfaces ();
 			var goodInterfaces =
@@ -26,6 +50,7 @@ namespace Continuous
 				 .Select (y => new DiscoveryBroadcastAddress
 				 {
 					 Address = y.Address.ToString (),
+					 Port = port,
 					 Interface = x.Name
 				 }));
 			var r = new DiscoveryBroadcast {
@@ -45,6 +70,22 @@ namespace Continuous
 	public class DiscoveryBroadcastAddress
 	{
 		public string Address { get; set; }
+		public int Port { get; set; }
 		public string Interface { get; set; }
+
+		public override bool Equals (object obj)
+		{
+			var o = obj as DiscoveryBroadcastAddress;
+			if (o == null) return false;
+			if (Address != o.Address || Interface != o.Interface || Port != o.Port) return false;
+			return true;
+		}
+
+		public override int GetHashCode ()
+		{
+			var s = 1;
+			s += Address.GetHashCode () + Interface.GetHashCode () + Port.GetHashCode ();
+			return s;
+		}
 	}
 }

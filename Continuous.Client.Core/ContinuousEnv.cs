@@ -23,6 +23,8 @@ namespace Continuous.Client
 
         static partial void SetSharedPlatformEnvImpl ();
 
+		public readonly DiscoveryReceiver Discovery = new DiscoveryReceiver ();
+
         public string MonitorTypeName = "";
 
 		HttpClient conn = null;
@@ -38,7 +40,7 @@ namespace Continuous.Client
 
 		Uri ServerUrl {
 			get {
-				return new Uri ("http://" + IP.Trim () + ":" + Port);
+				return new Uri ("http://" + Discovery.Resolve (IP.Trim ()) + ":" + Port);
 			}
 		}
 

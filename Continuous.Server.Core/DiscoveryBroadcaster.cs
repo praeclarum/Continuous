@@ -10,26 +10,32 @@ namespace Continuous.Server
 {
 	public class DiscoveryBroadcaster
 	{
-		readonly UdpClient client = new UdpClient (Http.DiscoveryBroadcastPort)
-		{
-			EnableBroadcast = true
-		};
+		readonly IPEndPoint broadcastEndpoint = new IPEndPoint(IPAddress.Broadcast, Http.DiscoveryBroadcastReceiverPort);
+		readonly int httpPort;
 
-		IPEndPoint broadcastEndpoint = new IPEndPoint(IPAddress.Broadcast, Http.DiscoveryBroadcastPort);
-
+		UdpClient client;
 		Timer timer = new Timer(3000);
 
-		public DiscoveryBroadcaster (string name = "")
+		public DiscoveryBroadcaster (int httpPort = 0)
 		{
 			timer.Elapsed += Timer_Elapsed;
 			timer.Start ();
+			this.httpPort = (httpPort == 0) ? Http.DefaultPort : httpPort;
 		}
 
 		void Timer_Elapsed (object sender, ElapsedEventArgs e)
 		{
 			try
 			{
-				var broadcast = DiscoveryBroadcast.CreateForDevice ();
+				if (client == null)
+				{
+					client = new UdpClient (Http.DiscoveryBroadcastPort)
+					{
+						EnableBroadcast = true
+					};
+				}
+
+				var broadcast = DiscoveryBroadcast.CreateForDevice (httpPort);
 				var json = Newtonsoft.Json.JsonConvert.SerializeObject (broadcast, Newtonsoft.Json.Formatting.None);
 				var bytes = System.Text.Encoding.UTF8.GetBytes (json);
 
@@ -38,7 +44,7 @@ namespace Continuous.Server
 			}
 			catch (Exception ex)
 			{
-				Console.WriteLine ("FAILED TO BROADCAST " + ex);
+				Debug.WriteLine ($"FAILED TO BROADCAST ON PORT {Http.DiscoveryBroadcastPort}: {ex}");
 			}
 		}
 	}

@@ -9,6 +9,7 @@ namespace Continuous
 		public const string DefaultHost = "127.0.0.1";
 		public const int DefaultPort = 9634;
 		public const int DiscoveryBroadcastPort = 9636;
+		public const int DiscoveryBroadcastReceiverPort = 9637;
 	}
 
 	public class EvalRequest
