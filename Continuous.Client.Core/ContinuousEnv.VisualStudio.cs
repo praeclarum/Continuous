@@ -22,12 +22,6 @@ namespace Continuous.Client
 
     public class VisualStudioContinuousEnv : ContinuousEnv
     {        
-        protected override void OnAlert(string format, params object[] args)
-        {
-			base.OnAlert(format, args);
-            MessageBox.Show (string.Format (System.Globalization.CultureInfo.CurrentUICulture, format, args));
-        }
-
         protected override async Task<TextLoc?> GetCursorLocationAsync ()
         {
             var dte = VisualStudio.ContinuousPackage.TheDTE;
