@@ -24,7 +24,7 @@ namespace Continuous.Client
 		{
 			try
 			{
-				listener = new UdpClient (Http.DiscoveryBroadcastReceiverPort);
+				listener = new UdpClient (Http.DiscoveryBroadcastReceiverPort, AddressFamily.InterNetwork);
 			}
 			catch (Exception ex)
 			{
@@ -85,7 +85,7 @@ namespace Continuous.Client
 
 		void Listen ()
 		{
-			var broadcastEndpoint = new IPEndPoint (IPAddress.Any, Http.DiscoveryBroadcastPort);
+			var broadcastEndpoint = new IPEndPoint(IPAddress.Any, Http.DiscoveryBroadcastReceiverPort);
 
 			var bytes = listener.Receive (ref broadcastEndpoint);
 
