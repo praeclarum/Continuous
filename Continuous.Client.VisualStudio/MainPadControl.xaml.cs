@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
-
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -20,8 +22,44 @@ namespace Continuous.Client.VisualStudio
         private void MainPadControl_Loaded (object sender, RoutedEventArgs e)
         {
             Env.LinkedMonitoredCode += Env_LinkedMonitoredCode;
+            Env.Discovery.DevicesChanged += Discovery_DevicesChanged;
+
+            PopulateDevices();
 
 			main.DataContext = Env;
+            var tp = System.ComponentModel.DependencyPropertyDescriptor.FromProperty(ComboBox.TextProperty, typeof(ComboBox));
+            tp.AddValueChanged(this.ipText, this.IpText_TextChanged);
+        }
+
+        private void IpText_TextChanged(object sender, EventArgs e)
+        {
+            Env.IP = ipText.Text.Trim();
+            //Debug.WriteLine("IP TEXT = " + Env.IP);
+        }
+
+        void PopulateDevices ()
+        {
+            var active = ipText.Text;
+
+            var ds = Env.Discovery.Devices;
+            ipText.Items.Clear();
+            foreach (var d in ds)
+            {
+                ipText.Items.Add(d);
+            }
+
+            if (active == Http.DefaultHost && ds.Length > 0)
+            {
+                ipText.SelectedItem = ds[0];
+            }
+        }
+
+        private void Discovery_DevicesChanged(object sender, EventArgs e)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                PopulateDevices();
+            });
         }
 
         private void Env_LinkedMonitoredCode (LinkedCode obj)
