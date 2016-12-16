@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using NetFwTypeLib;
+using System.Threading;
 
 namespace Continuous.Client.VisualStudio
 {
@@ -23,10 +24,13 @@ namespace Continuous.Client.VisualStudio
 
             if (rule == null)
             {
-                var args = $"advfirewall firewall add rule name=\"{name}\" dir=in action=allow protocol=UDP localport={port}";
-                var si = new ProcessStartInfo("netsh", args);
-                si.Verb = "runas";
-                var p = Process.Start(si);
+                ThreadPool.QueueUserWorkItem(_ =>
+                {
+                    var args = $"advfirewall firewall add rule name=\"{name}\" dir=in action=allow protocol=UDP localport={port}";
+                    var si = new ProcessStartInfo("netsh", args);
+                    si.Verb = "runas";
+                    Process.Start(si);
+                }, null);
 
                 /*
                 rule = (INetFwRule)Activator.CreateInstance(Type.GetTypeFromProgID("HNetCfg.FWRule"));
