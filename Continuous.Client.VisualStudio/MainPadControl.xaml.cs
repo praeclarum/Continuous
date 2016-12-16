@@ -22,19 +22,23 @@ namespace Continuous.Client.VisualStudio
         private void MainPadControl_Loaded (object sender, RoutedEventArgs e)
         {
             Env.LinkedMonitoredCode += Env_LinkedMonitoredCode;
-            Env.Discovery.DevicesChanged += Discovery_DevicesChanged;
 
+            main.DataContext = Env;
+
+            //
+            // Enable discovery
+            //
+            try
+            {
+                Firewall.AddUdpInRuleIfNeeded(Http.DiscoveryBroadcastReceiverPort, "Continuous Coding Discovery");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("FAILED TO ADD FIREWALL RULE: {0}", ex);
+            }
+            Env.Discovery.DevicesChanged += Discovery_DevicesChanged;
             PopulateDevices();
 
-			main.DataContext = Env;
-            var tp = System.ComponentModel.DependencyPropertyDescriptor.FromProperty(ComboBox.TextProperty, typeof(ComboBox));
-            tp.AddValueChanged(this.ipText, this.IpText_TextChanged);
-        }
-
-        private void IpText_TextChanged(object sender, EventArgs e)
-        {
-            Env.IP = ipText.Text.Trim();
-            //Debug.WriteLine("IP TEXT = " + Env.IP);
         }
 
         void PopulateDevices ()
