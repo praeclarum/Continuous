@@ -8,7 +8,7 @@ It currently only works in Xamarin Studio and only for C#.
 
 Install the **Continuous Coding** add-in for Xamarin Studio in the **Add-in Manager** by adding a **New Gallery Repository** pointing at the URL:
 
-	https://raw.githubusercontent.com/praeclarum/Continuous/master/Continuous.Client.MonoDevelop/AddinRepo
+	https://github.com/praeclarum/Continuous/tree/master/Continuous.Client.MonoDevelop/AddinRepo
 
 You will then be able to select the **Continuous Coding** add-in from the **IDE extensions** category.
 
