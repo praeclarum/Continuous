@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Gtk;
 using MonoDevelop.Components;
 using MonoDevelop.Ide.Gui;
+using Action = System.Action;
 
 namespace Continuous.Client.XamarinStudio
 {
@@ -70,7 +71,7 @@ namespace Continuous.Client.XamarinStudio
 
 		public MainPadControl ()
 		{
-			mainScheduler = TaskScheduler.Current;
+            mainScheduler = TaskScheduler.FromCurrentSynchronizationContext();
 
 			hostEntry.Entry.Text = ContinuousEnv.Shared.IP;
 			PopulateHostEntry ();
@@ -107,14 +108,16 @@ namespace Continuous.Client.XamarinStudio
 			PackEnd (dependenciesView, true, true, 0);
 		}
 
-		void Env_LinkedMonitoredCode (LinkedCode obj)
-		{
-			dependenciesStore.Clear ();
-			var q = obj.Types.OrderBy (x => x.Name);
-			foreach (var t in q) {
-				dependenciesStore.AddNode (new DependencyTreeNode (t));
-			}
-		}
+        void Env_LinkedMonitoredCode(LinkedCode obj)
+            => InvokeOnMainThread(() =>
+            {
+                dependenciesStore.Clear();
+                var q = obj.Types.OrderBy(x => x.Name);
+                foreach (var t in q)
+                {
+                    dependenciesStore.AddNode(new DependencyTreeNode(t));
+                }
+            });
 
 		async void RunButton_Clicked (object sender, EventArgs e)
 		{
@@ -156,22 +159,22 @@ namespace Continuous.Client.XamarinStudio
 		//	Env.Port = port;
 		//}
 
-		void ClearAlert ()
-		{
-			alertLabel.Text = "";
-		}
+        void ClearAlert()
+            => InvokeOnMainThread(() => alertLabel.Text = "");
 
-		void Env_Alerted (string obj)
-		{
-			alertLabel.ModifyFg (StateType.Normal, new Gdk.Color (0xC0, 0x0, 0x0));
-			alertLabel.Text = $"[{DateTime.Now.ToLongTimeString ()}] ERROR: {obj}";
-		}
+        void Env_Alerted(string obj)
+            => InvokeOnMainThread(() =>
+            {
+                alertLabel.ModifyFg(StateType.Normal, new Gdk.Color(0xC0, 0x0, 0x0));
+                alertLabel.Text = $"[{DateTime.Now.ToLongTimeString()}] ERROR: {obj}";
+            });
 
 		void Env_Success (string obj)
-		{
-			alertLabel.ModifyFg (StateType.Normal, new Gdk.Color (0x0, 0x80, 0x0));
-			alertLabel.Text = $"[{DateTime.Now.ToLongTimeString ()}]: {obj}";
-		}
+		    => InvokeOnMainThread(() =>
+            {
+                alertLabel.ModifyFg(StateType.Normal, new Gdk.Color(0x0, 0x80, 0x0));
+                alertLabel.Text = $"[{DateTime.Now.ToLongTimeString()}]: {obj}";
+            });
 
 		void PopulateHostEntry ()
 		{
@@ -202,7 +205,10 @@ namespace Continuous.Client.XamarinStudio
 				PopulateHostEntry ();
 			}, CancellationToken.None, TaskCreationOptions.None, mainScheduler);
 		}
-	}
+
+        void InvokeOnMainThread(Action action)
+            => Task.Factory.StartNew(action, CancellationToken.None, TaskCreationOptions.None, mainScheduler);
+    }
 
 	[Gtk.TreeNode (ListOnly=true)]
 	public class DependencyTreeNode : TreeNode
