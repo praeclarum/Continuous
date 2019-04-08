@@ -3,13 +3,16 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.VisualStudio.Text;
 
-#if MONODEVELOP
 using MonoDevelop.Ide;
 using Gtk;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.VisualStudio.Text.Editor;
+using Continuous.Client.MD.Extensions;
+using System.Threading;
 
 #pragma warning disable 1998
 
@@ -27,11 +30,18 @@ namespace Continuous.Client
 	{
 		protected override async Task SetWatchTextAsync (WatchVariable w, List<string> vals)
 		{
-            var doc = IdeApp.Workbench.GetDocument (w.FilePath);
+            Console.WriteLine("Ignoring SetWatchTextAsync");
+
+            return;
+
+            /*
+            var doc = IdeApp.Workbench.GetDocument(w.FilePath);
             if (doc == null)
                 return;
+
 			var ed = doc.Editor;
-			if (ed == null || ed.IsReadOnly)
+
+            if (ed == null || ed.IsReadOnly)
 				return;
 			var line = ed.GetLine (w.FileLine);
 			if (line == null)
@@ -53,6 +63,8 @@ namespace Continuous.Client
 				ed.RemoveText (offset, remLen);
 				ed.InsertText (offset, newText);
 			}
+            */
+
 		}
 
 		class CSharpTypeDecl : TypeDecl
@@ -128,7 +140,7 @@ namespace Continuous.Client
 
 		class XamlTypeDecl : TypeDecl
 		{
-			public string XamlText;
+            public string XamlText = String.Empty;
 			public override string Name {
 				get {
 					Console.WriteLine ("XAML TYPE GET NAME");
@@ -164,8 +176,10 @@ namespace Continuous.Client
 			if (ext == ".cs") {
 				try {
 
-					var root = await doc.AnalysisDocument.GetSyntaxRootAsync ();
-					var model = await doc.AnalysisDocument.GetSemanticModelAsync ();
+                    var analysisDocument = doc.GetAnalysisDocument();
+
+					var root = await analysisDocument.GetSyntaxRootAsync ();
+					var model = await analysisDocument.GetSemanticModelAsync ();
 					var typeDecls =
 						root.DescendantNodes ((arg) => true)
 							.OfType<ClassDeclarationSyntax> ()
@@ -182,17 +196,7 @@ namespace Continuous.Client
 					return new TypeDecl[0];
 				}
 			}
-
-			if (ext == ".xaml") {
-				var xaml = doc.Editor.Text;
-				return new TypeDecl[] {
-					new XamlTypeDecl {
-						Document = new DocumentRef (doc.FileName.FullPath),
-						XamlText = xaml,
-					},
-				};
-			}
-
+            
 			return new TypeDecl[0];
 		}
 
@@ -203,8 +207,8 @@ namespace Continuous.Client
 				return null;
 			}
 
-			var editLoc = doc.Editor.CaretLocation;
-			return new TextLoc (editLoc.Line, editLoc.Column);
+            var editLoc = doc.GetContent<ITextView>().Caret.Position.BufferPosition.GetLineAndColumn1Based();
+			return new TextLoc (editLoc.line, editLoc.column);
 		}
 
 		protected override void MonitorEditorChanges ()
@@ -212,40 +216,71 @@ namespace Continuous.Client
 			IdeApp.Workbench.ActiveDocumentChanged += BindActiveDoc;
 			BindActiveDoc (this, EventArgs.Empty);
 		}
-
+        
 		MonoDevelop.Ide.Gui.Document boundDoc = null;
+        ITextBuffer2 buffer = null;
 
 		void BindActiveDoc (object sender, EventArgs e)
 		{
 			var doc = IdeApp.Workbench.ActiveDocument;
+            
 			if (boundDoc == doc) {
 				return;
 			}
-			if (boundDoc != null) {				
-				boundDoc.DocumentParsed -= ActiveDoc_DocumentParsed;
-			}
-			boundDoc = doc;
-			if (boundDoc != null) {
-				boundDoc.DocumentParsed += ActiveDoc_DocumentParsed;
-			}
-		}
+            
+			if (buffer != null) {
+                buffer.Changed -= ScheduleUpdate; 
+            }
 
-		async void ActiveDoc_DocumentParsed (object sender, EventArgs e)
+			boundDoc = doc;
+            buffer = doc.GetContent<ITextBuffer2>();
+
+            if (buffer != null) {
+                buffer.Changed += ScheduleUpdate;
+			}
+        }
+
+        CancellationTokenSource _canceller = new CancellationTokenSource();
+        public void ScheduleUpdate(object sender, EventArgs e)
+        {
+            _canceller.Cancel();
+            _canceller = new CancellationTokenSource();
+
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+            Task.Delay(350, _canceller.Token)
+                .ContinueWith(t =>
+                {
+                    if (t.IsCanceled)
+                        return;
+
+                    ActiveDoc_DocumentParsed(null, null);
+                });
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+        }
+
+        async void ActiveDoc_DocumentParsed (object sender, EventArgs e)
 		{
-			var doc = IdeApp.Workbench.ActiveDocument;
+            var doc = IdeApp.Workbench.ActiveDocument;
 			Log ("DOC PARSED {0}", doc.Name);
-			await SetTypesAndVisualizeMonitoredTypeAsync (forceEval: false, showError: false);
-		}
+
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+            Task.Run(async () => await SetTypesAndVisualizeMonitoredTypeAsync(forceEval: false, showError: false));
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+        }
 
 		protected override async Task<string> GetSelectedTextAsync ()
 		{
 			var doc = IdeApp.Workbench.ActiveDocument;
+            if (doc == null)
+                return "";
 
-			if (doc != null) {
-				return doc.Editor.SelectedText;
-			}
+            var selections = doc.GetContent<ITextView>().Selection.SelectedSpans;
+            if (!selections.Any())
+                return "";
 
-			return "";
+            var selection = selections.First();
+
+            return selection.GetText();
 		}
     }
 
@@ -288,13 +323,13 @@ namespace Continuous.Client
 			return
 				node
 					.GetTrailingTrivia()
-					.Any(t => t.Kind() == SyntaxKind.SingleLineCommentTrivia && t.ToString().StartsWith("//="));
+					.Any(t => t.Kind() == SyntaxKind.SingleLineCommentTrivia && t.ToString().StartsWith("//=", StringComparison.InvariantCultureIgnoreCase));
 		}
 
 		SyntaxNode AddWatchNode(StatementSyntax node, ExpressionSyntax expr)
 		{
 			var id = Guid.NewGuid().ToString();
-			var c = node.GetTrailingTrivia().First(t => t.Kind() == SyntaxKind.SingleLineCommentTrivia && t.ToString().StartsWith("//="));
+			var c = node.GetTrailingTrivia().First(t => t.Kind() == SyntaxKind.SingleLineCommentTrivia && t.ToString().StartsWith("//=", StringComparison.InvariantCultureIgnoreCase));
 			var p = c.GetLocation().GetLineSpan().StartLinePosition;
 
 			var wv = new WatchVariable {
@@ -325,4 +360,3 @@ namespace Continuous.Client
 		}
 	}	
 }
-#endif
