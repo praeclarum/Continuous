@@ -41,14 +41,9 @@ namespace Continuous.Sample.iOS
 
 	public class TestView : UIView
 	{
-		public override void Draw (CoreGraphics.CGRect rect)
+		public TestView ()
 		{
-			var b = Bounds; //= {X=0,Y=0,Width=375,Height=667}
-			var n = 50;
-			var dw = b.Width / (n - 1); //= 7.653061
-			for (var i = 0; i < n; i++) {
-				var x = i * dw; //= ...321.4286, 329.0816, 336.7347, 344.3878, 352.0408, 359.6939, 367.347, 375
-			}
+			BackgroundColor = UIColor.FromRGBA (0, 0x80, 0, 0xFF);
 		}
 	}
 }

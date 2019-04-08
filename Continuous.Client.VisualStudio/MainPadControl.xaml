@@ -10,19 +10,41 @@
              Name="MyToolWindow">
     <Grid Name="main">
         <StackPanel Orientation="Vertical">
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
                 <Button Content="Set Type" Click="HandleSetType" Name="setTypeButton" Margin="8 4" Padding="8 4"/>
                 <Button Content="Refresh" Click="HandleRefresh" Name="refreshButton" Margin="8 4" Padding="8 4"/>
-                <Button Content="Clear Edits" Click="HandleClearEdits" Name="clearButton" Margin="8 4" Padding="8 4"/>
                 <Button Content="Stop" Click="HandleStop" Name="stopButton" Margin="8 4" Padding="8 4"/>
+                <Button Content="Clear Edits" Click="HandleClearEdits" Name="clearButton" HorizontalAlignment="Right" Margin="8 4" Padding="8 4"/>
             </StackPanel>
-            <DockPanel HorizontalAlignment="Stretch">
-                <TextBlock Text="IP" Padding="8 0 4 0"/>
-                <TextBox Name="ipText" Text="{Binding Path=IP}"  HorizontalContentAlignment="Stretch" Margin="0 0 8 0"/>
-            </DockPanel>
-            <TextBlock Margin="10" HorizontalAlignment="Center">I'm gonna blow your mind.</TextBlock>
+            <Grid HorizontalAlignment="Stretch" Margin="0,4,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="100"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <TextBlock Text="Device" Padding="8 0 4 0" VerticalAlignment="Center">
+                    <Grid.Column>0</Grid.Column>
+                    <Grid.Row>0</Grid.Row>
+                </TextBlock>
+                <ComboBox Name="ipText" Text="{Binding Path=IP}"  HorizontalContentAlignment="Stretch" Margin="2" IsEditable="True">
+                    <Grid.Column>1</Grid.Column>
+                    <Grid.Row>0</Grid.Row>
+                </ComboBox>
+                <TextBlock Text="Type" Padding="8 0 4 0" VerticalAlignment="Center">                    
+                    <Grid.Column>0</Grid.Column>
+                    <Grid.Row>1</Grid.Row>
+                </TextBlock>
+                <ComboBox Name="typeName" Text="{Binding Path=TypeName}" IsEditable="True" Margin="2">
+                    <Grid.Column>1</Grid.Column>
+                    <Grid.Row>1</Grid.Row>
+                </ComboBox>
+            </Grid>
+            <ListView Name="logView" BorderBrush="Transparent">
+            </ListView>
             <ListView Name="dependenciesView" BorderBrush="Transparent">
-                
             </ListView>
         </StackPanel>
     </Grid>

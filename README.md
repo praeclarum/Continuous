@@ -1,18 +1,16 @@
 # Continuous Coding for .NET
 
-**Continuous** is my attempt to build a live coding environment for .NET. It currently specializes in the development of iOS and Android apps using Xamarin technologies.
+**Continuous Coding** is a live coding environment for .NET. With it, you can visualize your apps instantly as you code them. It currently specializes in the development of iOS and Android apps using Xamarin.
 
-It currently works only in Xamarin Studio and only for C#.
+It currently only works in Xamarin Studio and only for C#.
 
-## One-time Installation
+## Xamarin Studio One-time Installation
 
-**Install** the preview version of [Xamarin Inspector](https://developer.xamarin.com/guides/cross-platform/inspector/).
-
-**Install the Live Code Xamarin Studio Add-in** by adding a New Gallery Repository pointing at the URL:
+Install the **Continuous Coding** add-in for Xamarin Studio in the **Add-in Manager** by adding a **New Gallery Repository** pointing at the URL:
 
 	https://raw.githubusercontent.com/praeclarum/Continuous/master/Continuous.Client.MonoDevelop/AddinRepo
 
-You will then be able to select the **Continuous Coding** Add-in from the **IDE extensions** category.
+You will then be able to select the **Continuous Coding** add-in from the **IDE extensions** category.
 
 <img src="https://raw.githubusercontent.com/praeclarum/Continuous/master/Documentation/AddAddinRepo.png" width="420px"/>
 

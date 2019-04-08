@@ -17,11 +17,13 @@ namespace Continuous.Client
 
 		public ContinuousEnv ()
 		{
-			IP = "127.0.0.1";
+			IP = Http.DefaultHost;
 			Port = Http.DefaultPort;
 		}
 
         static partial void SetSharedPlatformEnvImpl ();
+
+		public readonly DiscoveryReceiver Discovery = new DiscoveryReceiver ();
 
         public string MonitorTypeName = "";
 
@@ -38,7 +40,7 @@ namespace Continuous.Client
 
 		Uri ServerUrl {
 			get {
-				return new Uri ("http://" + IP.Trim () + ":" + Port);
+				return new Uri ("http://" + Discovery.Resolve (IP.Trim ()) + ":" + Port);
 			}
 		}
 
@@ -47,30 +49,65 @@ namespace Continuous.Client
 			return new HttpClient (ServerUrl);
 		}
 
-        public void Alert (string format, params object[] args)
-        {
-            Log (format, args);
-            AlertImpl (format, args);
-        }
+		public event Action<string> Failure;
+		public event Action<string> Success;
 
-        protected abstract void AlertImpl (string format, params object[] args);
-
-        protected async Task<bool> EvalAsync (string code, bool showError)
+		public void Succeed (string format, params object[] args)
 		{
-			var r = await EvalForResponseAsync (code, showError);
-			var err = r.HasErrors;
-			return !err;
+			OnSucceed (format, args);
 		}
 
-		protected async Task<EvalResponse> EvalForResponseAsync (string code, bool showError)
+		protected virtual void OnSucceed (string format, params object[] args)
+		{
+			Log (format, args);
+
+			var a = Success;
+			if (a != null)
+			{
+				var m = string.Format (System.Globalization.CultureInfo.CurrentUICulture, format, args);
+				a (m);
+			}
+		}
+
+		public void Fail (string format, params object[] args)
+        {
+			OnFail (format, args);
+        }
+
+		protected virtual void OnFail (string format, params object[] args)
+		{
+			Log (format, args);
+
+			var a = Failure;
+			if (a != null)
+			{
+				var m = string.Format (System.Globalization.CultureInfo.CurrentUICulture, format, args);
+				a (m);
+			}
+		}
+
+		protected async Task<EvalResponse> EvalForResponseAsync (string declarations, string valueExpression, bool showError)
 		{
 			Connect ();
-			var r = await conn.VisualizeAsync (code);
+			var r = await conn.VisualizeAsync (declarations, valueExpression);
 			var err = r.HasErrors;
-			if (err) {
+			if (err)
+			{
 				var message = string.Join ("\n", r.Messages.Select (m => m.MessageType + ": " + m.Text));
-				if (showError) {
-					Alert ("{0}", message);
+				if (showError)
+				{
+					Fail ("{0}", message);
+				}
+			}
+			else
+			{
+				if (r.WatchValues.ContainsKey (valueExpression))
+				{
+					Succeed ("{0} = {1}", valueExpression, r.WatchValues[valueExpression]);
+				}
+				else
+				{
+					Succeed ("{0}", valueExpression);
 				}
 			}
 			return r;
@@ -81,7 +118,7 @@ namespace Continuous.Client
             var typedecl = await FindTypeAtCursorAsync ();
 
             if (typedecl == null) {
-                Alert ("Could not find a type at the cursor.");
+                Fail ("Could not find a type at the cursor.");
                 return;
             }
 
@@ -163,16 +200,10 @@ namespace Continuous.Client
             //
             try {
                 //
-                // Declare it
-                //
-                Log (code.Declarations);
-                if (!await EvalAsync (code.Declarations, showError)) return;
-
-                //
-                // Show it
+                // Declare and Show it
                 //
                 Log (code.ValueExpression);
-                var resp = await EvalForResponseAsync (code.ValueExpression, showError);
+				var resp = await EvalForResponseAsync (code.Declarations, code.ValueExpression, showError);
                 if (resp.HasErrors)
                     return;
 
@@ -190,7 +221,7 @@ namespace Continuous.Client
             }
             catch (Exception ex) {
                 if (showError) {
-                    Alert ("Could not communicate with the app.\n\n{0}: {1}", ex.GetType (), ex.Message);
+                    Fail ("Could not communicate with the app.\n\n{0}: {1}", ex.GetType (), ex.Message);
                 }
             }
         }
@@ -277,20 +308,6 @@ namespace Continuous.Client
 		{
 			LinkedMonitoredCode (code);
 		}
-
-        public async Task VisualizeSelectionAsync ()
-        {
-            var code = await GetSelectedTextAsync ();
-            if (string.IsNullOrWhiteSpace (code))
-                return;
-
-            try {
-                await EvalAsync (code, showError: true);
-            }
-            catch (Exception ex) {
-                Alert ("Could not communicate with the app.\n\n{0}: {1}", ex.GetType (), ex.Message);
-            }
-        }
 
         protected abstract Task<string> GetSelectedTextAsync ();
 

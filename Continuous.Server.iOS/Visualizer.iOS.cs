@@ -19,6 +19,7 @@ namespace Continuous.Server
 				return;
 
 			if (rootVC.PresentedViewController != null) {
+				presentedVC = null;
 				rootVC.DismissViewController (false, null);
 			}
 		}
@@ -27,42 +28,46 @@ namespace Continuous.Server
 		{
 			var val = res.Result;
 			var ty = val != null ? val.GetType () : typeof(object);
-
 			Log ("{0} value = {1}", ty.FullName, val);
 
-			ShowViewerAsync (GetViewer (res)).ContinueWith (t => {
+			ShowViewerAsync (GetViewer (res.Result, true)).ContinueWith (t => {
 				if (t.IsFaulted) {
 					Log ("ShowViewer ERROR {0}", t.Exception);
 				}
 			});
 		}
 
-		Tuple<UIViewController, bool> GetViewer (EvalResult resp)
+		public UIViewController GetViewer (object value, bool createInspector)
 		{
-			var vc = resp.Result as UIViewController;
+			var vc = value as UIViewController;
 			if (vc != null)
-				return Tuple.Create (vc, true);
+				return vc;
 			
-			var sv = GetSpecialView (resp.Result);
+			var sv = GetSpecialView (value);
 
 			vc = sv as UIViewController;
-			if (vc != null)
-				return Tuple.Create (vc, false);
-
-			var v = sv as UIView;
-			if (v != null) {
-				vc = new UIViewController ();
-				vc.View = v;
-				return Tuple.Create (vc, false);
+			if (vc != null && vc.ParentViewController == null) {
+				return vc;
 			}
 
-			vc = new ObjectInspector (resp.Result);
-			return Tuple.Create (vc, true);
+			var v = sv as UIView;
+			if (v != null && v.Superview == null) {
+				vc = new UIViewController ();
+				vc.View = v;
+				return vc;
+			}
+
+			if (createInspector) {
+				vc = new UINavigationController (new ObjectInspector(value));
+				return vc;
+			}
+
+			return null;
 		}
 
-		UINavigationController presentedNav = null;
+		UIViewController presentedVC = null;
 
-		async Task ShowViewerAsync (Tuple<UIViewController, bool> vcNC)
+		async Task ShowViewerAsync (UIViewController vc)
 		{
 			var window = UIApplication.SharedApplication.KeyWindow;
 			if (window == null)
@@ -71,42 +76,60 @@ namespace Continuous.Server
 			if (rootVC == null)
 				return;
 
-			var vc = vcNC.Item1;
-			var shouldBeInNav = CanBeInNav (vc) && vcNC.Item2;
-
-			if (shouldBeInNav) {
-				var doneButton = new UIBarButtonItem (
-					                UIBarButtonSystemItem.Done,
-					                (_, __) => rootVC.DismissViewController (true, null));
-				vc.NavigationItem.RightBarButtonItems =
-					new[]{ doneButton }.
-					Concat (vc.NavigationItem.RightBarButtonItems ?? new UIBarButtonItem[0]).
-					ToArray ();
+			var pvc = vc;
+			if (CanBeInNav(vc))
+			{
+				var nc = new UINavigationController(vc);
+				nc.NavigationBarHidden = true;
+				pvc = nc;
 			}
 
 			//
 			// Try to just swap out the root VC if we've already presented
 			//
-			if (shouldBeInNav && presentedNav != null && rootVC.PresentedViewController == presentedNav) {
-				presentedNav.ViewControllers = new[] { vc };
-				return;
+			var needsPresent = false;
+			if (presentedVC != null && rootVC.PresentedViewController == presentedVC)
+			{
+				//
+				// Remove old stuff
+				//
+				var oldChildren = presentedVC.ChildViewControllers;
+				foreach (var c in oldChildren)
+				{
+					c.ViewWillDisappear(false);
+					c.RemoveFromParentViewController();
+					c.View.RemoveFromSuperview();
+					c.ViewDidDisappear(false);
+				}
+			}
+			else
+			{
+				presentedVC = new UIViewController();
+				needsPresent = true;
 			}
 
-			//
-			// Else, present a new nav VC
-			//
-			var nc = shouldBeInNav ? new UINavigationController (vc) : null;
+			pvc.View.Frame = presentedVC.View.Bounds;
+			pvc.View.AutoresizingMask = UIViewAutoresizing.FlexibleDimensions;
 
-			var animate = true;
+			pvc.ViewWillAppear(false);
+			presentedVC.View.AddSubview(pvc.View);
+			presentedVC.AddChildViewController(pvc);
+			pvc.ViewDidAppear(false);
 
-			if (rootVC.PresentedViewController != null) {
-				await rootVC.DismissViewControllerAsync (false);
-				animate = false;
+			if (needsPresent) {
+				//
+				// Else, present a new nav VC
+				//
+				var animate = true;
+
+				if (rootVC.PresentedViewController != null)
+				{
+					await rootVC.DismissViewControllerAsync(false);
+					animate = false;
+				}
+
+				await rootVC.PresentViewControllerAsync(presentedVC, animate);
 			}
-
-			presentedNav = nc;
-
-			await rootVC.PresentViewControllerAsync (nc ?? vc, animate);
 		}
 
 		bool CanBeInNav (UIViewController vc)
@@ -136,7 +159,8 @@ namespace Continuous.Server
 			
 			TypeVisualizer v;
 			if (typeVisualizers.TryGetValue (type.FullName, out v)) {
-				return v;
+				if (v != null)
+					return v;
 			}
 
 			if (type == typeof(object))
@@ -148,26 +172,99 @@ namespace Continuous.Server
 		partial void PlatformInitialize ()
 		{
 			typeVisualizers = new Dictionary<string, TypeVisualizer> {
+				{ typeof(UIApplicationDelegate).FullName, o => GetView ((UIApplicationDelegate)o) },
+				{ typeof(UIWindow).FullName, o => GetView ((UIWindow)o) },
 				{ typeof(UIView).FullName, o => GetView ((UIView)o) },
 				{ typeof(UITableViewCell).FullName, o => GetView ((UITableViewCell)o) },
 				{ typeof(UICollectionViewCell).FullName, o => GetView ((UICollectionViewCell)o) },
 				{ typeof(UIColor).FullName, o => GetView ((UIColor)o) },
+				{ typeof(UIImage).FullName, o => GetView ((UIImage)o) },
+				{ typeof(CGImage).FullName, o => GetView (UIImage.FromImage ((CGImage)o)) },
+				{ typeof(CoreImage.CIImage).FullName, o => GetView (UIImage.FromImage ((CoreImage.CIImage)o)) },
+				{ typeof(string).FullName, o => GetView ((string)o) },
 				{ "Xamarin.Forms.Page", GetFormsPage },
+				{ "Xamarin.Forms.View", GetFormsView },
 			};
 		}
 		Dictionary<string, TypeVisualizer> typeVisualizers = new Dictionary<string, TypeVisualizer> ();
 
-		UIView GetView (UIView value)
+		public virtual object GetView (UIApplicationDelegate value)
+		{
+			//
+			// Is there a window? If so, show that
+			//
+			if (value.Window != null)
+			{
+				return GetView (value.Window);
+			}
+
+			//
+			// What if we fake run the life cycle?
+			//
+			var launchOptions = new Foundation.NSDictionary ();
+			try
+			{
+				value.WillFinishLaunching (UIApplication.SharedApplication, launchOptions);
+			}
+			catch (Exception)
+			{
+			}
+			try
+			{
+				value.FinishedLaunching (UIApplication.SharedApplication, launchOptions);
+			}
+			catch (Exception)
+			{
+			}
+			if (value.Window != null)
+			{
+				return GetView (value.Window);
+			}
+
+			//
+			// Just show the object inspector
+			//
+			return null;
+		}
+
+		public virtual object GetView (UIWindow value)
+		{
+			if (value.IsKeyWindow)
+			{
+				value.ResignKeyWindow ();
+			}
+			var root = value.RootViewController;
+			if (root != null)
+			{
+				// Replace the root so we can display it again
+				var tempvc = new UIViewController ();
+				value.RootViewController = tempvc;
+				return root;
+			}
+			return value;
+		}
+
+		public virtual UIView GetView (UIView value)
 		{
 			return value;
 		}
 
-		UIView GetView (UIColor value)
+		public virtual UIView GetView (UIColor value)
 		{
 			return new UIView { BackgroundColor = value, };
 		}
 
-		UIView GetView (UITableViewCell value)
+		public virtual UIView GetView (UIImage value)
+		{
+			return new UIImageView { Image = value, ContentMode = UIViewContentMode.ScaleAspectFit };
+		}
+
+		public virtual UIView GetView (string value)
+		{
+			return new UITextView { Text = value };
+		}
+
+		public virtual UIView GetView (UITableViewCell value)
 		{
 			var tableView = new UITableView ();
 			tableView.DataSource = new SingleTableViewCellDataSource (value);
@@ -195,7 +292,7 @@ namespace Continuous.Server
 			}
 		}
 
-		UIView GetView (UICollectionViewCell value)
+		public virtual UIView GetView (UICollectionViewCell value)
 		{
 			var layout = new UICollectionViewFlowLayout ();
 			var bounds = UIScreen.MainScreen.Bounds;
@@ -247,24 +344,39 @@ namespace Continuous.Server
 			}
 		}
 
-		UIViewController GetFormsPage (object pageObj)
+		public virtual System.Reflection.Assembly GetXamarinCoreAsm()
 		{
-			var asms = AppDomain.CurrentDomain.GetAssemblies ();
-			var xamasm = asms.First (x => x.GetName ().Name == "Xamarin.Forms.Core");
-			var platasm = asms.First (x => x.GetName ().Name == "Xamarin.Forms.Platform.iOS");
+			var asms = AppDomain.CurrentDomain.GetAssemblies();
+			return asms.First(x => x.GetName().Name == "Xamarin.Forms.Core");
+		}
 
-			// Wrap it in a NavigationPage cause I think it's needed?
-//			var navpage = xamasm.GetType ("Xamarin.Forms.NavigationPage");
-//			var navPageObj = Activator.CreateInstance (navpage, new object[]{ pageObj });
+		public virtual System.Reflection.Assembly GetXamarinPlatformAsm ()
+		{
+			var asms = AppDomain.CurrentDomain.GetAssemblies();
+			return asms.First(x => x.GetName().Name == "Xamarin.Forms.Platform.iOS");
+		}
+
+		public virtual UIViewController GetFormsPage (object pageObj)
+		{
+			var platasm = GetXamarinPlatformAsm ();
 
 			// Create the VC
 			var pagex = platasm.GetType ("Xamarin.Forms.PageExtensions");
 			var cvc = pagex.GetMethod ("CreateViewController");
-
-//			var nc = (UIViewController)cvc.Invoke (null, new[]{ navPageObj });
 			var vc = (UIViewController)cvc.Invoke (null, new[]{ pageObj });
 
 			return vc;
+		}
+
+		public virtual UIViewController GetFormsView (object viewObj)
+		{
+			var xamasm = GetXamarinCoreAsm();
+
+			// Create a ContentPage to hold this view
+			var page = xamasm.GetType("Xamarin.Forms.ContentPage");
+			var pageObj = Activator.CreateInstance(page, viewObj);
+
+			return GetFormsPage (pageObj);
 		}
 	}
 }

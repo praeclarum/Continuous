@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
-
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -21,7 +23,47 @@ namespace Continuous.Client.VisualStudio
         {
             Env.LinkedMonitoredCode += Env_LinkedMonitoredCode;
 
-			main.DataContext = Env;
+            main.DataContext = Env;
+
+            //
+            // Enable discovery
+            //
+            try
+            {
+                Firewall.AddUdpInRuleIfNeeded(Http.DiscoveryBroadcastReceiverPort, "Continuous Coding Discovery");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("FAILED TO ADD FIREWALL RULE: {0}", ex);
+            }
+            Env.Discovery.DevicesChanged += Discovery_DevicesChanged;
+            PopulateDevices();
+
+        }
+
+        void PopulateDevices ()
+        {
+            var active = ipText.Text;
+
+            var ds = Env.Discovery.Devices;
+            ipText.Items.Clear();
+            foreach (var d in ds)
+            {
+                ipText.Items.Add(d);
+            }
+
+            if (active == Http.DefaultHost && ds.Length > 0)
+            {
+                ipText.SelectedItem = ds[0];
+            }
+        }
+
+        private void Discovery_DevicesChanged(object sender, EventArgs e)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                PopulateDevices();
+            });
         }
 
         private void Env_LinkedMonitoredCode (LinkedCode obj)

@@ -33,6 +33,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Continuous.Sample.Forms.iOS
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Continuous.Sample.Forms.Droid", "Continuous.Sample.Forms.Droid\Continuous.Sample.Forms.Droid.csproj", "{E5FBD557-2B3A-4C83-9BF3-61226A1606B8}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{E41C02EA-3A84-402F-A57C-1EE1EB8CC7A4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Continuous.Server.Mac", "Continuous.Server.Mac\Continuous.Server.Mac.csproj", "{A0882E1E-4F0D-43FC-9DB7-43EF2F01A87E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -139,7 +143,24 @@ Global
 		{FF4CCB03-A51E-4CD0-9E64-054B57ED5F36}.Release|iPhone.Build.0 = Release|Any CPU
 		{FF4CCB03-A51E-4CD0-9E64-054B57ED5F36}.Release|iPhoneSimulator.ActiveCfg = Release|Any CPU
 		{FF4CCB03-A51E-4CD0-9E64-054B57ED5F36}.Release|iPhoneSimulator.Build.0 = Release|Any CPU
+		{A0882E1E-4F0D-43FC-9DB7-43EF2F01A87E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A0882E1E-4F0D-43FC-9DB7-43EF2F01A87E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A0882E1E-4F0D-43FC-9DB7-43EF2F01A87E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A0882E1E-4F0D-43FC-9DB7-43EF2F01A87E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A0882E1E-4F0D-43FC-9DB7-43EF2F01A87E}.Debug|iPhoneSimulator.ActiveCfg = Debug|Any CPU
+		{A0882E1E-4F0D-43FC-9DB7-43EF2F01A87E}.Debug|iPhoneSimulator.Build.0 = Debug|Any CPU
+		{A0882E1E-4F0D-43FC-9DB7-43EF2F01A87E}.Release|iPhone.ActiveCfg = Release|Any CPU
+		{A0882E1E-4F0D-43FC-9DB7-43EF2F01A87E}.Release|iPhone.Build.0 = Release|Any CPU
+		{A0882E1E-4F0D-43FC-9DB7-43EF2F01A87E}.Release|iPhoneSimulator.ActiveCfg = Release|Any CPU
+		{A0882E1E-4F0D-43FC-9DB7-43EF2F01A87E}.Release|iPhoneSimulator.Build.0 = Release|Any CPU
+		{A0882E1E-4F0D-43FC-9DB7-43EF2F01A87E}.Debug|iPhone.ActiveCfg = Debug|Any CPU
+		{A0882E1E-4F0D-43FC-9DB7-43EF2F01A87E}.Debug|iPhone.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
+		{8828F8F5-13A5-4142-9DC2-209D89AB8841} = {E41C02EA-3A84-402F-A57C-1EE1EB8CC7A4}
+		{167F9264-AA99-4CC2-B9FA-46D26328103C} = {E41C02EA-3A84-402F-A57C-1EE1EB8CC7A4}
+		{E5FBD557-2B3A-4C83-9BF3-61226A1606B8} = {E41C02EA-3A84-402F-A57C-1EE1EB8CC7A4}
+		{9C9C23C3-8F0F-4B48-B394-0AAC30B4173F} = {E41C02EA-3A84-402F-A57C-1EE1EB8CC7A4}
+		{C7F96A0E-87C8-4FCB-8065-C812FB018E5A} = {E41C02EA-3A84-402F-A57C-1EE1EB8CC7A4}
 	EndGlobalSection
 EndGlobal

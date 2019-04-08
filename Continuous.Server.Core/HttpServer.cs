@@ -17,12 +17,15 @@ namespace Continuous.Server
 		HttpListener listener;
 		TaskScheduler mainScheduler;
 
-		readonly VM vm = new VM ();
+		readonly IVM vm;
+		readonly DiscoveryBroadcaster broadcaster;
 
-		public HttpServer (object context = null, int port = Http.DefaultPort)
+		public HttpServer (object context = null, int port = Http.DefaultPort, IVM vm = null, Visualizer visualizer = null, bool discoverable = true)
 		{
 			this.port = port;
-			visualizer = new Visualizer (context);
+			this.visualizer = visualizer ?? new Visualizer (context);
+			this.vm = vm ?? (new VM());
+			this.broadcaster = discoverable ? new DiscoveryBroadcaster () : null;
 		}
 
 		public void Run ()
@@ -105,17 +108,22 @@ namespace Continuous.Server
 
 					var req = JsonConvert.DeserializeObject<EvalRequest> (reqStr);
 
+					var token = CancellationToken.None;
+
 					var resp = await Task.Factory.StartNew (() => {
 						WatchStore.Clear ();
 						var r = new EvalResult ();
 						try {
-							r = vm.Eval (req.Code);
+							r = vm.Eval (req, mainScheduler, token);
 						}
 						catch (Exception ex) {
 							Log (ex, "vm.Eval");
 						}
 						try {
-							Visualize (r);
+							Task.Factory.StartNew (() =>
+							{
+								Visualize (r);
+							}, token, TaskCreationOptions.None, mainScheduler).Wait ();
 						}
 						catch (Exception ex) {
 							Log (ex, "Visualize");
@@ -126,7 +134,7 @@ namespace Continuous.Server
 							Duration = r.Duration,
 						};
 						return Tuple.Create (r, JsonConvert.SerializeObject (response));
-					}, CancellationToken.None, TaskCreationOptions.None, mainScheduler);
+					}, token);
 
 					Log (resp.Item2);
 

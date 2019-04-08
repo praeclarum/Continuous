@@ -10,5 +10,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)EvalRequest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DiscoveryBroadcast.cs" />
   </ItemGroup>
 </Project>

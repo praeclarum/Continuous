@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using Mono.CSharp;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Continuous.Server
 {
@@ -9,14 +11,24 @@ namespace Continuous.Server
 	/// Evaluates expressions using the mono C# REPL.
 	/// This method is thread safe so you can call it from anywhere.
 	/// </summary>
-	public partial class VM
+	public partial class VM : IVM
 	{
 		readonly object mutex = new object ();
 		readonly Printer printer = new Printer ();
 
 		Evaluator eval;
 
-		public EvalResult Eval (string code)
+		public EvalResult Eval (EvalRequest code, TaskScheduler mainScheduler, CancellationToken token)
+		{
+			var r = new EvalResult ();
+			Task.Factory.StartNew (() =>
+			{
+				r = EvalOnMainThread (code, token);
+			}, token, TaskCreationOptions.None, mainScheduler).Wait ();
+			return r;
+		}
+
+		EvalResult EvalOnMainThread (EvalRequest code, CancellationToken token)
 		{
 			var sw = new System.Diagnostics.Stopwatch ();
 
@@ -33,9 +45,15 @@ namespace Continuous.Server
 				sw.Start ();
 
 				try {
-//					Log (code);
-					eval.Evaluate (code, out result, out hasResult);					
-				} catch (InternalErrorException ex) {
+					if (!string.IsNullOrEmpty (code.Declarations))
+					{
+						eval.Evaluate (code.Declarations, out result, out hasResult);
+					}
+					if (!string.IsNullOrEmpty (code.ValueExpression))
+					{
+						eval.Evaluate (code.ValueExpression, out result, out hasResult);
+					}
+				} catch (InternalErrorException) {
 					eval = null; // Force re-init
 				} catch (Exception ex) {
 					// Sometimes Mono.CSharp fails when constructing failure messages
@@ -51,7 +69,6 @@ namespace Continuous.Server
 			}
 
 			return new EvalResult {
-				Code = code,
 				Messages = printer.Messages.ToArray (),
 				Duration = sw.Elapsed,
 				Result = result,
@@ -104,9 +121,11 @@ namespace Continuous.Server
 		{
 			//
 			// Avoid duplicates of what comes prereferenced with Mono.CSharp.Evaluator
+			// or ones that cause problems.
 			//
 			var name = a.GetName ().Name;
-			if (name == "mscorlib" || name == "System" || name == "System.Core")
+			if (name == "mscorlib" || name == "System" || name == "System.Core" ||
+			    name == "Xamarin.Interactive" || name == "Xamarin.Interactive.iOS")
 				return;
 
 			//

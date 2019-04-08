@@ -17,5 +17,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)TypeDecl.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)WatchVariable.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DocumentRef.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DiscoveryReceiver.cs" />
   </ItemGroup>
 </Project>

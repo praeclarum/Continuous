@@ -6,14 +6,12 @@ using System.Threading.Tasks;
 
 #if MONODEVELOP
 using MonoDevelop.Ide;
-using MonoDevelop.Ide.Gui;
-using MonoDevelop.Projects;
-using MonoDevelop.Refactoring;
 using Gtk;
-using ICSharpCode.NRefactory;
-using ICSharpCode.NRefactory.CSharp;
-using ICSharpCode.NRefactory.CSharp.Resolver;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.CSharp;
 
+#pragma warning disable 1998
 
 namespace Continuous.Client
 {
@@ -27,24 +25,13 @@ namespace Continuous.Client
 
 	public class MonoDevelopContinuousEnv : ContinuousEnv
 	{
-		protected override void AlertImpl (string format, params object[] args)
-        {
-			var parentWindow = IdeApp.Workbench.RootWindow;
-			var dialog = new MessageDialog(parentWindow, DialogFlags.DestroyWithParent,
-				MessageType.Info, ButtonsType.Ok,
-				false,
-				format, args);
-			dialog.Run ();
-			dialog.Destroy ();
-        }
-
 		protected override async Task SetWatchTextAsync (WatchVariable w, List<string> vals)
 		{
             var doc = IdeApp.Workbench.GetDocument (w.FilePath);
             if (doc == null)
                 return;
 			var ed = doc.Editor;
-			if (ed == null || !ed.CanEdit (w.FileLine))
+			if (ed == null || ed.IsReadOnly)
 				return;
 			var line = ed.GetLine (w.FileLine);
 			if (line == null)
@@ -63,180 +50,79 @@ namespace Continuous.Client
 			if (existingText != newText) {
 				var offset = line.Offset + commentIndex;
 				var remLen = line.Length - commentIndex;
-				ed.Remove (offset, remLen);
-				ed.Insert (offset, newText);
+				ed.RemoveText (offset, remLen);
+				ed.InsertText (offset, newText);
 			}
 		}
 
 		class CSharpTypeDecl : TypeDecl
 		{
-			public TypeDeclaration Declaration;
-			public CSharpAstResolver Resolver;
+			public ClassDeclarationSyntax Declaration { get; set; }
+			public SyntaxNode Root { get; set; }
+			public SemanticModel Model { get; set; }
+
 			public override string Name {
 				get {
-					return Declaration.Name;
+					return Declaration.Identifier.Text;
 				}
 			}
+
 			public override TextLoc StartLocation {
 				get {
-					var l = Declaration.StartLocation;
+					var l = Declaration.GetLocation ().GetLineSpan ().StartLinePosition;
 					return new TextLoc {
 						Line = l.Line,
-						Column = l.Column,
+						Column = l.Character
 					};
 				}
 			}
+
 			public override TextLoc EndLocation {
 				get {
-					var l = Declaration.EndLocation;
+					var l = Declaration.GetLocation ().GetLineSpan ().EndLinePosition;
 					return new TextLoc {
 						Line = l.Line,
-						Column = l.Column,
+						Column = l.Character
 					};
 				}
 			}
+
 			public override void SetTypeCode ()
 			{
-				Set (Document, Declaration, Resolver);
-			}
+				var name = Name;
 
-	        static Statement GetWatchInstrument (string id, Expression expr)
-			{
-				var r = new MemberReferenceExpression (
-					new MemberReferenceExpression (
-						new MemberReferenceExpression (
-							new IdentifierExpression ("Continuous"), "Server"), "WatchStore"), "Record");
-				var i = new ExpressionStatement (new InvocationExpression (r, new PrimitiveExpression (id), expr));
-				var t = new TryCatchStatement ();
-				t.TryBlock = new BlockStatement ();
-				t.TryBlock.Statements.Add (i);
-				var c = new CatchClause ();
-				c.Body = new BlockStatement ();
-				t.CatchClauses.Add (c);
-				return t;
-			}
-
-			static string GetCommentlessCode (TypeDeclaration rtypedecl)
-			{
-				var t = (TypeDeclaration)rtypedecl.Clone ();
-				var cs = t.Descendants.OfType<Comment> ().ToList ();
-				foreach (var c in cs) {
-					var m = WatchVariable.CommentContentRe.Match (c.Content);
-					if (m.Success) {
-						c.Content = m.Groups[1].Value + m.Groups[2].Value;
-					} else {
-						c.Remove ();
-					}
-				}
-				return t.ToString ();
-			}
-
-			static TypeCode Set (DocumentRef doc, TypeDeclaration rtypedecl, CSharpAstResolver resolver)
-			{
-				var rawCode = GetCommentlessCode (rtypedecl);
-
-				var typedecl = (TypeDeclaration)rtypedecl.Clone ();
-
-				var ns = rtypedecl.Parent as NamespaceDeclaration;
-				var nsName = ns == null ? "" : ns.FullName;
-
-				var name = rtypedecl.Name;
+				var commentlessCode = String.Join (Environment.NewLine, Declaration.GetText ().Lines.Select (l => l.ToString ()));
 
 				var usings =
-					resolver.RootNode.Descendants.
-					OfType<UsingDeclaration> ().
-					Select (x => x.ToString ().Trim ()).
-					ToList ();
+					Root.DescendantNodes ()
+						.OfType<UsingDirectiveSyntax> ()
+						.Select (u => u.GetText ().ToString ())
+						.ToList ();
 
-				//
-				// Find dependencies
-				//
-				var deps = new List<String> ();
-				foreach (var d in rtypedecl.Descendants.OfType<SimpleType> ()) {
-					deps.Add (d.Identifier);
-				}
+				var deps =
+					Root.DescendantNodes()
+					    .OfType<IdentifierNameSyntax>()
+						.Select(n => Model.GetSymbolInfo(n))
+						.Where(s => s.Symbol != null && s.Symbol.Kind == SymbolKind.NamedType)
+						.Select(n => n.Symbol.Name)
+						.Distinct()
+					    .ToList();
 
-				//
-				// Find watches and instrument
-				//
-				var watches = new List<WatchVariable> ();
-				foreach (var d in typedecl.Descendants.OfType<VariableInitializer> ()) {
-					var endLoc = d.EndLocation;
-					var p = d.Parent;
-					if (p == null || p.Parent == null)
-						continue;
-					var nc = p.GetNextSibling (x => x is Comment && x.StartLocation.Line == endLoc.Line);
-					if (nc == null || !nc.ToString ().StartsWith ("//="))
-						continue;
-					var id = Guid.NewGuid ().ToString ();
-					var instrument = GetWatchInstrument (id, new IdentifierExpression (d.Name));
-					p.Parent.InsertChildBefore (nc, instrument, BlockStatement.StatementRole);
-					watches.Add (new WatchVariable {
-						Id = id,
-						Expression = d.Name,
-						ExplicitExpression = "",
-						FilePath = doc.FullPath,
-						FileLine = nc.StartLocation.Line,
-						FileColumn = nc.StartLocation.Column,
-					});
-				}
-				foreach (var d in typedecl.Descendants.OfType<AssignmentExpression> ()) {
-					var endLoc = d.EndLocation;
-					var p = d.Parent;
-					if (p == null || p.Parent == null)
-						continue;
-					var nc = p.GetNextSibling (x => x is Comment && x.StartLocation.Line == endLoc.Line);
-					if (nc == null || !nc.ToString ().StartsWith ("//="))
-						continue;
-					var id = Guid.NewGuid ().ToString ();
-					var instrument = GetWatchInstrument (id, (Expression)d.Left.Clone ());
-					p.Parent.InsertChildBefore (nc, instrument, BlockStatement.StatementRole);
-					watches.Add (new WatchVariable {
-						Id = id,
-						Expression = d.Left.ToString (),
-						ExplicitExpression = "",
-						FilePath = doc.FullPath,
-						FileLine = nc.StartLocation.Line,
-						FileColumn = nc.StartLocation.Column,
-					});
-				}
-				foreach (var d in typedecl.Descendants.OfType<Comment> ().Where (x => x.CommentType == CommentType.SingleLine)) {
-					var m = WatchVariable.CommentContentRe.Match (d.Content);
-					if (!m.Success || string.IsNullOrWhiteSpace (m.Groups [1].Value))
-						continue;
+				var ns =
+					Declaration.Ancestors()
+					           .OfType<NamespaceDeclarationSyntax>()
+							   .Select(n => n.Name.GetText().ToString().Trim())
+							   .FirstOrDefault() ?? "";
 
-					var p = d.Parent as BlockStatement;
-					if (p == null)
-						continue;
-					
-					var exprText = m.Groups [1].Value.Trim ();
-					var parser = new CSharpParser();
-					var syntaxTree = parser.Parse("class C { void F() { var __r = " + exprText + "; } }");
+				// create an 'instrumented' instance of the document with watch calls
+				var rewriter = new WatchExpressionRewriter(Document.FullPath);
+				var instrumented = rewriter.Visit(Declaration);
+				var instrumentedCode = instrumented.ToString();
 
-					if (syntaxTree.Errors.Count > 0)
-						continue;
-					var t = syntaxTree.Members.OfType<TypeDeclaration> ().First ();
-					var expr = t.Descendants.OfType<VariableInitializer> ().First ().Initializer;
-						
-					var id = Guid.NewGuid ().ToString ();
-					var instrument = GetWatchInstrument (id, expr.Clone ());
-					p.InsertChildBefore (d, instrument, BlockStatement.StatementRole);
-					watches.Add (new WatchVariable {
-						Id = id,
-						Expression = exprText,
-						ExplicitExpression = m.Groups[1].Value,
-						FilePath = doc.FullPath,
-						FileLine = d.StartLocation.Line,
-						FileColumn = d.StartLocation.Column,
-					});
-				}
+				// the rewriter collects the WatchVariable definitions as it walks the tree
+				var watches = rewriter.WatchVariables;
 
-				//
-				// All done
-				//
-				var instrumentedCode = typedecl.ToString ();
-
-				return TypeCode.Set (name, usings, rawCode, instrumentedCode, deps, nsName, watches);
+				TypeCode.Set (name, usings, commentlessCode, instrumentedCode, deps, ns, watches);
 			}
 		}
 
@@ -276,18 +162,21 @@ namespace Continuous.Client
 			var ext = doc.FileName.Extension;
 
 			if (ext == ".cs") {
-				try {					
-					var resolver = await doc.GetSharedResolver ();
+				try {
+
+					var root = await doc.AnalysisDocument.GetSyntaxRootAsync ();
+					var model = await doc.AnalysisDocument.GetSemanticModelAsync ();
 					var typeDecls =
-						resolver.RootNode.Descendants.
-						OfType<TypeDeclaration> ().
-						Where (x => !(x.Parent is TypeDeclaration)).
-						Select (x => new CSharpTypeDecl {
-							Document = new DocumentRef (doc.FileName.FullPath),
-							Declaration = x,
-							Resolver = resolver,
-						});
+						root.DescendantNodes ((arg) => true)
+							.OfType<ClassDeclarationSyntax> ()
+							.Select (t => new CSharpTypeDecl {
+								Document = new DocumentRef (doc.FileName.FullPath),
+								Declaration = t,
+								Root = root,
+								Model = model,
+							});
 					return typeDecls.ToArray ();
+
 				} catch (Exception ex) {
 					Log (ex);
 					return new TypeDecl[0];
@@ -314,7 +203,7 @@ namespace Continuous.Client
 				return null;
 			}
 
-			var editLoc = doc.Editor.Caret.Location;
+			var editLoc = doc.Editor.CaretLocation;
 			return new TextLoc (editLoc.Line, editLoc.Column);
 		}
 
@@ -359,5 +248,81 @@ namespace Continuous.Client
 			return "";
 		}
     }
+
+	public class WatchExpressionRewriter : CSharpSyntaxRewriter
+	{
+		private string path;
+
+		public WatchExpressionRewriter(string p)
+		{
+			path = p;
+		}
+
+		public List<WatchVariable> WatchVariables = new List<WatchVariable>();
+
+		public override SyntaxNode VisitExpressionStatement(ExpressionStatementSyntax node)
+		{
+			// don't handle nodes that aren't assignment or don't have the //= comment
+			if (!(node.Expression is AssignmentExpressionSyntax && HasWatchComment(node)))
+				return node;
+
+			var expr = (node.Expression as AssignmentExpressionSyntax).Left;
+			return AddWatchNode(node, expr);
+		}
+
+		public override SyntaxNode VisitLocalDeclarationStatement(LocalDeclarationStatementSyntax node)
+		{
+			// don't handle nodes that don't have the //= comment
+			if (!HasWatchComment(node))
+				return node;
+
+			var vn = node.Declaration.Variables.First().Identifier.Text;
+			var expr = SyntaxFactory.IdentifierName(vn);
+
+			return AddWatchNode(node, expr);
+		}
+
+		bool HasWatchComment(SyntaxNode node)
+		{
+			// expect that only valid node types are passed here
+			return
+				node
+					.GetTrailingTrivia()
+					.Any(t => t.Kind() == SyntaxKind.SingleLineCommentTrivia && t.ToString().StartsWith("//="));
+		}
+
+		SyntaxNode AddWatchNode(StatementSyntax node, ExpressionSyntax expr)
+		{
+			var id = Guid.NewGuid().ToString();
+			var c = node.GetTrailingTrivia().First(t => t.Kind() == SyntaxKind.SingleLineCommentTrivia && t.ToString().StartsWith("//="));
+			var p = c.GetLocation().GetLineSpan().StartLinePosition;
+
+			var wv = new WatchVariable {
+				Id = id,
+				Expression = expr.ToString(),
+				ExplicitExpression = "",
+				FilePath = path,
+				FileLine = p.Line + 1,  // 0-based index
+				FileColumn = p.Character + 1, // 0-based index
+			};
+			WatchVariables.Add(wv);
+
+			var wi = GetWatchInstrument(id, expr);
+
+			// creating a block and removing the open/close braces is a bit of a hack but
+			// lets us replace one node with two... 
+			return
+				SyntaxFactory
+					.Block(node, wi)
+					.WithOpenBraceToken(SyntaxFactory.MissingToken(SyntaxKind.OpenBraceToken))
+					.WithCloseBraceToken(SyntaxFactory.MissingToken(SyntaxKind.CloseBraceToken))
+					.WithTrailingTrivia(SyntaxFactory.EndOfLine("\r\n"));
+		}
+
+		StatementSyntax GetWatchInstrument(string id, ExpressionSyntax expr)
+		{
+			return SyntaxFactory.ParseStatement($"try {{ Continuous.Server.WatchStore.Record(\"{id}\", {expr}); }} catch {{ }}");
+		}
+	}	
 }
 #endif

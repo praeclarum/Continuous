@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using System.Linq;
-using EnvDTE80;
 using System.Threading;
 
 #if VISUALSTUDIO
+using EnvDTE80;
 using EnvDTE;
 using System.Windows;
 
@@ -22,11 +22,6 @@ namespace Continuous.Client
 
     public class VisualStudioContinuousEnv : ContinuousEnv
     {        
-        protected override void AlertImpl(string format, params object[] args)
-        {
-            MessageBox.Show (string.Format (System.Globalization.CultureInfo.CurrentUICulture, format, args));
-        }
-
         protected override async Task<TextLoc?> GetCursorLocationAsync ()
         {
             var dte = VisualStudio.ContinuousPackage.TheDTE;
