@@ -254,11 +254,7 @@ namespace Continuous.Client
         {
             var ws = watches.ToList ();
             foreach (var w in ws) {
-                List<string> vals;
-                if (!watchValues.TryGetValue (w.Id, out vals)) {
-                    vals = new List<string> ();
-                }
-                //				Console.WriteLine ("VAL {0} {1} = {2}", w.Id, w.Expression, vals);
+                if (!watchValues.TryGetValue(w.Id, out var vals)) continue;
                 await SetWatchTextAsync (w, vals);
             }
             lastWatches = ws;
