@@ -28,46 +28,32 @@ namespace Continuous.Client
 
 	public class MonoDevelopContinuousEnv : ContinuousEnv
 	{
-		protected override async Task SetWatchTextAsync (WatchVariable w, List<string> vals)
-		{
-            Console.WriteLine("Ignoring SetWatchTextAsync");
-
-            return;
-
-            /*
+        protected override async Task SetWatchTextAsync(WatchVariable w, List<string> vals)
+        {
             var doc = IdeApp.Workbench.GetDocument(w.FilePath);
             if (doc == null)
                 return;
 
-			var ed = doc.Editor;
+            using (var edit = doc.GetContent<ITextBuffer>().CreateEdit())
+            {
+                var snapshot = edit.Snapshot;
+                var line = snapshot.GetLineFromLineNumber(w.FileLine);
+                var lineText = line.GetText();
 
-            if (ed == null || ed.IsReadOnly)
-				return;
-			var line = ed.GetLine (w.FileLine);
-			if (line == null)
-				return;
-			var newText = "//" + w.ExplicitExpression + "= " + GetValsText (vals);
-			var lineText = ed.GetLineText (w.FileLine);
-			var commentIndex = lineText.IndexOf ("//");
-			if (commentIndex < 0)
-				return;
-			var commentCol = commentIndex + 1;
-			if (commentCol != w.FileColumn)
-				return;
+                var commentIndex = lineText.IndexOf("//", StringComparison.InvariantCulture);
+                if (commentIndex < 0 || commentIndex != w.FileColumn)
+                    return;
 
-			var existingText = lineText.Substring (commentIndex);
+                var newText = $"//{w.ExplicitExpression}= {GetValsText(vals)}";
+                var existingText = lineText.Substring(0, commentIndex);
 
-			if (existingText != newText) {
-				var offset = line.Offset + commentIndex;
-				var remLen = line.Length - commentIndex;
-				ed.RemoveText (offset, remLen);
-				ed.InsertText (offset, newText);
-			}
-            */
+                edit.Replace(line.Start.Position + commentIndex, line.Length - commentIndex, newText);
 
-		}
+                edit.Apply();
+            }
+        }
 
-		class CSharpTypeDecl : TypeDecl
+        class CSharpTypeDecl : TypeDecl
 		{
 			public ClassDeclarationSyntax Declaration { get; set; }
 			public SyntaxNode Root { get; set; }
@@ -337,8 +323,8 @@ namespace Continuous.Client
 				Expression = expr.ToString(),
 				ExplicitExpression = "",
 				FilePath = path,
-				FileLine = p.Line + 1,  // 0-based index
-				FileColumn = p.Character + 1, // 0-based index
+				FileLine = p.Line,
+				FileColumn = p.Character,
 			};
 			WatchVariables.Add(wv);
 
