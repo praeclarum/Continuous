@@ -104,7 +104,7 @@ namespace Continuous.Server
 			}
 			else
 			{
-				presentedVC = new UIViewController();
+				presentedVC = new UIViewController { ModalPresentationStyle = UIModalPresentationStyle.FullScreen };
 				needsPresent = true;
 			}
 
