@@ -13,6 +13,8 @@ namespace Continuous.Server
 	/// </summary>
 	public partial class VM : IVM
 	{
+		const string EvalAssemblyPrefix = "eval-";
+
 		readonly object mutex = new object ();
 		readonly Printer printer = new Printer ();
 
@@ -93,11 +95,17 @@ namespace Continuous.Server
 				// Add References to get UIKit, etc. Also add a hook to catch dynamically loaded assemblies.
 				//
 				AppDomain.CurrentDomain.AssemblyLoad += (_, e) => {
+                    if (!ShouldAddAssemblyReference(e.LoadedAssembly))
+                        return;
+
 					Log ("DYNAMIC REF {0}", e.LoadedAssembly);
 					AddReference (e.LoadedAssembly);
 				};
 				foreach (var a in AppDomain.CurrentDomain.GetAssemblies ()) {
-					Log ("STATIC REF {0}", a);
+                    if (!ShouldAddAssemblyReference(a))
+                        continue;
+
+                    Log ("STATIC REF {0}", a);
 					AddReference (a);
 				}
 
@@ -113,7 +121,15 @@ namespace Continuous.Server
 			}
 		}
 
-		partial void PlatformSettings (CompilerSettings settings);
+        protected virtual bool ShouldAddAssemblyReference(Assembly asm)
+        {
+            var isEvalAssembly = asm.FullName.StartsWith(EvalAssemblyPrefix, StringComparison.Ordinal);
+
+            // don't reference results of previous evaluations
+            return !isEvalAssembly;
+        }
+
+        partial void PlatformSettings (CompilerSettings settings);
 
 		partial void PlatformInit ();
 
