@@ -2,17 +2,16 @@
 <package >
   <metadata>
     <id>Continuous</id>
-    <version>2.0.5</version>
+    <version>2.0.6</version>
     <title>Continuous Coding</title>
     <authors>Frank A. Krueger</authors>
     <owners>Frank A. Krueger</owners>
-    <licenseUrl>https://github.com/praeclarum/Continuous</licenseUrl>
     <projectUrl>https://github.com/praeclarum/Continuous</projectUrl>
     <iconUrl>https://raw.githubusercontent.com/praeclarum/Continuous/master/Documentation/Icon32.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>Continuous Coding environment for .NET visualizes objects as quickly as you can code them. Get the Xamarin Studio add-in with the same name in order to use this library.</description>
-    <releaseNotes>Now works with Xamarin Studio 6.</releaseNotes>
-    <copyright>Copyright 2015-2016 Frank A. Krueger</copyright>
+    <description>Continuous Coding environment for .NET visualizes objects as quickly as you can code them. Get the Visual Studio for Mac add-in with the same name in order to use this library.</description>
+    <releaseNotes>Now works with Visual Studio for Mac 2019.</releaseNotes>
+    <copyright>Copyright 2015-2019 Frank A. Krueger</copyright>
     <tags>continuous code</tags>
     <dependencies>
       <dependency id="Newtonsoft.Json" version="8.0.3" />

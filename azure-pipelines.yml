@@ -1,0 +1,46 @@
+pool:
+  vmImage: 'macos-latest'
+  
+steps:
+- task: DotNetCoreInstaller@0
+  displayName: Install .NET Core SDK
+  name: install_dotnetcore_sdk
+  enabled: true
+  inputs:
+    packageType: 'sdk'
+    version: '2.1.500'
+    
+# create subdirs for final artifacts
+- task: Bash@3
+  inputs:
+    targetType: 'inline'
+    script: 'mkdir $(Build.ArtifactStagingDirectory)/nuget-dev && mkdir $(Build.ArtifactStagingDirectory)/nuget-release && mkdir $(Build.ArtifactStagingDirectory)/mpack'
+
+# pack release nuget using raw nuspec
+- task: Bash@3
+  inputs:
+    targetType: 'inline'
+    script: 'make nuget && mv Continuous.*.nupkg $(Build.ArtifactStagingDirectory)/nuget-release'
+
+# rewrite nuspec for preview releases
+- task: Bash@3
+  inputs:
+    targetType: 'inline'
+    script: 'dotnet tool install -g dotnet-script && $HOME/.dotnet/tools/dotnet-script build/version-nuspec.csx'
+
+# pack preview nuget using modified nuspec
+- task: Bash@3
+  inputs:
+    targetType: 'inline'
+    script: 'make nuget && mv Continuous.*.nupkg $(Build.ArtifactStagingDirectory)/nuget-dev'
+
+# build mpack (disabled because azure devops macOS images are not net472 friendly)
+#- task: Bash@3
+#  inputs:
+#    targetType: 'inline'
+#    script: 'make mpack && cp Continuous.Client.MonoDevelop/AddinRepo/Continuous.Client.MonoDevelop.mpack $(Build.ArtifactStagingDirectory)/mpack'
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    pathtoPublish: '$(Build.ArtifactStagingDirectory)' 
+    artifactName: 'drop' 
