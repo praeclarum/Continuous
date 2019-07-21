@@ -2,11 +2,11 @@
 
 **Continuous Coding** is a live coding environment for .NET. With it, you can visualize your apps instantly as you code them. It currently specializes in the development of iOS and Android apps using Xamarin.
 
-It currently only works in Xamarin Studio and only for C#.
+It currently only works in Visual Studio for Mac and only for C#.
 
-## Xamarin Studio One-time Installation
+## Visual Studio for Mac One-time Installation
 
-Install the **Continuous Coding** add-in for Xamarin Studio in the **Add-in Manager** by adding a **New Gallery Repository** pointing at the URL:
+Install the **Continuous Coding** add-in for Visual Studio in the **Add-in Manager** by adding a **New Gallery Repository** pointing at the URL:
 
 	https://raw.githubusercontent.com/praeclarum/Continuous/master/Continuous.Client.MonoDevelop/AddinRepo
 
@@ -28,7 +28,21 @@ new Continuous.Server.HttpServer(this).Run();
 
 where `this` should refer to a `Context` on Android, and is ignored (can be anything or `null`) on iOS.
 
-### Android Emulator Extra Step
+### iOS Specific
+
+You may need to perform additional project setup to make your iOS project ready for Continuous:
+
+* **iOS Simulator**: 
+
+	Add `--enable-repl` to your 'Debug|Simulator' mtouch arguments.
+
+* **iOS Device**: 
+	
+	You can use Continuous Coding with an iOS device if your Xamarin.iOS installation includes `System.Reflection.Emit` (SRE) - at the time of writing, standard installations do not. You can download a (now somewhat outdated) version of Xamarin.iOS with SRE from Xamarin [here](https://devblogs.microsoft.com/xamarin/introducing-xamarin-ios-interpreter), or build your own off recent commits ([this post](https://ryandavis.io/how-to-have-your-ios-13-preview-cake-and-emit-it-too) includes instructions on how to do so). Using preview or self-built versions of Xamarin.iOS should be considered experimental and performed at your own risk.
+
+	Once you have a Xamarin.iOS installation that includes SRE, you can add `--interpreter` to your 'Debug|iPhone' mtouch arguments to allow code to be reloaded on the device. You will also need to select your device from the Device drop-down on the Continuous Coding pad (View -> Pads -> Continuous Coding), or enter its IP Address manually.
+
+### Android Specific
 
 If you want to run with the Android Emulator, you will have to forward the TCP port used by Continuous:
 
@@ -38,9 +52,7 @@ $ adb forward tcp:9634 tcp:9634
 
 ## Running
 
-Run the debug version of your app. It should start as normal.
-
-Verify that the Xamarin Inspector is installed and running by looking for the enabled cross-hair icon in the debug toolbar. If you see that while debugging, you're all set. If not, make sure you have a debug build and that the Inspector is installed.
+Run the debug version of your app. It should start as normal. 
 
 ### Running Snippets
 
@@ -55,11 +67,11 @@ Move your cursor to be within a class and select the **Visualize Class** (Ctrl+S
 
 ## Building
 
-Build the solution `Continuous.sln`
+Run `make nuget` or `make mpack` from the repo to build the NuGet and IDE extension respectively.
 
 ### Prerequisties
 
-Install the Xamarin Studio **Addin Maker** from the **Addin Development** group in the Gallery.
+Install the Visual Studio for Mac **Addin Maker** from the **Addin Development** group in the Gallery.
 
 
 ## How it Works
