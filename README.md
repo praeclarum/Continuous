@@ -8,7 +8,7 @@ It currently only works in Visual Studio for Mac and only for C#.
 
 Install the **Continuous Coding** add-in for Visual Studio in the **Add-in Manager** by adding a **New Gallery Repository** pointing at the URL:
 
-	https://raw.githubusercontent.com/praeclarum/Continuous/master/Continuous.Client.MonoDevelop/AddinRepo
+	https://raw.githubusercontent.com/praeclarum/Continuous/master/Continuous.Client.MonoDevelop/AddinRepo/main.mrep
 
 You will then be able to select the **Continuous Coding** add-in from the **IDE extensions** category.
 
